@@ -51,7 +51,7 @@ export default function Page() {
         </section>
 
         <footer className="mt-12 text-center text-xs text-muted-foreground">
-          Powered by Haltman.io
+          Made in Brazil 🇧🇷
         </footer>
       </main>
     </>
