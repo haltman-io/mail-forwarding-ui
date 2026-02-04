@@ -24,10 +24,10 @@ export function BrowserAddonMenu() {
           variant="outline"
           size="sm"
           className="group relative h-8 overflow-visible border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
-          aria-label="Browser Add-on"
+          aria-label="Browser Extension"
         >
           <Chromium className={`h-4 w-4 ${clickableIconClass}`} />
-          Browser Add-on
+          Browser Extension
           <ChevronDown className="ml-2 h-3.5 w-3.5 text-zinc-400" />
         </Button>
       </DropdownMenuTrigger>
@@ -37,7 +37,7 @@ export function BrowserAddonMenu() {
       >
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-white/5">
           <a
-            href="https://github.com/haltman-io/mail-forwarding-addon-mozilla-firefox"
+            href="https://addons.mozilla.org/en-US/firefox/addon/email-alias-manager-free/"
             target="_blank"
             rel="noreferrer"
           >

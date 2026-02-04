@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Copy, Check, Loader2, Wand2, ShieldCheck, ShieldAlert, Terminal, MailX, MailPlus } from "lucide-react";
+import { Copy, Check, Loader2, Wand2, ShieldCheck, ShieldAlert, Terminal, MailX, MailPlus, AtSign } from "lucide-react";
 import { fetchDomains, normalizeDomains, RE_DOMAIN } from "@/lib/domains";
 import { API_HOST } from "@/lib/api-host";
 import { badgeClasses, clampLower, isProbablyEmail, safeJson } from "@/lib/utils-mail";
@@ -76,6 +76,8 @@ export function SubscribeCard({
   const [domains, setDomains] = React.useState<string[]>([]);
   const [domain, setDomain] = React.useState("");
   const [to, setTo] = React.useState("");
+  const [isCustomAddress, setIsCustomAddress] = React.useState(false);
+  const [customAddress, setCustomAddress] = React.useState("");
 
   // unsubscribe form
   const [alias, setAlias] = React.useState("");
@@ -144,17 +146,33 @@ export function SubscribeCard({
   }, []);
 
 
+  const customAddressValue = customAddress.trim();
+  const customAddressParts = React.useMemo(() => {
+    const value = customAddress.trim();
+    const atIndex = value.lastIndexOf("@");
+    if (atIndex === -1) return { local: value, domain: "" };
+    return { local: value.slice(0, atIndex), domain: value.slice(atIndex + 1) };
+  }, [customAddress]);
+
   const previewHandle = React.useMemo(() => clampLower(name) || "handle", [name]);
   const previewDomain = React.useMemo(() => clampLower(domain) || "domain.tld", [domain]);
-  const previewAlias = React.useMemo(() => `${previewHandle}@${previewDomain}`, [previewHandle, previewDomain]);
+  const previewAlias = React.useMemo(
+    () => (isCustomAddress ? customAddressValue || "alias@domain.tld" : `${previewHandle}@${previewDomain}`),
+    [customAddressValue, isCustomAddress, previewHandle, previewDomain]
+  );
 
   const curlSubscribe = React.useMemo(() => {
+    const t = to.trim() || "{your_mail}";
+    if (isCustomAddress) {
+      const address = customAddressValue || "{alias_email}";
+      const params = new URLSearchParams({ address, to: t });
+      return `curl '${API_HOST}/forward/subscribe?${params.toString()}'`;
+    }
     const h = clampLower(name) || "{alias_handle}";
     const d = clampLower(domain) || "{alias_domain}";
-    const t = to.trim() || "{your_mail}";
     const params = new URLSearchParams({ name: h, domain: d, to: t });
     return `curl '${API_HOST}/forward/subscribe?${params.toString()}'`;
-  }, [name, domain, to]);
+  }, [customAddressValue, domain, isCustomAddress, name, to]);
 
   const curlUnsubscribe = React.useMemo(() => {
     const a = clampLower(alias) || "{alias_email}";
@@ -181,23 +199,23 @@ export function SubscribeCard({
     requestState === "loading"
       ? "requesting…"
       : requestState === "awaiting_confirmation"
-      ? "awaiting confirmation"
-      : requestState === "success"
-      ? "confirmed"
-      : requestState === "error"
-      ? "error"
-      : "idle";
+        ? "awaiting confirmation"
+        : requestState === "success"
+          ? "confirmed"
+          : requestState === "error"
+            ? "error"
+            : "idle";
 
   const statusPillText =
     requestState === "loading"
       ? "Requesting"
       : requestState === "awaiting_confirmation"
-      ? "Awaiting"
-      : requestState === "success"
-      ? "Confirmed"
-      : requestState === "error"
-      ? "Error"
-      : "Idle";
+        ? "Awaiting"
+        : requestState === "success"
+          ? "Confirmed"
+          : requestState === "error"
+            ? "Error"
+            : "Idle";
 
   const statusKind: "ok" | "bad" | "idle" =
     requestState === "success" ? "ok" : requestState === "error" ? "bad" : "idle";
@@ -221,8 +239,8 @@ export function SubscribeCard({
     return Number.isFinite(value) ? value : null;
   }, [payload]);
 
-  const subscribeHasInput = Boolean(name.trim() || to.trim());
-  const subscribeAliasReady = Boolean(name.trim() && domain.trim());
+  const subscribeHasInput = Boolean((isCustomAddress ? customAddressValue : name.trim()) || to.trim());
+  const subscribeAliasReady = Boolean(isCustomAddress ? customAddressValue : name.trim() && domain.trim());
   const subscribeTarget = to.trim();
   const showConfirmedPanel =
     requestState === "success" && confirmedMapping?.intent === "subscribe";
@@ -263,6 +281,21 @@ export function SubscribeCard({
     ) : (
       "Request removal"
     );
+
+  const customAddressToggle = (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      className={`group h-7 border-white/10 bg-white/5 px-2 text-[11px] hover:bg-white/10 ${isCustomAddress ? "text-zinc-200" : "text-zinc-400"
+        }`}
+      aria-pressed={isCustomAddress}
+      onClick={() => setIsCustomAddress((current) => !current)}
+    >
+      <AtSign className={`mr-1.5 h-3.5 w-3.5 ${clickableIconClass}`} />
+      Custom address
+    </Button>
+  );
 
   function resetResult() {
     setOk(null);
@@ -355,9 +388,34 @@ export function SubscribeCard({
     e.preventDefault();
     resetResult();
 
+    const t = to.trim();
+
+    if (isCustomAddress) {
+      const address = customAddress.trim();
+      if (!isProbablyEmail(address)) {
+        setOk(false);
+        setErrorText("Custom address is required (max 254 chars).");
+        return;
+      }
+
+      if (!isProbablyEmail(t)) {
+        setOk(false);
+        setErrorText("Destination email is required (max 254 chars).");
+        return;
+      }
+
+      const url = `${API_HOST}/forward/subscribe?${new URLSearchParams({
+        address,
+        to: t,
+      }).toString()}`;
+
+      const mapping: MappingSnapshot = { alias: address, to: t, intent: "subscribe" };
+      await doFetch(url, "subscribe", mapping);
+      return;
+    }
+
     const n = clampLower(name);
     const d = clampLower(domain);
-    const t = to.trim();
 
     if (!RE_NAME.test(n)) {
       setOk(false);
@@ -460,8 +518,8 @@ export function SubscribeCard({
             ? mapping?.alias && mapping?.to
               ? `${mapping.alias} → ${mapping.to}`
               : address
-              ? `${address} → ${to.trim() || "destination"}`
-              : "Alias confirmed."
+                ? `${address} → ${to.trim() || "destination"}`
+                : "Alias confirmed."
             : "Alias removal confirmed successfully.";
 
         toast.success(title, { description });
@@ -536,7 +594,7 @@ export function SubscribeCard({
                 spellCheck={false}
                 maxLength={64}
                 aria-invalid={confirmLengthInvalid || !!confirmErrorText}
-                className={`bg-black/30 font-mono tracking-[0.18em] ${confirmLengthInvalid || confirmErrorText ? "border-rose-500/50 focus-visible:ring-rose-500/30" : ""}`}
+                className={`h-10 font-mono text-sm tracking-normal placeholder:font-sans placeholder:tracking-normal ${confirmLengthInvalid || confirmErrorText ? "border-rose-500/50 focus-visible:ring-rose-500/30" : ""}`}
               />
               <p className="text-xs text-zinc-400">Code length: 12–64 characters.</p>
             </div>
@@ -703,44 +761,85 @@ export function SubscribeCard({
           {/* SUBSCRIBE */}
           <TabsContent value="subscribe" className="mt-6">
             <div className="grid gap-6 lg:grid-cols-5">
-              <form onSubmit={onSubscribe} className="space-y-5 lg:col-span-3">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Alias handle</Label>
-                  <Input
-                    id="name"
-                    placeholder="extencil"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    className="bg-black/30"
-                  />
-                  <p className="text-xs text-zinc-400">
-                    Allowed: <span className="font-mono text-zinc-300">a-z 0-9 .</span> · 1–64 · no dot at start/end
-                  </p>
+              <form onSubmit={onSubscribe} className="space-y-5 lg:col-span-3 min-w-0">
+                <div
+                  className={`grid gap-4 items-start min-w-0 ${isCustomAddress ? "grid-cols-1" : "sm:grid-cols-2"
+                    }`}
+                >
+
+                  {isCustomAddress ? (
+                    <div className="flex-1 space-y-2 ">
+                      <div className="flex items-center justify-between gap-2 min-h-[28px]">
+                        <Label htmlFor="custom-address">Custom address</Label>
+                        {customAddressToggle}
+                      </div>
+                      <Input
+                        id="custom-address"
+                        type="email"
+                        placeholder="user@example.com"
+                        value={customAddress}
+                        onChange={(e) => setCustomAddress(e.target.value)}
+                        autoCapitalize="none"
+                        spellCheck={false}
+                        className="bg-black/30"
+                      />
+                      <p className="text-xs text-zinc-400">
+                        NOTE: The domain{" "}
+                        <span className="font-mono text-zinc-300">{customAddressParts.domain || "…"}</span>{" "}
+                        must have a MX record to{" "}
+                        <span className="font-mono text-zinc-300">mail.abin.lat</span>, or your emails won't be forwarded.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2 min-w-0">
+                        <div className="flex items-center justify-between gap-2 min-h-[28px]">
+                          <Label htmlFor="name">Alias handle</Label>
+                          <span className="invisible pointer-events-none select-none">{customAddressToggle}</span>
+                        </div>
+
+                        <Input
+                          id="name"
+                          placeholder="extencil"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          autoCapitalize="none"
+                          spellCheck={false}
+                          className="bg-black/30"
+                        />
+                        <p className="text-xs text-zinc-400">
+                          Allowed: <span className="font-mono text-zinc-300">a-z 0-9 .</span> · 1–64 · no dot at start/end
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 min-w-0">
+                        <div className="flex items-center justify-between gap-2 min-h-[28px]">
+                          <Label>Alias domain</Label>
+                          {customAddressToggle}
+                        </div>
+                        <Select value={domain} onValueChange={setDomain}>
+                          <SelectTrigger className="bg-black/30 w-full min-w-0 overflow-hidden">
+                            <SelectValue placeholder="Select a domain" className="truncate" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {domains.length ? (
+                              domains.map((d) => (
+                                <SelectItem key={d} value={d}>
+                                  {d}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="__none" disabled>
+                                No domains available (API /domains failed)
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Alias domain</Label>
-                  <Select value={domain} onValueChange={setDomain}>
-                    <SelectTrigger className="bg-black/30">
-                      <SelectValue placeholder="Select a domain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {domains.length ? (
-                        domains.map((d) => (
-                          <SelectItem key={d} value={d}>
-                            {d}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="__none" disabled>
-                          No domains available (API /domains failed)
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="to">Destination email</Label>
@@ -761,7 +860,7 @@ export function SubscribeCard({
                   <Button
                     type="submit"
                     className="group w-full sm:w-auto"
-                    disabled={requestBusy || !domains.length}
+                    disabled={requestBusy || (!domains.length && !isCustomAddress)}
                   >
                     {subscribeButtonContent}
                   </Button>
@@ -771,7 +870,7 @@ export function SubscribeCard({
                     variant="outline"
                     className="group w-full border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto"
                     onClick={() => copyWithFeedback("curl-subscribe", curlSubscribe, "Subscribe cURL")}
-                    disabled={!domains.length || isAwaitingConfirmation}
+                    disabled={(!domains.length && !isCustomAddress) || isAwaitingConfirmation}
                   >
                     {copiedId === "curl-subscribe" ? (
                       <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
@@ -981,7 +1080,7 @@ export function SubscribeCard({
                     size="sm"
                     className="group border-white/10 bg-white/5 hover:bg-white/10"
                     onClick={() => copyWithFeedback("curl-subscribe-tab", curlSubscribe, "Subscribe command")}
-                    disabled={!domains.length || isAwaitingConfirmation}
+                    disabled={(!domains.length && !isCustomAddress) || isAwaitingConfirmation}
                   >
                     {copiedId === "curl-subscribe-tab" ? (
                       <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />

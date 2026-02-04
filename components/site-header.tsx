@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Github, Info, ExternalLink, BookOpen, Copy, CheckCircle, Server,ShieldCheck, CircleCheck, BadgeCheck } from "lucide-react";
+import { Github, Info, ExternalLink, BookOpen, Server, ShieldCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
@@ -47,19 +47,33 @@ export function SiteHeader() {
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200 hover:bg-white/10"
               aria-label="Home"
             >
-              <span className="font-mono text-[11px] text-zinc-300">{brand}</span>
+              <span className="font-mono text-[12px] text-zinc-300">{brand}</span>
 
               {isOfficial && (
                 <>
                   <span className="text-zinc-500">/</span>
-                  <span className="text-[11px] text-zinc-300">mail-forwarding</span>
+                  <span className="text-[12px] text-zinc-300">mail-forwarding</span>
                 </>
                 )}
             </Link>
             <Popover>
               <PopoverTrigger asChild>
-                <span className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] text-zinc-400 ui-smooth ui-lift-hover ui-press transition-colors hover:bg-white/10 hover:text-zinc-200">
-                  {isOfficial ? "official" : "powered by forward.haltman.io"}
+                <span
+                  className={`cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] ui-smooth ui-lift-hover ui-press transition-colors hover:bg-white/10 hover:text-zinc-200 ${
+                    isOfficial ? "text-zinc-200 font-medium" : "text-zinc-400 opacity-90"
+                  }`}
+                >
+                  {isOfficial ? (
+                    <>
+                      <ShieldCheck className={`h-2.5 w-2.5 ${staticIconClass}`} />
+                      <span>Core Infrastructure</span>
+                    </>
+                  ) : (
+                    <>
+                      <Server className={`h-2.5 w-2.5 ${staticIconClass}`} />
+                      <span>Tenant · @haltman.io</span>
+                    </>
+                  )}
                 </span>
               </PopoverTrigger>
               <PopoverContent
@@ -71,24 +85,24 @@ export function SiteHeader() {
                 {isOfficial ? (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className={`h-4 w-4 text-emerald-500/70 ${staticIconClass}`} />
-                      <span className="text-sm font-medium text-zinc-100">Official environment</span>
+                      <ShieldCheck className={`h-4 w-4 text-zinc-200 ${staticIconClass}`} />
+                      <span className="text-[15px] font-semibold text-zinc-100">Core Infrastructure</span>
                     </div>
                     <p className="text-sm text-zinc-300">
-                      Primary Haltman.io production environment.
+                      Production environment for Haltman.io's Free Mail Forwarding
                     </p>
-                    <p className="text-xs text-zinc-400">Production • Haltman.io</p>
+                    <p className="text-xs text-zinc-400">Production • forward.haltman.io</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <Server className={`h-4 w-4 text-zinc-300 ${staticIconClass}`} />
-                      <span className="text-sm font-medium text-zinc-100">Powered by Haltman</span>
+                      <Server className={`h-4 w-4 text-zinc-400 ${staticIconClass}`} />
+                      <span className="text-[15px] font-medium text-zinc-200">Tenant · @haltman.io</span>
                     </div>
                     <p className="text-sm text-zinc-300">
-                      This instance relies on Haltman.io Infrastructure.
+                      This is a tenant instance running on Haltman.io infrastructure.
                     </p>
-                    <p className="text-xs text-zinc-400">Infrastructure: forward.haltman.io</p>
+                    <p className="text-xs text-zinc-400">Infrastructure • forward.haltman.io</p>
                   </div>
                 )}
               </PopoverContent>

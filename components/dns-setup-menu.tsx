@@ -622,6 +622,7 @@ function DnsValidationDialog({
             </p>
           </div>
 
+          {/*
           <div className="space-y-2">
             <Label htmlFor={`${kind}-token`}>API token (optional)</Label>
             <Input
@@ -637,6 +638,7 @@ function DnsValidationDialog({
               Only needed when your server requires an API key for checkdns.
             </p>
           </div>
+          */}
 
           <DialogFooter className="sm:justify-between">
             <Button
@@ -871,10 +873,10 @@ export function DnsSetupMenu() {
             variant="outline"
             size="sm"
             className="group relative h-8 overflow-visible border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
-            aria-label="DNS setup"
+            aria-label="Configure DNS"
           >
             <Globe className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-            DNS setup
+            Configure DNS
             <ChevronDown className="ml-2 h-3.5 w-3.5 text-zinc-400" />
           </Button>
         </DropdownMenuTrigger>
