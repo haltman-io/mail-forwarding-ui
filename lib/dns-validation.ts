@@ -63,7 +63,7 @@ export type CheckDnsResponse = {
   target: string;
   normalized_target: string;
   summary: CheckDnsSummary;
-  ui: UiCheck | null;
+  ui?: unknown;
   email: EmailCheck | null;
 };
 
