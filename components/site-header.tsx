@@ -4,9 +4,9 @@ import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Github, Info, ExternalLink, BookOpen } from "lucide-react";
+import { AbuseMenu } from "@/components/abuse-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
 
 const clickableIconClass =
   "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
@@ -22,13 +22,6 @@ export function SiteHeader() {
   const hostBase = hostLabel.split(":")[0];
   const isOfficial = hostBase === "forward.haltman.io" || hostBase.endsWith(".haltman.io") || hostBase === "localhost";
   const brand = hostLabel;
-
-  async function copyHost() {
-    const value = host || (typeof window !== "undefined" ? window.location.host : "");
-    if (!value) return;
-    await navigator.clipboard.writeText(value);
-    toast("Copied host");
-  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur">
@@ -60,6 +53,8 @@ export function SiteHeader() {
 
           {/* Right: actions */}
           <div className="flex items-center gap-2">
+            <AbuseMenu />
+
             {/* Docs */}
             <Button
               asChild
