@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { API_HOST } from "@/lib/api-host";
 import { useCopyFeedback } from "@/lib/use-copy-feedback";
-import { isProbablyEmail, safeJson } from "@/lib/utils-mail";
+import { safeJson, validateMailboxEmail } from "@/lib/utils-mail";
 
 type ApiResponse = Record<string, unknown>;
 type ApiStatus = "idle" | "connected" | "error";
@@ -126,14 +126,15 @@ export function ApiTokenDialog({
     e.preventDefault();
     resetTokenResult();
 
-    const email = apiEmail.trim();
+    const emailValidation = validateMailboxEmail(apiEmail);
     const days = Number.parseInt(apiDays, 10);
 
-    if (!isProbablyEmail(email)) {
+    if (!emailValidation.ok) {
       setTokenOk(false);
-      setTokenErrorText("Valid email is required.");
+      setTokenErrorText("Valid email is required (local@domain, max 254, strict DNS domain).");
       return;
     }
+    const email = emailValidation.value;
 
     if (!Number.isFinite(days) || days < 1 || days > 90) {
       setTokenOk(false);

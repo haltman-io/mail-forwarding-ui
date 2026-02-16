@@ -31,7 +31,14 @@ import { Separator } from "@/components/ui/separator";
 import { Copy, Check, Loader2, ShieldCheck, ShieldAlert, Terminal, MailX, MailPlus, AtSign, ChevronsUpDown } from "lucide-react";
 import { fetchDomains, normalizeDomains, RE_DOMAIN } from "@/lib/domains";
 import { API_HOST } from "@/lib/api-host";
-import { badgeClasses, clampLower, isProbablyEmail, safeJson } from "@/lib/utils-mail";
+import {
+  badgeClasses,
+  clampLower,
+  safeJson,
+  validateAliasEmail,
+  validateAliasHandle,
+  validateMailboxEmail,
+} from "@/lib/utils-mail";
 import { useCopyFeedback } from "@/lib/use-copy-feedback";
 import { toast } from "sonner";
 
@@ -43,8 +50,6 @@ type ApiResponse = Record<string, unknown>;
 type RequestState = "idle" | "loading" | "awaiting_confirmation" | "success" | "error";
 type ApiStatus = "idle" | "connected" | "error";
 type MappingSnapshot = { alias: string; to: string; intent: "subscribe" | "unsubscribe" };
-
-const RE_NAME = /^[a-z0-9](?:[a-z0-9.]{0,62}[a-z0-9])?$/;
 
 const DOMAINS_URL = `${API_HOST}/domains`;
 
@@ -167,7 +172,7 @@ export function SubscribeCard({
   const curlSubscribe = React.useMemo(() => {
     const t = to.trim() || "{your_mail}";
     if (isCustomAddress) {
-      const address = customAddressValue || "{alias_email}";
+      const address = clampLower(customAddressValue) || "{alias_email}";
       const params = new URLSearchParams({ address, to: t });
       return `curl '${API_HOST}/forward/subscribe?${params.toString()}'`;
     }
@@ -386,57 +391,66 @@ export function SubscribeCard({
     resetResult();
 
     const t = to.trim();
+    const targetValidation = validateMailboxEmail(t);
+
+    if (!targetValidation.ok) {
+      setOk(false);
+      setErrorText("Destination email is invalid. Use local@domain (max 254) with a strict DNS domain.");
+      return;
+    }
+
+    const target = targetValidation.value;
 
     if (isCustomAddress) {
-      const address = customAddress.trim();
-      if (!isProbablyEmail(address)) {
+      const addressValidation = validateAliasEmail(customAddress);
+      if (!addressValidation.ok) {
         setOk(false);
-        setErrorText("Custom address is required (max 254 chars).");
+        setErrorText(
+          "Invalid custom alias. Allowed local: a-z 0-9 dot underscore hyphen (1-64); domain must follow strict DNS."
+        );
         return;
       }
-
-      if (!isProbablyEmail(t)) {
-        setOk(false);
-        setErrorText("Destination email is required (max 254 chars).");
-        return;
-      }
+      const address = addressValidation.value;
 
       const url = `${API_HOST}/forward/subscribe?${new URLSearchParams({
         address,
-        to: t,
+        to: target,
       }).toString()}`;
 
-      const mapping: MappingSnapshot = { alias: address, to: t, intent: "subscribe" };
+      const mapping: MappingSnapshot = { alias: address, to: target, intent: "subscribe" };
       await doFetch(url, "subscribe", mapping);
       return;
     }
 
-    const n = clampLower(name);
+    const handleValidation = validateAliasHandle(name);
+    if (!handleValidation.ok) {
+      setOk(false);
+      setErrorText("Invalid handle. Allowed: a-z 0-9 dot underscore hyphen (1-64), no dot at start/end or repeated.");
+      return;
+    }
+
+    const n = handleValidation.value;
     const d = clampLower(domain);
 
-    if (!RE_NAME.test(n)) {
-      setOk(false);
-      setErrorText("Invalid handle. Use [a-z0-9.] (1–64), no dot at start/end.");
-      return;
-    }
     if (!RE_DOMAIN.test(d)) {
       setOk(false);
-      setErrorText("Invalid domain.");
+      setErrorText("Invalid domain. Use strict DNS format (example.com).");
       return;
     }
-    if (!isProbablyEmail(t)) {
+    const aliasAddress = `${n}@${d}`;
+    if (aliasAddress.length > 254) {
       setOk(false);
-      setErrorText("Destination email is required (max 254 chars).");
+      setErrorText("Alias email is too long. Mailbox length must be at most 254 characters.");
       return;
     }
 
     const url = `${API_HOST}/forward/subscribe?${new URLSearchParams({
       name: n,
       domain: d,
-      to: t,
+      to: target,
     }).toString()}`;
 
-    const mapping: MappingSnapshot = { alias: `${n}@${d}`, to: t, intent: "subscribe" };
+    const mapping: MappingSnapshot = { alias: aliasAddress, to: target, intent: "subscribe" };
     await doFetch(url, "subscribe", mapping);
   }
 
@@ -444,13 +458,15 @@ export function SubscribeCard({
     e.preventDefault();
     resetResult();
 
-    const a = clampLower(alias);
-
-    if (!isProbablyEmail(a)) {
+    const aliasValidation = validateAliasEmail(alias);
+    if (!aliasValidation.ok) {
       setOk(false);
-      setErrorText("Alias email is required.");
+      setErrorText(
+        "Invalid alias email. Allowed local: a-z 0-9 dot underscore hyphen (1-64); domain must follow strict DNS."
+      );
       return;
     }
+    const a = aliasValidation.value;
 
     const url = `${API_HOST}/forward/unsubscribe?${new URLSearchParams({ alias: a }).toString()}`;
     const mapping: MappingSnapshot = { alias: a, to: "", intent: "unsubscribe" };
@@ -791,7 +807,7 @@ export function SubscribeCard({
                           className="bg-black/30"
                         />
                         <p className="text-xs text-zinc-400">
-                          Allowed: <span className="font-mono text-zinc-300">a-z 0-9 .</span> · 1–64 · no dot at start/end
+                          Allowed: <span className="font-mono text-zinc-300">a-z 0-9 . _ -</span> · 1–64 · no dot at start/end or repeated
                         </p>
                       </div>
 
@@ -868,7 +884,9 @@ export function SubscribeCard({
                     spellCheck={false}
                     className="bg-black/30"
                   />
-                  <p className="text-xs text-zinc-400">Must be a valid email address (max 254 chars).</p>
+                  <p className="text-xs text-zinc-400">
+                    Must be a valid mailbox local@domain (max 254) with a strict DNS domain.
+                  </p>
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row">
