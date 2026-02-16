@@ -104,6 +104,7 @@ export function SubscribeCard({
   const [confirmErrorText, setConfirmErrorText] = React.useState<string | null>(null);
   const [confirmSubmitted, setConfirmSubmitted] = React.useState(false);
   const confirmCloseBypass = React.useRef(false);
+  const autoConfirmAttemptRef = React.useRef<string | null>(null);
 
   const { copiedId, copyWithFeedback } = useCopyFeedback();
   const requestResetTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -305,18 +306,18 @@ export function SubscribeCard({
     setErrorText(null);
   }
 
-  function openConfirmDialog(intent: "subscribe" | "unsubscribe") {
+  const openConfirmDialog = React.useCallback((intent: "subscribe" | "unsubscribe", initialCode = "") => {
     confirmCloseBypass.current = false;
     setConfirmIntent(intent);
-    setConfirmCode("");
+    setConfirmCode(initialCode);
     setConfirmErrorText(null);
     setConfirmSubmitted(false);
     setConfirmCloseOpen(false);
     setConfirmLoading(false);
     setConfirmDialogOpen(true);
-  }
+  }, []);
 
-  function closeConfirmDialog() {
+  const closeConfirmDialog = React.useCallback(() => {
     confirmCloseBypass.current = true;
     setConfirmDialogOpen(false);
     setConfirmCloseOpen(false);
@@ -325,11 +326,11 @@ export function SubscribeCard({
     setConfirmSubmitted(false);
     setConfirmLoading(false);
     setConfirmIntent(null);
-  }
+  }, []);
 
-  function requestConfirmClose() {
+  const requestConfirmClose = React.useCallback(() => {
     setConfirmCloseOpen(true);
-  }
+  }, []);
 
 
   function setExampleUnsub() {
@@ -456,12 +457,11 @@ export function SubscribeCard({
     await doFetch(url, "unsubscribe", mapping);
   }
 
-  async function onConfirmCode(e: React.FormEvent) {
-    e.preventDefault();
-    setConfirmSubmitted(true);
-    setConfirmErrorText(null);
-
-    const token = confirmCode.trim();
+  const submitConfirmToken = React.useCallback(async (
+    tokenInput: string,
+    fallbackIntent?: "subscribe" | "unsubscribe" | null
+  ) => {
+    const token = tokenInput.trim();
     if (token.length < 12 || token.length > 64) {
       setConfirmErrorText("Confirmation code must be 12–64 characters.");
       return;
@@ -497,7 +497,7 @@ export function SubscribeCard({
       if (confirmed) {
         const intent = typeof (data as any)?.intent === "string"
           ? ((data as any)?.intent as "subscribe" | "unsubscribe")
-          : confirmIntent;
+          : fallbackIntent ?? confirmIntent;
         const created = (data as any)?.created === true;
         const address = typeof (data as any)?.address === "string" ? (data as any)?.address : "";
         const mapping = pendingMapping ?? (address ? { alias: address, to: "", intent: intent ?? "subscribe" } : null);
@@ -535,7 +535,48 @@ export function SubscribeCard({
     } finally {
       setConfirmLoading(false);
     }
+  }, [
+    closeConfirmDialog,
+    confirmIntent,
+    pendingMapping,
+    setApiStatus,
+    setRequestStateNow,
+    setRequestStateTransient,
+    to,
+  ]);
+
+  async function onConfirmCode(e: React.FormEvent) {
+    e.preventDefault();
+    setConfirmSubmitted(true);
+    setConfirmErrorText(null);
+    await submitConfirmToken(confirmCode, confirmIntent);
   }
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = (params.get("confirm_token") ?? params.get("token") ?? "").trim();
+    if (!token) return;
+    if (autoConfirmAttemptRef.current === token) return;
+    autoConfirmAttemptRef.current = token;
+
+    const rawIntent = (params.get("confirm_intent") ?? params.get("intent") ?? "").trim().toLowerCase();
+    const intent: "subscribe" | "unsubscribe" = rawIntent === "unsubscribe" ? "unsubscribe" : "subscribe";
+
+    params.delete("confirm_token");
+    params.delete("token");
+    params.delete("confirm_intent");
+    params.delete("intent");
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState(window.history.state, "", nextUrl);
+
+    setActiveTab(intent);
+    setLastIntent(intent);
+    setRequestStateNow("awaiting_confirmation");
+    openConfirmDialog(intent, token);
+    setConfirmSubmitted(true);
+    void submitConfirmToken(token, intent);
+  }, [openConfirmDialog, setRequestStateNow, submitConfirmToken]);
 
   return (
     <Card className="relative overflow-hidden border-white/10 bg-gradient-to-b from-zinc-950 to-zinc-950/60">

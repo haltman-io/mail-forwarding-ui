@@ -192,11 +192,15 @@ function getEmailFoundEntries(item: EmailMissing): FoundEntry[] {
   }));
 }
 
-function getRecordCardToneClass(foundEntries: FoundEntry[], fallbackOk: boolean) {
-  if (!foundEntries.length) {
-    return fallbackOk
+function getRecordCardToneClass(recordOk: boolean | undefined, foundEntries: FoundEntry[]) {
+  if (typeof recordOk === "boolean") {
+    return recordOk
       ? "border-emerald-500/45 bg-emerald-500/5"
       : "border-rose-500/45 bg-rose-500/5";
+  }
+
+  if (!foundEntries.length) {
+    return "border-rose-500/45 bg-rose-500/5";
   }
 
   return foundEntries.every((entry) => entry.isCorrect)
@@ -819,7 +823,7 @@ function DnsValidationDialog({
                         const recordType = formatCopyValue(item.type, item.key);
                         const recordName = formatCopyValue(item.name, defaultRecordName);
                         const foundEntries = getUiFoundEntries(item);
-                        const cardToneClass = getRecordCardToneClass(foundEntries, item.ok);
+                        const cardToneClass = getRecordCardToneClass(item.ok, foundEntries);
 
                         return (
                           <div
@@ -884,7 +888,7 @@ function DnsValidationDialog({
 
                         if (item.key === "MX") {
                           const foundEntries = getEmailFoundEntries(item);
-                          const cardToneClass = getRecordCardToneClass(foundEntries, item.ok);
+                          const cardToneClass = getRecordCardToneClass(item.ok, foundEntries);
                           return (
                             <div
                               key={`${item.key}-${index}`}
@@ -940,7 +944,7 @@ function DnsValidationDialog({
                         }
 
                         const foundEntries = getEmailFoundEntries(item);
-                        const cardToneClass = getRecordCardToneClass(foundEntries, item.ok);
+                        const cardToneClass = getRecordCardToneClass(item.ok, foundEntries);
 
                         return (
                           <div
