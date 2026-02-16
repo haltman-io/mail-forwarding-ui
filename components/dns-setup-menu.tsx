@@ -33,6 +33,8 @@ import {
   DnsOverallStatus,
   DnsRequestResponse,
   DnsStatus,
+  EmailMissing,
+  UiMissing,
   checkDns,
   requestEmail,
   requestUi,
@@ -148,6 +150,106 @@ function formatCopyValue(value?: string | null, fallback = "-") {
   const normalized = value?.trim();
   if (normalized) return normalized;
   return fallback;
+}
+
+type FoundEntry = {
+  value: string;
+  isCorrect: boolean;
+};
+
+function normalizeDnsName(value: string) {
+  return value.trim().toLowerCase().replace(/\.+$/, "");
+}
+
+function normalizeTxtValue(value: string) {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function getUiFoundEntries(item: UiMissing): FoundEntry[] {
+  const expected = normalizeDnsName(item.expected);
+  return item.found.map((value) => ({
+    value,
+    isCorrect: normalizeDnsName(value) === expected,
+  }));
+}
+
+function getEmailFoundEntries(item: EmailMissing): FoundEntry[] {
+  if (item.key === "MX") {
+    const expectedHost = normalizeDnsName(item.expected.host);
+    const expectedPriority = item.expected.priority;
+    return item.found.map((entry) => ({
+      value: `${entry.exchange} (priority ${entry.priority})`,
+      isCorrect:
+        normalizeDnsName(entry.exchange) === expectedHost &&
+        entry.priority === expectedPriority,
+    }));
+  }
+
+  const expected = normalizeTxtValue(item.expected);
+  return item.found.map((value) => ({
+    value,
+    isCorrect: normalizeTxtValue(value) === expected,
+  }));
+}
+
+function getRecordCardToneClass(foundEntries: FoundEntry[], fallbackOk: boolean) {
+  if (!foundEntries.length) {
+    return fallbackOk
+      ? "border-emerald-500/45 bg-emerald-500/5"
+      : "border-rose-500/45 bg-rose-500/5";
+  }
+
+  return foundEntries.every((entry) => entry.isCorrect)
+    ? "border-emerald-500/45 bg-emerald-500/5"
+    : "border-rose-500/45 bg-rose-500/5";
+}
+
+function getFoundEntryToneClass(isCorrect: boolean) {
+  return isCorrect
+    ? "border-emerald-500/45 bg-emerald-500/10 text-emerald-200"
+    : "border-rose-500/45 bg-rose-500/10 text-rose-200";
+}
+
+function FoundEntries({
+  entries,
+  foundTruncated,
+}: {
+  entries: FoundEntry[];
+  foundTruncated: boolean;
+}) {
+  if (!entries.length) {
+    return (
+      <p className="mt-2 text-xs text-rose-300">
+        Found: -
+      </p>
+    );
+  }
+
+  return (
+    <div className="mt-2 space-y-1.5">
+      <p className="text-xs text-zinc-400">
+        Found:
+      </p>
+      <div className="flex flex-wrap gap-1.5">
+        {entries.map((entry, index) => (
+          <span
+            key={`${entry.value}-${index}`}
+            className={`inline-flex max-w-full items-center rounded-md border px-2 py-1 text-[11px] font-mono leading-none ${getFoundEntryToneClass(entry.isCorrect)}`}
+            title={entry.value}
+          >
+            <span className="truncate">
+              {entry.value}
+            </span>
+          </span>
+        ))}
+      </div>
+      {foundTruncated ? (
+        <p className="text-[11px] text-amber-300">
+          Found list truncated by API.
+        </p>
+      ) : null}
+    </div>
+  );
 }
 
 function getOverallStatus(
@@ -716,14 +818,13 @@ function DnsValidationDialog({
                       {uiMissing.map((item, index) => {
                         const recordType = formatCopyValue(item.type, item.key);
                         const recordName = formatCopyValue(item.name, defaultRecordName);
-                        const foundText = item.found?.length
-                          ? `${item.found.join(", ")}${item.found_truncated ? " (truncated)" : ""}`
-                          : "-";
+                        const foundEntries = getUiFoundEntries(item);
+                        const cardToneClass = getRecordCardToneClass(foundEntries, item.ok);
 
                         return (
                           <div
                             key={`${item.key}-${index}`}
-                            className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
+                            className={`min-w-0 rounded-lg border p-3 ${cardToneClass}`}
                           >
                             <p className="text-xs uppercase tracking-wide text-zinc-500">
                               {item.key}
@@ -757,9 +858,10 @@ function DnsValidationDialog({
                                 onCopy={copyWithFeedback}
                               />
                             </div>
-                            <p className="mt-2 text-xs text-zinc-400">
-                              Found: {foundText}
-                            </p>
+                            <FoundEntries
+                              entries={foundEntries}
+                              foundTruncated={item.found_truncated}
+                            />
                           </div>
                         );
                       })}
@@ -781,15 +883,12 @@ function DnsValidationDialog({
                         const recordName = formatCopyValue(item.name, defaultRecordName);
 
                         if (item.key === "MX") {
-                          const foundText = item.found?.length
-                            ? `${item.found
-                                .map((entry) => `${entry.exchange} (priority ${entry.priority})`)
-                                .join(", ")}${item.found_truncated ? " (truncated)" : ""}`
-                            : "-";
+                          const foundEntries = getEmailFoundEntries(item);
+                          const cardToneClass = getRecordCardToneClass(foundEntries, item.ok);
                           return (
                             <div
                               key={`${item.key}-${index}`}
-                              className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
+                              className={`min-w-0 rounded-lg border p-3 ${cardToneClass}`}
                             >
                               <p className="text-xs uppercase tracking-wide text-zinc-500">
                                 MX
@@ -832,21 +931,21 @@ function DnsValidationDialog({
                                   onCopy={copyWithFeedback}
                                 />
                               </div>
-                              <p className="mt-2 text-xs text-zinc-400">
-                                Found: {foundText}
-                              </p>
+                              <FoundEntries
+                                entries={foundEntries}
+                                foundTruncated={item.found_truncated}
+                              />
                             </div>
                           );
                         }
 
-                        const foundText = item.found?.length
-                          ? `${item.found.join(", ")}${item.found_truncated ? " (truncated)" : ""}`
-                          : "-";
+                        const foundEntries = getEmailFoundEntries(item);
+                        const cardToneClass = getRecordCardToneClass(foundEntries, item.ok);
 
                         return (
                           <div
                             key={`${item.key}-${index}`}
-                            className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
+                            className={`min-w-0 rounded-lg border p-3 ${cardToneClass}`}
                           >
                             <p className="text-xs uppercase tracking-wide text-zinc-500">
                               {item.key}
@@ -880,9 +979,10 @@ function DnsValidationDialog({
                                 onCopy={copyWithFeedback}
                               />
                             </div>
-                            <p className="mt-2 text-xs text-zinc-400">
-                              Found: {foundText}
-                            </p>
+                            <FoundEntries
+                              entries={foundEntries}
+                              foundTruncated={item.found_truncated}
+                            />
                           </div>
                         );
                       })}
