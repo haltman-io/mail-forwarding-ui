@@ -3,14 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Github, Info, ExternalLink, BookOpen, Server, ShieldCheck } from "lucide-react";
+import { Github, Info, ExternalLink, BookOpen } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 const clickableIconClass =
   "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
-const staticIconClass = "cursor-default";
 
 export function SiteHeader() {
   const [host, setHost] = React.useState("");
@@ -56,58 +55,6 @@ export function SiteHeader() {
                 </>
                 )}
             </Link>
-            <Popover>
-              <PopoverTrigger asChild>
-                <span
-                  className={`cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] ui-smooth ui-lift-hover ui-press transition-colors hover:bg-white/10 hover:text-zinc-200 ${
-                    isOfficial ? "text-zinc-200 font-medium" : "text-zinc-400 opacity-90"
-                  }`}
-                >
-                  {isOfficial ? (
-                    <>
-                      <ShieldCheck className={`h-2.5 w-2.5 ${staticIconClass}`} />
-                      <span>Core Infrastructure</span>
-                    </>
-                  ) : (
-                    <>
-                      <Server className={`h-2.5 w-2.5 ${staticIconClass}`} />
-                      <span>Tenant · @haltman.io</span>
-                    </>
-                  )}
-                </span>
-              </PopoverTrigger>
-              <PopoverContent
-                side="bottom"
-                align="start"
-                sideOffset={6}
-                className="z-50 w-64 rounded-md border border-white/10 bg-black/80 px-3 py-2 text-zinc-200 shadow-lg backdrop-blur"
-              >
-                {isOfficial ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className={`h-4 w-4 text-zinc-200 ${staticIconClass}`} />
-                      <span className="text-[15px] font-semibold text-zinc-100">Core Infrastructure</span>
-                    </div>
-                    <p className="text-sm text-zinc-300">
-                      Production environment for Haltman.io's Free Mail Forwarding
-                    </p>
-                    <p className="text-xs text-zinc-400">Production • forward.haltman.io</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Server className={`h-4 w-4 text-zinc-400 ${staticIconClass}`} />
-                      <span className="text-[15px] font-medium text-zinc-200">Tenant · @haltman.io</span>
-                    </div>
-                    <p className="text-sm text-zinc-300">
-                      This is a tenant instance running on Haltman.io infrastructure.
-                    </p>
-                    <p className="text-xs text-zinc-400">Infrastructure • forward.haltman.io</p>
-                  </div>
-                )}
-              </PopoverContent>
-            </Popover>
-
           </div>
 
 

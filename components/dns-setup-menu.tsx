@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AtSign, Check, ChevronDown, Copy, Globe, Loader2 } from "lucide-react";
+import { AtSign, Check, Copy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -25,12 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -862,60 +856,22 @@ function DnsValidationDialog({
 }
 
 export function DnsSetupMenu() {
-  const [uiOpen, setUiOpen] = React.useState(false);
   const [emailOpen, setEmailOpen] = React.useState(false);
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="group relative h-8 overflow-visible border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
-            aria-label="Configure DNS"
-          >
-            <Globe className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-            Configure DNS
-            <ChevronDown className="ml-2 h-3.5 w-3.5 text-zinc-400" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-64 border-white/10 bg-black/80 text-zinc-200 backdrop-blur"
-        >
-          <DropdownMenuItem
-            className="cursor-pointer focus:bg-white/5"
-            onSelect={() => {
-              setEmailOpen(false);
-              setUiOpen(true);
-            }}
-          >
-            <Globe className={`h-4 w-4 ${clickableIconClass}`} />
-            Custom frontend domain
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer focus:bg-white/5"
-            onSelect={() => {
-              setUiOpen(false);
-              setEmailOpen(true);
-            }}
-          >
-            <AtSign className={`h-4 w-4 ${clickableIconClass}`} />
-            Use your domain for aliases
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <DnsValidationDialog
-        open={uiOpen}
-        onOpenChange={setUiOpen}
-        kind="UI"
-        title="Custom frontend domain"
-        description="Point a CNAME at the provided host and we'll verify it's live."
-        icon={Globe}
-        closeGuard
-      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="group relative h-8 overflow-visible border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
+        aria-label="Add domain"
+        title="Use your domain for aliases"
+        onClick={() => setEmailOpen(true)}
+      >
+        <AtSign className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
+        Add domain
+      </Button>
 
       <DnsValidationDialog
         open={emailOpen}

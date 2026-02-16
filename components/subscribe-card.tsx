@@ -25,9 +25,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Copy, Check, Loader2, Wand2, ShieldCheck, ShieldAlert, Terminal, MailX, MailPlus, AtSign } from "lucide-react";
+import { Copy, Check, Loader2, ShieldCheck, ShieldAlert, Terminal, MailX, MailPlus, AtSign, ChevronsUpDown } from "lucide-react";
 import { fetchDomains, normalizeDomains, RE_DOMAIN } from "@/lib/domains";
 import { API_HOST } from "@/lib/api-host";
 import { badgeClasses, clampLower, isProbablyEmail, safeJson } from "@/lib/utils-mail";
@@ -75,6 +76,7 @@ export function SubscribeCard({
   const [name, setName] = React.useState("");
   const [domains, setDomains] = React.useState<string[]>([]);
   const [domain, setDomain] = React.useState("");
+  const [domainComboboxOpen, setDomainComboboxOpen] = React.useState(false);
   const [to, setTo] = React.useState("");
   const [isCustomAddress, setIsCustomAddress] = React.useState(false);
   const [customAddress, setCustomAddress] = React.useState("");
@@ -252,17 +254,17 @@ export function SubscribeCard({
     subscribeActionState === "loading" ? (
       <>
         <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
-        Requesting…
+        Saving
       </>
     ) : subscribeActionState === "awaiting_confirmation" ? (
       "Awaiting confirmation…"
     ) : subscribeActionState === "success" ? (
       <>
         <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-        Confirmed
+        Saved
       </>
     ) : (
-      "Request alias"
+      "Save"
     );
 
   const unsubscribeButtonContent =
@@ -329,12 +331,6 @@ export function SubscribeCard({
     setConfirmCloseOpen(true);
   }
 
-
-  function setExampleSubscribe() {
-    setName("hacker");
-    setDomain(domains[0] ?? "segfault.net");
-    setTo("you@proton.me");
-  }
 
   function setExampleUnsub() {
     setAlias("hacker@segfault.net");
@@ -419,7 +415,7 @@ export function SubscribeCard({
 
     if (!RE_NAME.test(n)) {
       setOk(false);
-      setErrorText("Invalid alias handle. Use [a-z0-9.] (1–64), no dot at start/end.");
+      setErrorText("Invalid handle. Use [a-z0-9.] (1–64), no dot at start/end.");
       return;
     }
     if (!RE_DOMAIN.test(d)) {
@@ -653,10 +649,10 @@ export function SubscribeCard({
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
             <CardTitle className="tracking-tight">
-              Mail alias console
+              Email Alias Console
             </CardTitle>
             <CardDescription className="text-zinc-400">
-              Create or remove aliases with a single request (plus email confirmation on removal).
+              Use this menu to create or remove email aliases.
             </CardDescription>
           </div>
 
@@ -676,60 +672,6 @@ export function SubscribeCard({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono text-zinc-500">
-          <span className={`text-zinc-400 ${requestState === "loading" ? "animate-pulse" : ""}`}>
-            status: {statusLineText}
-          </span>
-          <span className="text-zinc-600">•</span>
-          <span>api: {statusApiText}</span>
-          <span className="text-zinc-600">•</span>
-          <span>tls: on-demand</span>
-        </div>
-
-        <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs text-zinc-400">Preview alias</p>
-              <p className="truncate font-mono text-sm text-zinc-100">
-                {previewAlias}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="group border-white/10 bg-white/5 hover:bg-white/10"
-                disabled={isAwaitingConfirmation}
-                onClick={() => copyWithFeedback("preview-alias", previewAlias, "Preview alias")}
-                aria-label="Copy preview alias"
-              >
-                {copiedId === "preview-alias" ? (
-                  <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-                ) : (
-                  <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                )}
-                <CopyLabel copied={copiedId === "preview-alias"} label="Copy" />
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="group border-white/10 bg-white/5 hover:bg-white/10"
-                onClick={() => {
-                  resetResult();
-                  setActiveTab("subscribe");
-                  setExampleSubscribe();
-                }}
-              >
-                <Wand2 className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                Fill example
-              </Button>
-            </div>
-          </div>
-        </div>
       </CardHeader>
 
       <CardContent className="relative space-y-6">
@@ -794,7 +736,7 @@ export function SubscribeCard({
                     <>
                       <div className="space-y-2 min-w-0">
                         <div className="flex items-center justify-between gap-2 min-h-[28px]">
-                          <Label htmlFor="name">Alias handle</Label>
+                          <Label htmlFor="name">Handle</Label>
                           <span className="invisible pointer-events-none select-none">{customAddressToggle}</span>
                         </div>
 
@@ -814,27 +756,59 @@ export function SubscribeCard({
 
                       <div className="space-y-2 min-w-0">
                         <div className="flex items-center justify-between gap-2 min-h-[28px]">
-                          <Label>Alias domain</Label>
+                          <Label>Domain</Label>
                           {customAddressToggle}
                         </div>
-                        <Select value={domain} onValueChange={setDomain}>
-                          <SelectTrigger className="bg-black/30 w-full min-w-0 overflow-hidden">
-                            <SelectValue placeholder="Select a domain" className="truncate" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {domains.length ? (
-                              domains.map((d) => (
-                                <SelectItem key={d} value={d}>
-                                  {d}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="__none" disabled>
-                                No domains available (API /domains failed)
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
+                        <Popover open={domainComboboxOpen} onOpenChange={setDomainComboboxOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={domainComboboxOpen}
+                              className="w-full min-w-0 justify-between border-white/10 bg-black/30 text-zinc-200 hover:bg-white/10"
+                            >
+                              <span className="truncate">
+                                {domain || "Select a domain"}
+                              </span>
+                              <ChevronsUpDown className={`ml-2 h-4 w-4 shrink-0 opacity-50 ${clickableIconClass}`} />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            align="start"
+                            className="w-[var(--radix-popover-trigger-width)] border-white/10 bg-zinc-950/95 p-0 text-zinc-200"
+                          >
+                            <Command className="bg-transparent">
+                              <CommandInput placeholder="Search domain..." />
+                              <CommandList>
+                                <CommandEmpty>No domains found.</CommandEmpty>
+                                <CommandGroup>
+                                  {domains.length ? (
+                                    domains.map((d) => (
+                                      <CommandItem
+                                        key={d}
+                                        value={d}
+                                        onSelect={() => {
+                                          setDomain(d);
+                                          setDomainComboboxOpen(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={`mr-2 h-4 w-4 ${domain === d ? "text-emerald-300 opacity-100" : "opacity-0"}`}
+                                        />
+                                        <span className="truncate">{d}</span>
+                                      </CommandItem>
+                                    ))
+                                  ) : (
+                                    <CommandItem value="no-domains" disabled>
+                                      No domains available (API /domains failed)
+                                    </CommandItem>
+                                  )}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </>
                   )}
@@ -842,7 +816,7 @@ export function SubscribeCard({
 
 
                 <div className="space-y-2">
-                  <Label htmlFor="to">Destination email</Label>
+                  <Label htmlFor="to">Destination email address</Label>
                   <Input
                     id="to"
                     type="email"
@@ -863,21 +837,6 @@ export function SubscribeCard({
                     disabled={requestBusy || (!domains.length && !isCustomAddress)}
                   >
                     {subscribeButtonContent}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="group w-full border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto"
-                    onClick={() => copyWithFeedback("curl-subscribe", curlSubscribe, "Subscribe cURL")}
-                    disabled={(!domains.length && !isCustomAddress) || isAwaitingConfirmation}
-                  >
-                    {copiedId === "curl-subscribe" ? (
-                      <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-                    ) : (
-                      <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                    )}
-                    <CopyLabel copied={copiedId === "curl-subscribe"} label="Copy subscribe cURL" />
                   </Button>
                 </div>
               </form>
@@ -931,14 +890,13 @@ export function SubscribeCard({
                       <li>
                         • Forwards to:{" "}
                         <span className="font-mono text-zinc-200">
-                          {subscribeTarget || "your inbox"}
+                          {subscribeTarget || "Fill destination email to preview"}
                         </span>
                       </li>
                     </ul>
                   )}
 
                   <div className="mt-4 rounded-lg border border-white/10 bg-black/40 p-3">
-                    <p className="text-xs text-zinc-400">Live request</p>
                     <pre className={`mt-1 ${codeBlockClass}`}>
                       {curlSubscribe}
                     </pre>
@@ -987,34 +945,6 @@ export function SubscribeCard({
                   <Button type="submit" className="group w-full sm:w-auto" disabled={requestBusy}>
                     {unsubscribeButtonContent}
                   </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="group w-full border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto"
-                    onClick={() => copyWithFeedback("curl-unsubscribe", curlUnsubscribe, "Unsubscribe cURL")}
-                    disabled={!alias.trim() || isAwaitingConfirmation}
-                  >
-                    {copiedId === "curl-unsubscribe" ? (
-                      <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-                    ) : (
-                      <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                    )}
-                    <CopyLabel copied={copiedId === "curl-unsubscribe"} label="Copy unsubscribe cURL" />
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="group w-full border-white/10 bg-white/5 hover:bg-white/10 sm:w-auto"
-                    onClick={() => {
-                      resetResult();
-                      setExampleUnsub();
-                    }}
-                  >
-                    <Wand2 className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                    Fill example
-                  </Button>
                 </div>
               </form>
 
@@ -1039,7 +969,6 @@ export function SubscribeCard({
                   </ul>
 
                   <div className="mt-4 rounded-lg border border-white/10 bg-black/40 p-3">
-                    <p className="text-xs text-zinc-400">Live request</p>
                     <pre className={`mt-1 ${codeBlockClass}`}>
                       {curlUnsubscribe}
                     </pre>
