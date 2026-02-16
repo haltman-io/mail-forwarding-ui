@@ -13,6 +13,8 @@ export type DnsRequestResponse = {
 
 export type UiMissing = {
   key: "CNAME";
+  type: string;
+  name: string;
   expected: string;
   found: string[];
   ok: boolean;
@@ -22,6 +24,8 @@ export type UiMissing = {
 export type EmailMissing =
   | {
       key: "MX";
+      type: string;
+      name: string;
       expected: { host: string; priority: number };
       found: { exchange: string; priority: number }[];
       ok: boolean;
@@ -29,6 +33,8 @@ export type EmailMissing =
     }
   | {
       key: "SPF";
+      type: string;
+      name: string;
       expected: string;
       found: string[];
       ok: boolean;
@@ -36,6 +42,8 @@ export type EmailMissing =
     }
   | {
       key: "DMARC";
+      type: string;
+      name: string;
       expected: string;
       found: string[];
       ok: boolean;

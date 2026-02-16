@@ -144,6 +144,12 @@ function formatTimeLabel(value?: string | null) {
   return new Date(timestamp).toLocaleString();
 }
 
+function formatCopyValue(value?: string | null, fallback = "-") {
+  const normalized = value?.trim();
+  if (normalized) return normalized;
+  return fallback;
+}
+
 function getOverallStatus(
   data: CheckDnsResponse | null,
   request: DnsRequestResponse | null,
@@ -568,12 +574,17 @@ function DnsValidationDialog({
 
   const showResults = Boolean(requestResponse || checkResponse);
   const submitDisabled = isSubmitting || !target.trim();
+  const defaultRecordName = formatCopyValue(
+    checkResponse?.normalized_target ?? checkResponse?.target ?? target
+  );
+  const pendingRecordsViewportClass =
+    status === "PENDING" ? "max-h-[min(46vh,420px)] overflow-y-auto pr-1" : "";
 
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="border-white/10 bg-zinc-950/95"
+          className="max-h-[90vh] overflow-y-auto border-white/10 bg-zinc-950/95"
           onEscapeKeyDown={
             closeGuard
               ? (event) => {
@@ -700,37 +711,59 @@ function DnsValidationDialog({
             {kind === "UI" ? (
               <>
                 {uiMissing.length ? (
-                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {uiMissing.map((item, index) => {
-                      const foundText = item.found?.length
-                        ? `${item.found.join(", ")}${item.found_truncated ? " (truncated)" : ""}`
-                        : "-";
+                  <div className={pendingRecordsViewportClass}>
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                      {uiMissing.map((item, index) => {
+                        const recordType = formatCopyValue(item.type, item.key);
+                        const recordName = formatCopyValue(item.name, defaultRecordName);
+                        const foundText = item.found?.length
+                          ? `${item.found.join(", ")}${item.found_truncated ? " (truncated)" : ""}`
+                          : "-";
 
-                      return (
-                        <div
-                          key={`${item.key}-${index}`}
-                          className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
-                        >
-                          <p className="text-xs uppercase tracking-wide text-zinc-500">
-                            {item.key}
-                          </p>
-                          <div className="mt-2 space-y-2">
-                            <CopyableInputRow
-                              id={`${kind}-expected-${index}`}
-                              value={item.expected}
-                              label="Expected"
-                              inputLabel="Expected value"
-                              copyLabel={`${item.key} expected value`}
-                              copiedId={copiedId}
-                              onCopy={copyWithFeedback}
-                            />
+                        return (
+                          <div
+                            key={`${item.key}-${index}`}
+                            className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
+                          >
+                            <p className="text-xs uppercase tracking-wide text-zinc-500">
+                              {item.key}
+                            </p>
+                            <div className="mt-2 space-y-2">
+                              <CopyableInputRow
+                                id={`${kind}-type-${index}`}
+                                value={recordType}
+                                label="Type"
+                                inputLabel="DNS record type"
+                                copyLabel={`${item.key} record type`}
+                                copiedId={copiedId}
+                                onCopy={copyWithFeedback}
+                              />
+                              <CopyableInputRow
+                                id={`${kind}-name-${index}`}
+                                value={recordName}
+                                label="Name"
+                                inputLabel="DNS record name"
+                                copyLabel={`${item.key} record name`}
+                                copiedId={copiedId}
+                                onCopy={copyWithFeedback}
+                              />
+                              <CopyableInputRow
+                                id={`${kind}-expected-${index}`}
+                                value={item.expected}
+                                label="Expected"
+                                inputLabel="Expected value"
+                                copyLabel={`${item.key} expected value`}
+                                copiedId={copiedId}
+                                onCopy={copyWithFeedback}
+                              />
+                            </div>
+                            <p className="mt-2 text-xs text-zinc-400">
+                              Found: {foundText}
+                            </p>
                           </div>
-                          <p className="mt-2 text-xs text-zinc-400">
-                            Found: {foundText}
-                          </p>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 ) : (
                   <p className="text-xs text-zinc-400">
@@ -741,38 +774,108 @@ function DnsValidationDialog({
             ) : (
               <>
                 {emailMissing.length ? (
-                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {emailMissing.map((item, index) => {
-                      if (item.key === "MX") {
+                  <div className={pendingRecordsViewportClass}>
+                    <div className="grid gap-3">
+                      {emailMissing.map((item, index) => {
+                        const recordType = formatCopyValue(item.type, item.key);
+                        const recordName = formatCopyValue(item.name, defaultRecordName);
+
+                        if (item.key === "MX") {
+                          const foundText = item.found?.length
+                            ? `${item.found
+                                .map((entry) => `${entry.exchange} (priority ${entry.priority})`)
+                                .join(", ")}${item.found_truncated ? " (truncated)" : ""}`
+                            : "-";
+                          return (
+                            <div
+                              key={`${item.key}-${index}`}
+                              className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
+                            >
+                              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                                MX
+                              </p>
+                              <div className="mt-2 space-y-2">
+                                <CopyableInputRow
+                                  id={`${kind}-mx-type-${index}`}
+                                  value={recordType}
+                                  label="Type"
+                                  inputLabel="MX record type"
+                                  copyLabel="MX record type"
+                                  copiedId={copiedId}
+                                  onCopy={copyWithFeedback}
+                                />
+                                <CopyableInputRow
+                                  id={`${kind}-mx-name-${index}`}
+                                  value={recordName}
+                                  label="Name"
+                                  inputLabel="MX record name"
+                                  copyLabel="MX record name"
+                                  copiedId={copiedId}
+                                  onCopy={copyWithFeedback}
+                                />
+                                <CopyableInputRow
+                                  id={`${kind}-mx-host-${index}`}
+                                  value={item.expected.host}
+                                  label="Host"
+                                  inputLabel="MX host"
+                                  copyLabel="MX host"
+                                  copiedId={copiedId}
+                                  onCopy={copyWithFeedback}
+                                />
+                                <CopyableInputRow
+                                  id={`${kind}-mx-priority-${index}`}
+                                  value={String(item.expected.priority)}
+                                  label="Priority"
+                                  inputLabel="MX priority"
+                                  copyLabel="MX priority"
+                                  copiedId={copiedId}
+                                  onCopy={copyWithFeedback}
+                                />
+                              </div>
+                              <p className="mt-2 text-xs text-zinc-400">
+                                Found: {foundText}
+                              </p>
+                            </div>
+                          );
+                        }
+
                         const foundText = item.found?.length
-                          ? `${item.found
-                              .map((entry) => `${entry.exchange} (priority ${entry.priority})`)
-                              .join(", ")}${item.found_truncated ? " (truncated)" : ""}`
+                          ? `${item.found.join(", ")}${item.found_truncated ? " (truncated)" : ""}`
                           : "-";
+
                         return (
                           <div
                             key={`${item.key}-${index}`}
                             className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
                           >
                             <p className="text-xs uppercase tracking-wide text-zinc-500">
-                              MX
+                              {item.key}
                             </p>
                             <div className="mt-2 space-y-2">
                               <CopyableInputRow
-                                id={`${kind}-mx-host-${index}`}
-                                value={item.expected.host}
-                                label="Host"
-                                inputLabel="MX host"
-                                copyLabel="MX host"
+                                id={`${kind}-${item.key.toLowerCase()}-type-${index}`}
+                                value={recordType}
+                                label="Type"
+                                inputLabel={`${item.key} record type`}
+                                copyLabel={`${item.key} record type`}
                                 copiedId={copiedId}
                                 onCopy={copyWithFeedback}
                               />
                               <CopyableInputRow
-                                id={`${kind}-mx-priority-${index}`}
-                                value={String(item.expected.priority)}
-                                label="Priority"
-                                inputLabel="MX priority"
-                                copyLabel="MX priority"
+                                id={`${kind}-${item.key.toLowerCase()}-name-${index}`}
+                                value={recordName}
+                                label="Name"
+                                inputLabel={`${item.key} record name`}
+                                copyLabel={`${item.key} record name`}
+                                copiedId={copiedId}
+                                onCopy={copyWithFeedback}
+                              />
+                              <CopyableInputRow
+                                id={`${kind}-${item.key.toLowerCase()}-${index}`}
+                                value={item.expected}
+                                label="Expected"
+                                inputLabel="Expected value"
+                                copyLabel={`${item.key} expected value`}
                                 copiedId={copiedId}
                                 onCopy={copyWithFeedback}
                               />
@@ -782,37 +885,8 @@ function DnsValidationDialog({
                             </p>
                           </div>
                         );
-                      }
-
-                      const foundText = item.found?.length
-                        ? `${item.found.join(", ")}${item.found_truncated ? " (truncated)" : ""}`
-                        : "-";
-
-                      return (
-                        <div
-                          key={`${item.key}-${index}`}
-                          className="min-w-0 rounded-lg border border-white/10 bg-black/40 p-3"
-                        >
-                          <p className="text-xs uppercase tracking-wide text-zinc-500">
-                            {item.key}
-                          </p>
-                          <div className="mt-2 space-y-2">
-                            <CopyableInputRow
-                              id={`${kind}-${item.key.toLowerCase()}-${index}`}
-                              value={item.expected}
-                              label="Expected"
-                              inputLabel="Expected value"
-                              copyLabel={`${item.key} expected value`}
-                              copiedId={copiedId}
-                              onCopy={copyWithFeedback}
-                            />
-                          </div>
-                          <p className="mt-2 text-xs text-zinc-400">
-                            Found: {foundText}
-                          </p>
-                        </div>
-                      );
-                    })}
+                      })}
+                    </div>
                   </div>
                 ) : (
                   <p className="text-xs text-zinc-400">
