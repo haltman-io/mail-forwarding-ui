@@ -25,17 +25,17 @@ export function AbuseMenu() {
           variant="outline"
           size="sm"
           className="group h-8 border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
-          aria-label="No abuse policy"
-          title="No Abuse"
+          aria-label="Abuse policy"
+          title="Abuse"
         >
-          No Abuse
+          Abuse
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] w-[min(94vw,920px)] max-w-[920px] overflow-y-auto border-white/10 bg-zinc-950/95 p-0">
         <div className="space-y-6 p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle>No Abuse</DialogTitle>
+            <DialogTitle>Abuse</DialogTitle>
             <DialogDescription>
               Policy on abuse of our tools and services.
             </DialogDescription>
