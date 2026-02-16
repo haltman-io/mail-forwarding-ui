@@ -11,16 +11,6 @@ export type DnsRequestResponse = {
   expires_at: string;
 };
 
-export type UiMissing = {
-  key: "CNAME";
-  type: string;
-  name: string;
-  expected: string;
-  found: string[];
-  ok: boolean;
-  found_truncated: boolean;
-};
-
 export type EmailMissing =
   | {
       key: "MX";
@@ -49,16 +39,6 @@ export type EmailMissing =
       ok: boolean;
       found_truncated: boolean;
     };
-
-export type UiCheck = {
-  status: DnsStatus;
-  id: number;
-  created_at?: string;
-  expires_at?: string;
-  last_checked_at?: string;
-  next_check_at?: string;
-  missing?: UiMissing[];
-};
 
 export type EmailCheck = {
   status: DnsStatus;
@@ -131,15 +111,6 @@ async function fetchJson<T>(url: string, options: FetchJsonOptions): Promise<T> 
   }
 
   return data as T;
-}
-
-export function requestUi(target: string, signal?: AbortSignal) {
-  return fetchJson<DnsRequestResponse>(`${API_HOST}/request/ui`, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ target }),
-    signal,
-  });
 }
 
 export function requestEmail(target: string, signal?: AbortSignal) {

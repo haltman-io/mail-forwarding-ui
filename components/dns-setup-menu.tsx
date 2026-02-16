@@ -34,17 +34,13 @@ import {
   DnsRequestResponse,
   DnsStatus,
   EmailMissing,
-  UiMissing,
   checkDns,
   requestEmail,
-  requestUi,
 } from "@/lib/dns-validation";
 import { RE_DOMAIN } from "@/lib/domains";
 import { badgeClasses, clampLower } from "@/lib/utils-mail";
 import { useCopyFeedback } from "@/lib/use-copy-feedback";
 
-
-type DnsDialogKind = "UI" | "EMAIL";
 
 type CopyableInputRowProps = {
   id: string;
@@ -167,14 +163,6 @@ function normalizeTxtValue(value: string) {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function getUiFoundEntries(item: UiMissing): FoundEntry[] {
-  const expected = normalizeDnsName(item.expected);
-  return item.found.map((value) => ({
-    value,
-    isCorrect: normalizeDnsName(value) === expected,
-  }));
-}
-
 function getEmailFoundEntries(item: EmailMissing): FoundEntry[] {
   if (item.key === "MX") {
     const expectedHost = normalizeDnsName(item.expected.host);
@@ -280,26 +268,38 @@ function FoundEntries({
   );
 }
 
+function CollapsedOkRecord({ recordKey, name }: { recordKey: string; name: string }) {
+  return (
+    <div className="col-span-full flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
+      <Check className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+      <span className="text-xs">
+        <span className="font-medium uppercase tracking-wide text-zinc-400">{recordKey}</span>{" "}
+        <span className="font-mono text-zinc-500">{name}</span>{" "}
+        <span className="text-emerald-400">OK!</span>
+      </span>
+    </div>
+  );
+}
+
 function getOverallStatus(
   data: CheckDnsResponse | null,
   request: DnsRequestResponse | null,
-  kind: DnsDialogKind
 ) {
-  const typeStatus = kind === "UI" ? data?.ui?.status : data?.email?.status;
+  const typeStatus = data?.email?.status;
   return typeStatus ?? request?.status ?? data?.summary?.overall_status ?? null;
 }
 
-function getNextCheckAt(data: CheckDnsResponse | null, kind: DnsDialogKind) {
+function getNextCheckAt(data: CheckDnsResponse | null) {
   if (!data) return null;
-  const typeNext = kind === "UI" ? data.ui?.next_check_at : data.email?.next_check_at;
+  const typeNext = data.email?.next_check_at;
   return typeNext ?? data.summary?.next_check_at_min ?? null;
 }
 
-function shouldStopPolling(data: CheckDnsResponse | null, kind: DnsDialogKind) {
+function shouldStopPolling(data: CheckDnsResponse | null) {
   if (!data) return false;
   const overall = data.summary?.overall_status ?? null;
   if (overall === "ACTIVE" || overall === "EXPIRED" || overall === "FAILED") return true;
-  const typeStatus = kind === "UI" ? data.ui?.status : data.email?.status;
+  const typeStatus = data.email?.status;
   return typeStatus === "ACTIVE" || typeStatus === "EXPIRED";
 }
 
@@ -351,7 +351,6 @@ function CopyableInputRow({
 function DnsValidationDialog({
   open,
   onOpenChange,
-  kind,
   title,
   description,
   icon: Icon,
@@ -359,7 +358,6 @@ function DnsValidationDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  kind: DnsDialogKind;
   title: string;
   description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -449,7 +447,7 @@ function DnsValidationDialog({
 
   const scheduleNext = React.useCallback(
     (data: CheckDnsResponse) => {
-      const nextCheckAt = getNextCheckAt(data, kind);
+      const nextCheckAt = getNextCheckAt(data);
       let delay = FALLBACK_POLL_INTERVAL_MS;
 
       if (nextCheckAt) {
@@ -465,7 +463,7 @@ function DnsValidationDialog({
         pollFnRef.current();
       }, delay);
     },
-    [kind]
+    []
   );
 
   const scheduleNextAfterError = React.useCallback((errorCount: number) => {
@@ -516,6 +514,11 @@ function DnsValidationDialog({
     handleOpenChange(false);
   }, [handleOpenChange]);
 
+  const handleDone = React.useCallback(() => {
+    confirmCloseBypass.current = true;
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   const pollCheck = React.useCallback(async () => {
     const targetValue = pollTargetRef.current;
     if (!targetValue) return;
@@ -548,7 +551,7 @@ function DnsValidationDialog({
         pollTargetRef.current = data.normalized_target;
       }
 
-      if (shouldStopPolling(data, kind)) {
+      if (shouldStopPolling(data)) {
         setIsPolling(false);
         return;
       }
@@ -573,7 +576,7 @@ function DnsValidationDialog({
     } finally {
       if (openRef.current) setIsPolling(false);
     }
-  }, [kind, resetPollErrors, scheduleNext, scheduleNextAfterError]);
+  }, [resetPollErrors, scheduleNext, scheduleNextAfterError]);
 
   React.useEffect(() => {
     pollFnRef.current = () => {
@@ -604,10 +607,7 @@ function DnsValidationDialog({
 
       try {
         const response = await withRetry(
-          () =>
-            kind === "UI"
-              ? requestUi(normalized, controller.signal)
-              : requestEmail(normalized, controller.signal),
+          () => requestEmail(normalized, controller.signal),
           {
             retries: REQUEST_RETRY_COUNT,
             baseDelayMs: REQUEST_RETRY_BASE_DELAY_MS,
@@ -632,7 +632,7 @@ function DnsValidationDialog({
         if (!openRef.current) return;
         const requestError = err;
 
-        if (kind === "UI" || kind === "EMAIL") {
+        {
           try {
             const resumed = await checkDns(
               normalized,
@@ -653,7 +653,7 @@ function DnsValidationDialog({
               description: "Resuming status polling for this domain.",
             });
 
-            if (!shouldStopPolling(resumed, kind)) {
+            if (!shouldStopPolling(resumed)) {
               scheduleNext(resumed);
             }
             return;
@@ -673,12 +673,12 @@ function DnsValidationDialog({
         if (openRef.current) setIsSubmitting(false);
       }
     },
-    [kind, pollCheck, resetPollErrors, scheduleNext, stopPolling, target]
+    [pollCheck, resetPollErrors, scheduleNext, stopPolling, target]
   );
 
-  const status = getOverallStatus(checkResponse, requestResponse, kind);
+  const status = getOverallStatus(checkResponse, requestResponse);
   const statusKind = getStatusKind(status);
-  const nextCheckLabel = formatTimeLabel(getNextCheckAt(checkResponse, kind));
+  const nextCheckLabel = formatTimeLabel(getNextCheckAt(checkResponse));
 
   React.useEffect(() => {
     if (isPolling) {
@@ -699,12 +699,7 @@ function DnsValidationDialog({
     }, 2000);
   }, [isPolling, showPollingIndicator]);
 
-  const uiMissing = kind === "UI" ? (checkResponse?.ui?.missing ?? []) : [];
-  const emailMissing = kind === "EMAIL" ? (checkResponse?.email?.missing ?? []) : [];
-  const prioritizedUiMissing = React.useMemo(
-    () => prioritizePendingRecords(uiMissing),
-    [uiMissing]
-  );
+  const emailMissing = checkResponse?.email?.missing ?? [];
   const prioritizedEmailMissing = React.useMemo(
     () => prioritizePendingRecords(emailMissing),
     [emailMissing]
@@ -750,9 +745,9 @@ function DnsValidationDialog({
 
         <form onSubmit={onStartValidation} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor={`${kind}-target`}>Domain</Label>
+            <Label htmlFor={`EMAIL-target`}>Domain</Label>
             <Input
-              id={`${kind}-target`}
+              id={`EMAIL-target`}
               placeholder="example.com"
               value={target}
               onChange={(event) => setTarget(event.target.value)}
@@ -767,9 +762,9 @@ function DnsValidationDialog({
 
           {/*
           <div className="space-y-2">
-            <Label htmlFor={`${kind}-token`}>API token (optional)</Label>
+            <Label htmlFor={`EMAIL-token`}>API token (optional)</Label>
             <Input
-              id={`${kind}-token`}
+              id={`EMAIL-token`}
               placeholder="x-api-key"
               value={token}
               onChange={(event) => setToken(event.target.value)}
@@ -846,74 +841,7 @@ function DnsValidationDialog({
 
             <Separator className="my-3 bg-white/10" />
 
-            {kind === "UI" ? (
-              <>
-                {prioritizedUiMissing.length ? (
-                  <div className={pendingRecordsViewportClass}>
-                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                      {prioritizedUiMissing.map((item, index) => {
-                        const recordType = formatCopyValue(item.type, item.key);
-                        const recordName = formatCopyValue(item.name, defaultRecordName);
-                        const foundEntries = getUiFoundEntries(item);
-                        const recordTone = getRecordTone(item.ok, foundEntries);
-                        const cardToneClass = getRecordCardToneClass(recordTone);
-
-                        return (
-                          <div
-                            key={`${item.key}-${index}`}
-                            className={`min-w-0 rounded-lg border p-3 ${cardToneClass}`}
-                          >
-                            <p className="text-xs uppercase tracking-wide text-zinc-500">
-                              {item.key}
-                            </p>
-                            <div className="mt-2 space-y-2">
-                              <CopyableInputRow
-                                id={`${kind}-type-${index}`}
-                                value={recordType}
-                                label="Type"
-                                inputLabel="DNS record type"
-                                copyLabel={`${item.key} record type`}
-                                copiedId={copiedId}
-                                onCopy={copyWithFeedback}
-                              />
-                              <CopyableInputRow
-                                id={`${kind}-name-${index}`}
-                                value={recordName}
-                                label="Name"
-                                inputLabel="DNS record name"
-                                copyLabel={`${item.key} record name`}
-                                copiedId={copiedId}
-                                onCopy={copyWithFeedback}
-                              />
-                              <CopyableInputRow
-                                id={`${kind}-expected-${index}`}
-                                value={item.expected}
-                                label="Expected"
-                                inputLabel="Expected value"
-                                copyLabel={`${item.key} expected value`}
-                                copiedId={copiedId}
-                                onCopy={copyWithFeedback}
-                              />
-                            </div>
-                            <FoundEntries
-                              entries={foundEntries}
-                              foundTruncated={item.found_truncated}
-                              tone={recordTone}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-xs text-zinc-400">
-                    No missing records reported yet.
-                  </p>
-                )}
-              </>
-            ) : (
-              <>
-                {prioritizedEmailMissing.length ? (
+            {prioritizedEmailMissing.length ? (
                   <div className={pendingRecordsViewportClass}>
                     <div className="grid gap-3">
                       {prioritizedEmailMissing.map((item, index) => {
@@ -923,6 +851,17 @@ function DnsValidationDialog({
                         if (item.key === "MX") {
                           const foundEntries = getEmailFoundEntries(item);
                           const recordTone = getRecordTone(item.ok, foundEntries);
+
+                          if (recordTone === "ok") {
+                            return (
+                              <CollapsedOkRecord
+                                key={`${item.key}-${index}`}
+                                recordKey="MX"
+                                name={recordName}
+                              />
+                            );
+                          }
+
                           const cardToneClass = getRecordCardToneClass(recordTone);
                           return (
                             <div
@@ -934,7 +873,7 @@ function DnsValidationDialog({
                               </p>
                               <div className="mt-2 space-y-2">
                                 <CopyableInputRow
-                                  id={`${kind}-mx-type-${index}`}
+                                  id={`EMAIL-mx-type-${index}`}
                                   value={recordType}
                                   label="Type"
                                   inputLabel="MX record type"
@@ -943,7 +882,7 @@ function DnsValidationDialog({
                                   onCopy={copyWithFeedback}
                                 />
                                 <CopyableInputRow
-                                  id={`${kind}-mx-name-${index}`}
+                                  id={`EMAIL-mx-name-${index}`}
                                   value={recordName}
                                   label="Name"
                                   inputLabel="MX record name"
@@ -952,7 +891,7 @@ function DnsValidationDialog({
                                   onCopy={copyWithFeedback}
                                 />
                                 <CopyableInputRow
-                                  id={`${kind}-mx-host-${index}`}
+                                  id={`EMAIL-mx-host-${index}`}
                                   value={item.expected.host}
                                   label="Host"
                                   inputLabel="MX host"
@@ -961,7 +900,7 @@ function DnsValidationDialog({
                                   onCopy={copyWithFeedback}
                                 />
                                 <CopyableInputRow
-                                  id={`${kind}-mx-priority-${index}`}
+                                  id={`EMAIL-mx-priority-${index}`}
                                   value={String(item.expected.priority)}
                                   label="Priority"
                                   inputLabel="MX priority"
@@ -981,6 +920,17 @@ function DnsValidationDialog({
 
                         const foundEntries = getEmailFoundEntries(item);
                         const recordTone = getRecordTone(item.ok, foundEntries);
+
+                        if (recordTone === "ok") {
+                          return (
+                            <CollapsedOkRecord
+                              key={`${item.key}-${index}`}
+                              recordKey={item.key}
+                              name={recordName}
+                            />
+                          );
+                        }
+
                         const cardToneClass = getRecordCardToneClass(recordTone);
 
                         return (
@@ -993,7 +943,7 @@ function DnsValidationDialog({
                             </p>
                             <div className="mt-2 space-y-2">
                               <CopyableInputRow
-                                id={`${kind}-${item.key.toLowerCase()}-type-${index}`}
+                                id={`EMAIL-${item.key.toLowerCase()}-type-${index}`}
                                 value={recordType}
                                 label="Type"
                                 inputLabel={`${item.key} record type`}
@@ -1002,7 +952,7 @@ function DnsValidationDialog({
                                 onCopy={copyWithFeedback}
                               />
                               <CopyableInputRow
-                                id={`${kind}-${item.key.toLowerCase()}-name-${index}`}
+                                id={`EMAIL-${item.key.toLowerCase()}-name-${index}`}
                                 value={recordName}
                                 label="Name"
                                 inputLabel={`${item.key} record name`}
@@ -1011,7 +961,7 @@ function DnsValidationDialog({
                                 onCopy={copyWithFeedback}
                               />
                               <CopyableInputRow
-                                id={`${kind}-${item.key.toLowerCase()}-${index}`}
+                                id={`EMAIL-${item.key.toLowerCase()}-${index}`}
                                 value={item.expected}
                                 label="Expected"
                                 inputLabel="Expected value"
@@ -1025,6 +975,13 @@ function DnsValidationDialog({
                               foundTruncated={item.found_truncated}
                               tone={recordTone}
                             />
+                            {(item.key as string) === "CNAME" && recordTone === "bad" && (
+                              <p className="mt-2 text-[11px] leading-snug text-zinc-500">
+                                An <span className="font-mono text-zinc-400">A</span> record pointing to{" "}
+                                <span className="font-mono text-zinc-400">161.97.146.91</span> is also accepted.
+                                If your domain already resolves to this IP it will be approved automatically.
+                              </p>
+                            )}
                           </div>
                         );
                       })}
@@ -1035,6 +992,20 @@ function DnsValidationDialog({
                     No missing records reported yet.
                   </p>
                 )}
+
+            {status === "ACTIVE" && (
+              <>
+                <Separator className="my-3 bg-white/10" />
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    className="group bg-emerald-600 text-white hover:bg-emerald-500"
+                    onClick={handleDone}
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    Done
+                  </Button>
+                </div>
               </>
             )}
           </div>
@@ -1092,7 +1063,6 @@ export function DnsSetupMenu() {
       <DnsValidationDialog
         open={emailOpen}
         onOpenChange={setEmailOpen}
-        kind="EMAIL"
         title="Use your domain for aliases"
         description="Add MX/SPF/DMARC records so we can forward mail for your domain."
         icon={AtSign}
