@@ -28,13 +28,31 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Copy, Check, Loader2, ShieldCheck, ShieldAlert, Terminal, MailX, MailPlus, AtSign, ChevronsUpDown } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Loader2,
+  ShieldCheck,
+  ShieldAlert,
+  Terminal,
+  MailX,
+  MailPlus,
+  AtSign,
+  ChevronsUpDown,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { fetchDomains, normalizeDomains, RE_DOMAIN } from "@/lib/domains";
 import { API_HOST } from "@/lib/api-host";
 import {
   badgeClasses,
   clampLower,
-  safeJson,
   validateAliasEmail,
   validateAliasHandle,
   validateMailboxEmail,
@@ -96,9 +114,7 @@ export function SubscribeCard({
   const [lastIntent, setLastIntent] = React.useState<"subscribe" | "unsubscribe" | null>(null);
   const [pendingMapping, setPendingMapping] = React.useState<MappingSnapshot | null>(null);
   const [confirmedMapping, setConfirmedMapping] = React.useState<MappingSnapshot | null>(null);
-  const [ok, setOk] = React.useState<boolean | null>(null);
   const [payload, setPayload] = React.useState<ApiResponse | null>(null);
-  const [errorText, setErrorText] = React.useState<string | null>(null);
 
   // confirmation dialog
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
@@ -116,6 +132,17 @@ export function SubscribeCard({
 
   const apiStatus = apiStatusProp ?? apiStatusInternal;
   const setApiStatus = onApiStatusChange ?? setApiStatusInternal;
+
+  const successIcon = <CheckCircle2 className="h-4 w-4 text-emerald-400" />;
+  const errorIcon = <AlertTriangle className="h-4 w-4 text-rose-400" />;
+
+  const toastSuccess = (title: string, description?: string) => {
+    toast.success(title, { description, icon: successIcon });
+  };
+
+  const toastError = (title: string, description?: string) => {
+    toast.error(title, { description, icon: errorIcon });
+  };
 
   React.useEffect(() => {
     let cancelled = false;
@@ -217,13 +244,11 @@ export function SubscribeCard({
   const statusPillText =
     requestState === "loading"
       ? "Requesting"
-      : requestState === "awaiting_confirmation"
-        ? "Awaiting"
-        : requestState === "success"
-          ? "Confirmed"
-          : requestState === "error"
-            ? "Error"
-            : "Idle";
+      : requestState === "success"
+        ? "Confirmed"
+        : requestState === "error"
+          ? "Error"
+          : "Idle";
 
   const statusKind: "ok" | "bad" | "idle" =
     requestState === "success" ? "ok" : requestState === "error" ? "bad" : "idle";
@@ -231,13 +256,12 @@ export function SubscribeCard({
   const statusApiText =
     apiStatus === "connected" ? "connected" : apiStatus === "error" ? "error" : "idle";
 
-  const requestBusy =
-    requestState === "loading" || requestState === "awaiting_confirmation" || requestState === "success";
+  const requestBusy = requestState === "loading";
 
   const subscribeActionState = lastIntent === "subscribe" ? requestState : "idle";
   const unsubscribeActionState = lastIntent === "unsubscribe" ? requestState : "idle";
   const confirmLengthInvalid =
-    confirmSubmitted && (confirmCode.trim().length < 12 || confirmCode.trim().length > 64);
+    confirmSubmitted && !/^\d{6}$/.test(confirmCode.trim());
 
   const isAwaitingConfirmation = requestState === "awaiting_confirmation";
   const confirmationTtlMinutes = React.useMemo(() => {
@@ -262,13 +286,6 @@ export function SubscribeCard({
         <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
         Saving
       </>
-    ) : subscribeActionState === "awaiting_confirmation" ? (
-      "Awaiting confirmation…"
-    ) : subscribeActionState === "success" ? (
-      <>
-        <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-        Saved
-      </>
     ) : (
       "Save"
     );
@@ -278,13 +295,6 @@ export function SubscribeCard({
       <>
         <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
         Requesting…
-      </>
-    ) : unsubscribeActionState === "awaiting_confirmation" ? (
-      "Awaiting confirmation…"
-    ) : unsubscribeActionState === "success" ? (
-      <>
-        <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-        Confirmed
       </>
     ) : (
       "Request removal"
@@ -306,9 +316,7 @@ export function SubscribeCard({
   );
 
   function resetResult() {
-    setOk(null);
     setPayload(null);
-    setErrorText(null);
   }
 
   const openConfirmDialog = React.useCallback((intent: "subscribe" | "unsubscribe", initialCode = "") => {
@@ -342,6 +350,117 @@ export function SubscribeCard({
     setAlias("hacker@segfault.net");
   }
 
+  const describeApiError = React.useCallback(
+    (data: any, fallback: string | null, status?: number) => {
+      const error = typeof data?.error === "string" ? data.error : null;
+
+      if (!error) {
+        if (status === 429) {
+          return { title: "Rate limited", description: fallback ?? "Too many requests. Try again soon." };
+        }
+        return {
+          title: "Request failed",
+          description: fallback ?? "Please try again in a moment.",
+        };
+      }
+
+      switch (error) {
+        case "invalid_params": {
+          const parts = [
+            data?.field ? `Field: ${data.field}` : null,
+            data?.reason ? `Reason: ${data.reason}` : null,
+            data?.hint ? `Hint: ${data.hint}` : null,
+          ].filter(Boolean);
+          return {
+            title: "Invalid parameters",
+            description: parts.join(" · ") || "Check the submitted values and try again.",
+          };
+        }
+        case "invalid_domain":
+          return {
+            title: "Invalid domain",
+            description: data?.domain ? `Domain: ${data.domain}` : data?.hint ?? "Domain is not active.",
+          };
+        case "banned": {
+          const ban = data?.ban;
+          if (ban?.ban_type && ban?.ban_value) {
+            const reason = ban?.reason ? ` (${ban.reason})` : "";
+            return {
+              title: "Request blocked",
+              description: `Banned ${ban.ban_type}: ${ban.ban_value}${reason}`,
+            };
+          }
+          const type = data?.type ? `Banned ${data.type}` : "Request blocked";
+          const value = data?.value ? `: ${data.value}` : "";
+          return { title: "Request blocked", description: `${type}${value}`.trim() };
+        }
+        case "alias_taken":
+          return {
+            title: "Alias already exists",
+            description: data?.address ? `Alias: ${data.address}` : "Choose a different alias and try again.",
+          };
+        case "alias_not_found":
+          return {
+            title: "Alias not found",
+            description: data?.alias || data?.address ? `Alias: ${data.alias ?? data.address}` : "Alias not found.",
+          };
+        case "alias_inactive":
+          return {
+            title: "Alias inactive",
+            description: data?.alias ? `Alias: ${data.alias}` : "Alias is inactive.",
+          };
+        case "alias_owner_changed":
+          return {
+            title: "Alias ownership changed",
+            description: data?.address ? `Alias: ${data.address}` : "Alias owner changed since the request.",
+          };
+        case "invalid_or_expired":
+          return {
+            title: "Code invalid or expired",
+            description: "Request a new confirmation code and try again.",
+          };
+        case "invalid_token":
+          return {
+            title: "Invalid code",
+            description: "Code must be exactly 6 digits.",
+          };
+        case "unsupported_intent":
+          return {
+            title: "Unsupported intent",
+            description: data?.intent ? `Intent: ${data.intent}` : "This confirmation request is invalid.",
+          };
+        case "rate_limited":
+          return {
+            title: "Rate limited",
+            description: data?.reason
+              ? `${data?.where ? `${data.where}: ` : ""}${data.reason}`
+              : "Too many requests. Try again soon.",
+          };
+        case "server_misconfigured":
+          return {
+            title: "Server misconfigured",
+            description: data?.field ? `Missing ${data.field}.` : "Server configuration error.",
+          };
+        case "unsupported_media_type":
+          return { title: "Unsupported media type", description: "Please send JSON only." };
+        case "temporarily_unavailable":
+          return { title: "Temporarily unavailable", description: "Please retry in a moment." };
+        case "confirmation_payload_missing":
+          return { title: "Confirmation failed", description: "Confirmation payload is missing." };
+        case "invalid_goto_on_alias":
+          return { title: "Alias corrupted", description: "Alias destination could not be parsed." };
+        case "internal_error":
+          return { title: "Server error", description: "Please try again shortly." };
+        default:
+          return {
+            title: "Request failed",
+            description: `Error: ${error}`,
+          };
+      }
+    },
+    []
+  );
+
   async function doFetch(url: string, intent?: "subscribe" | "unsubscribe", mapping?: MappingSnapshot) {
     setRequestStateNow("loading");
     if (intent) {
@@ -355,11 +474,19 @@ export function SubscribeCard({
 
     try {
       const res = await fetch(url, { method: "GET" });
-      const data = (await res.json()) as ApiResponse;
-      const success = res.ok && (data as any)?.ok !== false;
+      const rawText = await res.text();
+      let data: ApiResponse | null = null;
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText) as ApiResponse;
+        } catch {
+          data = null;
+        }
+      }
 
-      setOk(success);
       setPayload(data);
+
+      const success = res.ok && (data as any)?.ok !== false;
 
       if (success) {
         setApiStatus("connected");
@@ -369,20 +496,51 @@ export function SubscribeCard({
         } else {
           setRequestStateTransient("success");
         }
+
+        if (intent === "subscribe") {
+          const alias = (data as any)?.alias_candidate ?? mapping?.alias;
+          const target = (data as any)?.to ?? mapping?.to;
+          const confirmation = (data as any)?.confirmation;
+          const ttl = confirmation?.ttl_minutes;
+          const sent = confirmation?.sent;
+          const description = [
+            alias ? `Alias: ${alias}` : null,
+            target ? `To: ${target}` : null,
+            Number.isFinite(ttl) ? `TTL: ${ttl} min` : null,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          const title = sent === false ? "Confirmation already sent" : "Confirmation email sent";
+          toastSuccess(title, description || "Check your inbox to continue.");
+        } else if (intent === "unsubscribe") {
+          const alias = (data as any)?.alias ?? mapping?.alias;
+          const ttl = (data as any)?.ttl_minutes;
+          const sent = (data as any)?.sent;
+          const reason = (data as any)?.reason;
+          const description = [
+            alias ? `Alias: ${alias}` : null,
+            Number.isFinite(ttl) ? `TTL: ${ttl} min` : null,
+            reason ? `Reason: ${reason}` : null,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          const title = sent === false ? "Confirmation already sent" : "Removal confirmation sent";
+          toastSuccess(title, description || "Check your inbox to continue.");
+        } else {
+          toastSuccess("Request completed");
+        }
       } else {
+        const errorInfo = describeApiError(data, rawText, res.status);
         setApiStatus("error");
-        setErrorText("Request failed. See response below.");
         setRequestStateTransient("error");
-        toast.error("API error", { description: "Request failed. See response below." });
+        toastError(errorInfo.title, errorInfo.description);
       }
     } catch (err: any) {
       const message = String(err?.message ?? err);
       setApiStatus("error");
-      setOk(false);
-      setErrorText(`Network error: ${message}`);
-      setPayload({ ok: false, error: "network_error", detail: message });
+      setPayload(null);
       setRequestStateTransient("error");
-      toast.error("Network error", { description: message });
+      toastError("Network error", message);
     }
   }
 
@@ -394,8 +552,10 @@ export function SubscribeCard({
     const targetValidation = validateMailboxEmail(t);
 
     if (!targetValidation.ok) {
-      setOk(false);
-      setErrorText("Destination email is invalid. Use local@domain (max 254) with a strict DNS domain.");
+      toastError(
+        "Invalid destination email",
+        "Use local@domain (max 254) with a strict DNS domain."
+      );
       return;
     }
 
@@ -404,9 +564,9 @@ export function SubscribeCard({
     if (isCustomAddress) {
       const addressValidation = validateAliasEmail(customAddress);
       if (!addressValidation.ok) {
-        setOk(false);
-        setErrorText(
-          "Invalid custom alias. Allowed local: a-z 0-9 dot underscore hyphen (1-64); domain must follow strict DNS."
+        toastError(
+          "Invalid custom alias",
+          "Allowed local: a-z 0-9 dot underscore hyphen (1-64); domain must follow strict DNS."
         );
         return;
       }
@@ -424,8 +584,10 @@ export function SubscribeCard({
 
     const handleValidation = validateAliasHandle(name);
     if (!handleValidation.ok) {
-      setOk(false);
-      setErrorText("Invalid handle. Allowed: a-z 0-9 dot underscore hyphen (1-64), no dot at start/end or repeated.");
+      toastError(
+        "Invalid handle",
+        "Allowed: a-z 0-9 dot underscore hyphen (1-64), no dot at start/end or repeated."
+      );
       return;
     }
 
@@ -433,14 +595,12 @@ export function SubscribeCard({
     const d = clampLower(domain);
 
     if (!RE_DOMAIN.test(d)) {
-      setOk(false);
-      setErrorText("Invalid domain. Use strict DNS format (example.com).");
+      toastError("Invalid domain", "Use strict DNS format (example.com).");
       return;
     }
     const aliasAddress = `${n}@${d}`;
     if (aliasAddress.length > 254) {
-      setOk(false);
-      setErrorText("Alias email is too long. Mailbox length must be at most 254 characters.");
+      toastError("Alias email is too long", "Mailbox length must be at most 254 characters.");
       return;
     }
 
@@ -460,9 +620,9 @@ export function SubscribeCard({
 
     const aliasValidation = validateAliasEmail(alias);
     if (!aliasValidation.ok) {
-      setOk(false);
-      setErrorText(
-        "Invalid alias email. Allowed local: a-z 0-9 dot underscore hyphen (1-64); domain must follow strict DNS."
+      toastError(
+        "Invalid alias email",
+        "Allowed local: a-z 0-9 dot underscore hyphen (1-64); domain must follow strict DNS."
       );
       return;
     }
@@ -478,8 +638,8 @@ export function SubscribeCard({
     fallbackIntent?: "subscribe" | "unsubscribe" | null
   ) => {
     const token = tokenInput.trim();
-    if (token.length < 12 || token.length > 64) {
-      setConfirmErrorText("Confirmation code must be 12–64 characters.");
+    if (!/^\d{6}$/.test(token)) {
+      setConfirmErrorText("Confirmation code must be exactly 6 digits.");
       return;
     }
 
@@ -491,24 +651,7 @@ export function SubscribeCard({
         { method: "GET" }
       );
       const data = (await res.json()) as ApiResponse;
-      const invalid = (data as any)?.ok === false && (data as any)?.error === "invalid_or_expired";
       const confirmed = (data as any)?.ok === true && (data as any)?.confirmed === true;
-
-      if (invalid) {
-        setApiStatus("error");
-        setConfirmErrorText("Code is invalid or expired. Please try again.");
-        setRequestStateTransient("error", "awaiting_confirmation", 1200);
-        toast.error("Confirmation failed", { description: "The confirmation code is invalid or expired." });
-        return;
-      }
-
-      if (!res.ok && !confirmed) {
-        setApiStatus("error");
-        setConfirmErrorText("Request failed. Please try again.");
-        setRequestStateTransient("error", "awaiting_confirmation", 1200);
-        toast.error("API error", { description: "Confirmation request failed." });
-        return;
-      }
 
       if (confirmed) {
         const intent = typeof (data as any)?.intent === "string"
@@ -533,21 +676,20 @@ export function SubscribeCard({
                 ? `${address} → ${to.trim() || "destination"}`
                 : "Alias confirmed."
             : "Alias removal confirmed successfully.";
-
-        toast.success(title, { description });
+        toastSuccess(title, description);
         return;
       }
-
+      const errorInfo = describeApiError(data, null, res.status);
       setApiStatus("error");
-      setConfirmErrorText("The API returned an unexpected response. Please try again.");
+      setConfirmErrorText(errorInfo.description ?? "The API returned an unexpected response. Please try again.");
       setRequestStateTransient("error", "awaiting_confirmation", 1200);
-      toast.error("API error", { description: "Unexpected confirmation response." });
+      toastError(errorInfo.title, errorInfo.description);
     } catch (err: any) {
       const message = String(err?.message ?? err);
       setApiStatus("error");
       setConfirmErrorText(`Network error: ${message}`);
       setRequestStateTransient("error", "awaiting_confirmation", 1200);
-      toast.error("Network error", { description: message });
+      toastError("Network error", message);
     } finally {
       setConfirmLoading(false);
     }
@@ -609,7 +751,9 @@ export function SubscribeCard({
             if (confirmCloseBypass.current) {
               confirmCloseBypass.current = false;
               setConfirmDialogOpen(false);
+              return;
             }
+            requestConfirmClose();
             return;
           }
           confirmCloseBypass.current = false;
@@ -617,71 +761,69 @@ export function SubscribeCard({
         }}
       >
         <DialogContent
-          className="border-white/10 bg-zinc-950/95"
-          onEscapeKeyDown={(event) => {
-            event.preventDefault();
-          }}
-          onInteractOutside={(event) => {
-            event.preventDefault();
-          }}
+          className="max-w-[22rem] border-white/10 bg-zinc-950/95 p-0"
         >
-          <DialogHeader>
-            <DialogTitle>Confirm email code</DialogTitle>
-            <DialogDescription>
-              We sent a confirmation code to your email. Paste it below to finish.
-            </DialogDescription>
-          </DialogHeader>
+          <div className="space-y-4 px-6 pt-6">
+            <DialogHeader>
+              <DialogTitle>Confirm email code</DialogTitle>
+              <DialogDescription>
+                We sent a 6-digit verification code to your email. Enter it below to finish.
+              </DialogDescription>
+            </DialogHeader>
 
-          <form onSubmit={onConfirmCode} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="confirm-code">Confirmation code</Label>
-              <Input
-                id="confirm-code"
-                placeholder="Paste confirmation code"
-                value={confirmCode}
-                onChange={(e) => {
-                  setConfirmCode(e.target.value);
-                  if (confirmErrorText) setConfirmErrorText(null);
-                }}
-                autoCapitalize="none"
-                spellCheck={false}
-                maxLength={64}
-                aria-invalid={confirmLengthInvalid || !!confirmErrorText}
-                className={`h-10 font-mono text-sm tracking-normal placeholder:font-sans placeholder:tracking-normal ${confirmLengthInvalid || confirmErrorText ? "border-rose-500/50 focus-visible:ring-rose-500/30" : ""}`}
-              />
-              <p className="text-xs text-zinc-400">Code length: 12–64 characters.</p>
-            </div>
+            <form id="confirm-otp-form" onSubmit={onConfirmCode} className="space-y-3">
+              <div className="space-y-2">
+                <Label>Verification code</Label>
+                <InputOTP
+                  maxLength={6}
+                  value={confirmCode}
+                  className="w-full"
+                  containerClassName="w-full justify-start gap-2"
+                  onChange={(value) => {
+                    setConfirmCode(value);
+                    if (confirmErrorText) setConfirmErrorText(null);
+                  }}
+                >
+                  <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg *:data-[slot=input-otp-slot]:border-white/15 *:data-[slot=input-otp-slot]:bg-black/30 *:data-[slot=input-otp-slot]:text-zinc-100 *:data-[slot=input-otp-slot]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                  </InputOTPGroup>
+                  <InputOTPSeparator className="mx-2 text-zinc-500" />
+                  <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg *:data-[slot=input-otp-slot]:border-white/15 *:data-[slot=input-otp-slot]:bg-black/30 *:data-[slot=input-otp-slot]:text-zinc-100 *:data-[slot=input-otp-slot]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+                <p className="text-xs text-zinc-400">Enter the 6-digit code from your email.</p>
+              </div>
 
-            {confirmErrorText && (
-              <Alert variant="destructive" className="border-white/10 bg-black/30">
-                <AlertTitle>Confirmation failed</AlertTitle>
-                <AlertDescription className="text-zinc-300">
-                  {confirmErrorText}
-                </AlertDescription>
-              </Alert>
-            )}
+              {confirmErrorText && (
+                <Alert variant="destructive" className="border-white/10 bg-black/30">
+                  <AlertTitle>Confirmation failed</AlertTitle>
+                  <AlertDescription className="text-zinc-300">
+                    {confirmErrorText}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </div>
 
-            <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <Button
-                type="button"
-                variant="ghost"
-                className="text-zinc-400 hover:text-zinc-200"
-                onClick={requestConfirmClose}
-              >
-                Close
-              </Button>
-              <Button type="submit" className="group" disabled={confirmLoading}>
-                {confirmLoading ? (
-                  <>
-                    <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
-                    Confirming…
-                  </>
-                ) : (
-                  "Confirm code"
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
+          <Separator className="bg-white/10" />
+
+          <DialogFooter className="flex flex-col gap-2 px-6 pb-6">
+            <Button form="confirm-otp-form" type="submit" className="group w-full" disabled={confirmLoading}>
+              {confirmLoading ? (
+                <>
+                  <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
+                  Confirming…
+                </>
+              ) : (
+                "Confirm code"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1068,7 +1210,7 @@ export function SubscribeCard({
                     size="sm"
                     className="group border-white/10 bg-white/5 hover:bg-white/10"
                     onClick={() => copyWithFeedback("curl-subscribe-tab", curlSubscribe, "Subscribe command")}
-                    disabled={(!domains.length && !isCustomAddress) || isAwaitingConfirmation}
+                    disabled={!domains.length && !isCustomAddress}
                   >
                     {copiedId === "curl-subscribe-tab" ? (
                       <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
@@ -1083,7 +1225,7 @@ export function SubscribeCard({
                     size="sm"
                     className="group border-white/10 bg-white/5 hover:bg-white/10"
                     onClick={() => copyWithFeedback("curl-unsubscribe-tab", curlUnsubscribe, "Unsubscribe command")}
-                    disabled={!alias.trim() || isAwaitingConfirmation}
+                    disabled={!alias.trim()}
                   >
                     {copiedId === "curl-unsubscribe-tab" ? (
                       <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
@@ -1116,56 +1258,6 @@ export function SubscribeCard({
           </TabsContent>
         </Tabs>
 
-        {/* RESULT */}
-        {ok !== null && (
-          <Alert variant={ok ? "default" : "destructive"} className="border-white/10 bg-black/30">
-            <AlertTitle className="flex items-center gap-2">
-              {ok ? (
-                <ShieldCheck className={`h-4 w-4 ${staticIconClass}`} />
-              ) : (
-                <ShieldAlert className={`h-4 w-4 ${staticIconClass}`} />
-              )}
-              {ok ? "Success" : "Error"}
-            </AlertTitle>
-            <AlertDescription className="text-zinc-300">
-              {ok ? (
-                <>
-                  The API returned a success response. See the JSON below.
-                </>
-              ) : (
-                <>{errorText ?? "The API returned an error response. See the JSON below."}</>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {payload && (
-          <div className="rounded-xl border border-white/10 bg-black/30 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-medium text-zinc-200">Response payload</p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="group border-white/10 bg-white/5 hover:bg-white/10"
-                onClick={() => copyWithFeedback("response-json", safeJson(payload), "Response JSON")}
-              >
-                {copiedId === "response-json" ? (
-                  <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-                ) : (
-                  <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                )}
-                <CopyLabel copied={copiedId === "response-json"} label="Copy JSON" />
-              </Button>
-            </div>
-
-            <Separator className="my-3 bg-white/10" />
-
-            <pre className={codeBlockClass}>
-              {safeJson(payload)}
-            </pre>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

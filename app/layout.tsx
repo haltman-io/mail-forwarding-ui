@@ -36,8 +36,8 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
           <Toaster
-            position="bottom-right"
-            offset={{ bottom: "1.5rem", right: "1.5rem" }}
+            position="top-center"
+            offset={{ top: "1.5rem" }}
             toastOptions={{
               className: "border border-white/10 bg-black/70 text-zinc-100 shadow-lg backdrop-blur",
               descriptionClassName: "text-zinc-400",
