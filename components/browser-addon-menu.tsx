@@ -27,7 +27,7 @@ export function BrowserAddonMenu() {
           aria-label="Browser Extension"
         >
           <Chromium className={`h-4 w-4 ${clickableIconClass}`} />
-          Browser Extension
+          Extension
           <ChevronDown className="ml-2 h-3.5 w-3.5 text-zinc-400" />
         </Button>
       </DropdownMenuTrigger>
@@ -42,7 +42,7 @@ export function BrowserAddonMenu() {
             rel="noreferrer"
           >
             <Flame className={`h-4 w-4 ${clickableIconClass}`} />
-            Mozilla Firefox
+            Firefox (Recommended)
           </a>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-white/5">
@@ -52,7 +52,7 @@ export function BrowserAddonMenu() {
             rel="noreferrer"
           >
             <Chromium className={`h-4 w-4 ${clickableIconClass}`} />
-            Google Chrome
+            Chrome
           </a>
         </DropdownMenuItem>
       </DropdownMenuContent>

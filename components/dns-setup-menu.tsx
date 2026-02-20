@@ -1057,7 +1057,7 @@ export function DnsSetupMenu() {
         onClick={() => setEmailOpen(true)}
       >
         <AtSign className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-        Add domain
+        Add Domain
       </Button>
 
       <DnsValidationDialog

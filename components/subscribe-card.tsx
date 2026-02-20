@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -37,7 +38,6 @@ import {
   Terminal,
   MailX,
   MailPlus,
-  AtSign,
   ChevronsUpDown,
   CheckCircle2,
   AlertTriangle,
@@ -284,35 +284,35 @@ export function SubscribeCard({
     subscribeActionState === "loading" ? (
       <>
         <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
-        Saving
+        Saving...
       </>
     ) : (
-      "Save"
+      "SAVE"
     );
 
   const unsubscribeButtonContent =
     unsubscribeActionState === "loading" ? (
       <>
         <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
-        Requesting…
+        Deleting
       </>
     ) : (
-      "Request removal"
+      "DELETE"
     );
 
   const customAddressToggle = (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      className={`group h-7 border-white/10 bg-white/5 px-2 text-[11px] hover:bg-white/10 ${isCustomAddress ? "text-zinc-200" : "text-zinc-400"
-        }`}
-      aria-pressed={isCustomAddress}
-      onClick={() => setIsCustomAddress((current) => !current)}
+    <Label
+      htmlFor="custom-address-toggle"
+      className="inline-flex h-7 items-center gap-2 rounded-md border border-white/10 bg-white/5 px-2 text-[11px] text-zinc-300"
     >
-      <AtSign className={`mr-1.5 h-3.5 w-3.5 ${clickableIconClass}`} />
-      Custom address
-    </Button>
+      <Switch
+        id="custom-address-toggle"
+        checked={isCustomAddress}
+        onCheckedChange={setIsCustomAddress}
+        aria-label="Toggle custom address"
+      />
+      <span>Custom Address</span>
+    </Label>
   );
 
   function resetResult() {
@@ -848,11 +848,8 @@ export function SubscribeCard({
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
             <CardTitle className="tracking-tight">
-              Email Alias Console
+              ALIAS CONSOLE
             </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Use this menu to create or remove email aliases.
-            </CardDescription>
           </div>
 
           <div className="flex items-center gap-2">
@@ -875,27 +872,27 @@ export function SubscribeCard({
 
       <CardContent className="relative space-y-6">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-          <TabsList className="grid w-full grid-cols-3 border border-white/10 bg-black/30">
+          <TabsList className="grid w-full grid-cols-2 border border-white/10 bg-black/30 sm:grid-cols-3">
             <TabsTrigger
               value="subscribe"
               className="group gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)]"
             >
               <MailPlus className={`h-4 w-4 ${clickableIconClass}`} />
-              Subscribe
+              CREATE
             </TabsTrigger>
             <TabsTrigger
               value="unsubscribe"
               className="group gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)]"
             >
               <MailX className={`h-4 w-4 ${clickableIconClass}`} />
-              Unsubscribe
+              DELETE
             </TabsTrigger>
             <TabsTrigger
               value="curl"
-              className="group gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)]"
+              className="group hidden gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)] sm:inline-flex"
             >
               <Terminal className={`h-4 w-4 ${clickableIconClass}`} />
-              cURL
+              CURL
             </TabsTrigger>
           </TabsList>
 
@@ -903,10 +900,7 @@ export function SubscribeCard({
           <TabsContent value="subscribe" className="mt-6">
             <div className="grid gap-6 lg:grid-cols-5">
               <form onSubmit={onSubscribe} className="space-y-5 lg:col-span-3 min-w-0">
-                <div
-                  className={`grid gap-4 items-start min-w-0 ${isCustomAddress ? "grid-cols-1" : "sm:grid-cols-2"
-                    }`}
-                >
+                <div className="grid grid-cols-1 gap-4 items-start min-w-0">
 
                   {isCustomAddress ? (
                     <div className="flex-1 space-y-2 ">
@@ -936,7 +930,6 @@ export function SubscribeCard({
                       <div className="space-y-2 min-w-0">
                         <div className="flex items-center justify-between gap-2 min-h-[28px]">
                           <Label htmlFor="name">Handle</Label>
-                          <span className="invisible pointer-events-none select-none">{customAddressToggle}</span>
                         </div>
 
                         <Input
@@ -948,9 +941,6 @@ export function SubscribeCard({
                           spellCheck={false}
                           className="bg-black/30"
                         />
-                        <p className="text-xs text-zinc-400">
-                          Allowed: <span className="font-mono text-zinc-300">a-z 0-9 . _ -</span> · 1–64 · no dot at start/end or repeated
-                        </p>
                       </div>
 
                       <div className="space-y-2 min-w-0">
@@ -1027,7 +1017,7 @@ export function SubscribeCard({
                     className="bg-black/30"
                   />
                   <p className="text-xs text-zinc-400">
-                    Must be a valid mailbox local@domain (max 254) with a strict DNS domain.
+                    Must be a valid mailbox.
                   </p>
                 </div>
 
@@ -1043,19 +1033,9 @@ export function SubscribeCard({
               </form>
 
               <div className="space-y-3 lg:col-span-2">
-                <div className="rounded-xl border border-white/10 bg-black/30 p-4">
-                  <p className="text-sm font-medium text-zinc-200">What you’ll get</p>
+                <div className="hidden rounded-xl border border-white/10 bg-black/30 p-4 sm:block">
+                  <p className="text-sm font-medium text-zinc-200">REQUEST PREVIEW</p>
                   <Separator className="my-3 bg-white/10" />
-                  {isAwaitingConfirmation && (
-                    <div className="mt-3 rounded-lg border border-white/10 bg-black/40 p-3">
-                      <p className="text-xs font-medium text-zinc-200">Check your inbox</p>
-                      {confirmationTtlMinutes !== null && (
-                        <p className="mt-1 text-xs text-zinc-400">
-                          TTL: {confirmationTtlMinutes} minutes
-                        </p>
-                      )}
-                    </div>
-                  )}
                   {showConfirmedPanel ? (
                     <div className="space-y-2 text-sm text-zinc-300">
                       <p>Confirmed. Alias is active.</p>
@@ -1089,7 +1069,7 @@ export function SubscribeCard({
                         </span>
                       </li>
                       <li>
-                        • Forwards to:{" "}
+                        • Destination:{" "}
                         <span className="font-mono text-zinc-200">
                           {subscribeTarget || "Fill destination email to preview"}
                         </span>
@@ -1115,7 +1095,7 @@ export function SubscribeCard({
                   }}
                 >
                   <MailX className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                  Need to remove one instead?
+                  CLICK TO DELETE ALIAS
                 </Button>
               </div>
             </div>
@@ -1126,7 +1106,7 @@ export function SubscribeCard({
             <div className="grid gap-6 lg:grid-cols-5">
               <form onSubmit={onUnsubscribe} className="space-y-5 lg:col-span-3">
                 <div className="space-y-2">
-                  <Label htmlFor="alias">Alias email</Label>
+                  <Label htmlFor="alias">ALIAS</Label>
                   <Input
                     id="alias"
                     type="email"
@@ -1137,9 +1117,6 @@ export function SubscribeCard({
                     spellCheck={false}
                     className="bg-black/30"
                   />
-                  <p className="text-xs text-zinc-400">
-                    The API will send a confirmation email (TTL is usually returned by the API).
-                  </p>
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -1150,24 +1127,10 @@ export function SubscribeCard({
               </form>
 
               <div className="space-y-3 lg:col-span-2">
-                <div className="rounded-xl border border-white/10 bg-black/30 p-4">
-                  <p className="text-sm font-medium text-zinc-200">How removal works</p>
+                <div className="hidden rounded-xl border border-white/10 bg-black/30 p-4 sm:block">
+                  <p className="text-sm font-medium text-zinc-200">REQUEST PREVIEW</p>
                   <Separator className="my-3 bg-white/10" />
-                  {isAwaitingConfirmation && (
-                    <div className="mt-3 rounded-lg border border-white/10 bg-black/40 p-3">
-                      <p className="text-xs font-medium text-zinc-200">Check your inbox</p>
-                      {confirmationTtlMinutes !== null && (
-                        <p className="mt-1 text-xs text-zinc-400">
-                          TTL: {confirmationTtlMinutes} minutes
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  <ul className="space-y-2 text-sm text-zinc-400">
-                    <li>• You request unsubscribe for an alias</li>
-                    <li>• The service sends a confirmation email</li>
-                    <li>• User confirms following the email instructions</li>
-                  </ul>
+
 
                   <div className="mt-4 rounded-lg border border-white/10 bg-black/40 p-3">
                     <pre className={`mt-1 ${codeBlockClass}`}>
@@ -1186,20 +1149,20 @@ export function SubscribeCard({
                   }}
                 >
                   <MailPlus className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                  Back to subscribe
+                  CLICK TO CREATE ALIAS
                 </Button>
               </div>
             </div>
           </TabsContent>
 
           {/* CURL */}
-          <TabsContent value="curl" className="mt-6 space-y-4">
+          <TabsContent value="curl" className="mt-6 hidden space-y-4 sm:block">
             <div className="rounded-xl border border-white/10 bg-black/30 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-zinc-200">Raw commands</p>
+                  <p className="text-sm font-medium text-zinc-200">RAW CURL</p>
                   <p className="text-xs text-zinc-400">
-                    Generated from the current form fields. Copy and run.
+                    Just copy, paste and run. No mistery.
                   </p>
                 </div>
 
@@ -1217,7 +1180,7 @@ export function SubscribeCard({
                     ) : (
                       <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
                     )}
-                    <CopyLabel copied={copiedId === "curl-subscribe-tab"} label="Copy subscribe" />
+                    <CopyLabel copied={copiedId === "curl-subscribe-tab"} label="COPY (CREATE)" />
                   </Button>
                   <Button
                     type="button"
@@ -1232,7 +1195,7 @@ export function SubscribeCard({
                     ) : (
                       <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
                     )}
-                    <CopyLabel copied={copiedId === "curl-unsubscribe-tab"} label="Copy unsubscribe" />
+                    <CopyLabel copied={copiedId === "curl-unsubscribe-tab"} label="COPY (DELETE)" />
                   </Button>
                 </div>
               </div>
@@ -1241,14 +1204,14 @@ export function SubscribeCard({
 
               <div className="space-y-3">
                 <div className="rounded-lg border border-white/10 bg-black/40 p-3">
-                  <p className="text-xs text-zinc-400">Subscribe</p>
+                  <p className="text-xs text-zinc-400">CREATE</p>
                   <pre className={`mt-1 ${codeBlockClass}`}>
                     {curlSubscribe}
                   </pre>
                 </div>
 
                 <div className="rounded-lg border border-white/10 bg-black/40 p-3">
-                  <p className="text-xs text-zinc-400">Unsubscribe</p>
+                  <p className="text-xs text-zinc-400">DELETE</p>
                   <pre className={`mt-1 ${codeBlockClass}`}>
                     {curlUnsubscribe}
                   </pre>

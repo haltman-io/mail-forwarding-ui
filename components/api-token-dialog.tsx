@@ -186,7 +186,7 @@ export function ApiTokenDialog({
           aria-label="Create a free token to automate alias management via API."
         >
           <KeyRound className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-          Generate API Token
+          API Token
         </Button>
       </DialogTrigger>
 

@@ -18,22 +18,26 @@ export default function Page() {
 
       <main className="relative mx-auto max-w-6xl px-4 py-8 sm:py-10 lg:py-14">
         <section className="mx-auto max-w-3xl space-y-6 sm:space-y-8">
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="hidden w-full sm:block sm:w-auto">
               <BrowserAddonMenu />
             </div>
-            <div className="w-full sm:w-auto">
+            <div className="w-auto">
               <ApiTokenDialog onApiStatusChange={setApiStatus} />
             </div>
-            <div className="w-full sm:w-auto">
+            <div className="w-auto">
               <DnsSetupMenu />
             </div>
           </div>
 
           <SubscribeCard apiStatus={apiStatus} onApiStatusChange={setApiStatus} />
 
-          <footer className="mt-10 text-center text-xs text-zinc-500 sm:mt-12">
-            Made in Brazil 🇧🇷
+          <footer className="mt-10 text-center sm:mt-12">
+            <p className="m-0 font-sans text-[11px] leading-[1.6] text-white/40">
+              POWERED BY{" "}
+              <strong className="font-semibold text-white/80">HALTMAN.IO</strong> &amp;{" "}
+              <strong className="font-semibold text-white/80">THE HACKER&apos;S CHOICE</strong>
+            </p>
           </footer>
         </section>
       </main>
