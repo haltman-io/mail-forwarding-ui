@@ -441,9 +441,9 @@ export function ApiTokenDialog({
           <>
             <div className="space-y-4 px-6 pt-6">
               <DialogHeader>
-                <DialogTitle>API key activated</DialogTitle>
+                <DialogTitle>Success</DialogTitle>
                 <DialogDescription>
-                  Copy and save your key now.
+                  Store securely
                 </DialogDescription>
               </DialogHeader>
 
@@ -471,21 +471,6 @@ export function ApiTokenDialog({
             <Separator className="my-4 bg-white/10" />
 
             <DialogFooter className="flex flex-col gap-2 px-6 pb-6">
-              <Button
-                type="button"
-                variant="outline"
-                className="group w-full border-white/10 bg-white/5 hover:bg-white/10"
-                onClick={() => copyWithFeedback("api-token-email", confirmedEmail, "Email")}
-                disabled={!confirmedEmail}
-              >
-                {copiedId === "api-token-email" ? (
-                  <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
-                ) : (
-                  <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
-                )}
-                <CopyLabel copied={copiedId === "api-token-email"} label="Copy email" />
-              </Button>
-
               <Button
                 type="button"
                 className="group w-full"
