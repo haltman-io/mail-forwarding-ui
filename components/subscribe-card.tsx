@@ -71,6 +71,10 @@ type MappingSnapshot = { alias: string; to: string; intent: "subscribe" | "unsub
 
 const DOMAINS_URL = `${API_HOST}/domains`;
 
+function sanitizeOtpToken(value: string) {
+  return value.replace(/\D/g, "").slice(0, 6);
+}
+
 function CopyLabel({ copied, label }: { copied: boolean; label: string }) {
   return (
     <span className="inline-grid">
@@ -637,7 +641,7 @@ export function SubscribeCard({
     tokenInput: string,
     fallbackIntent?: "subscribe" | "unsubscribe" | null
   ) => {
-    const token = tokenInput.trim();
+    const token = sanitizeOtpToken(tokenInput);
     if (!/^\d{6}$/.test(token)) {
       setConfirmErrorText("Confirmation code must be exactly 6 digits.");
       return;
@@ -712,7 +716,7 @@ export function SubscribeCard({
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = (params.get("confirm_token") ?? params.get("token") ?? "").trim();
+    const token = sanitizeOtpToken(params.get("confirm_token") ?? params.get("token") ?? "");
     if (!token) return;
     if (autoConfirmAttemptRef.current === token) return;
     autoConfirmAttemptRef.current = token;
@@ -780,7 +784,7 @@ export function SubscribeCard({
                   className="w-full"
                   containerClassName="w-full justify-start gap-2"
                   onChange={(value) => {
-                    setConfirmCode(value);
+                    setConfirmCode(sanitizeOtpToken(value));
                     if (confirmErrorText) setConfirmErrorText(null);
                   }}
                 >

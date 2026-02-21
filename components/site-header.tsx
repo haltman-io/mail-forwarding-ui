@@ -71,7 +71,7 @@ const brandIcons = [
 export function SiteHeader() {
   const [host, setHost] = React.useState("");
   const [aboutOpen, setAboutOpen] = React.useState(false);
-  const [brandIconIndex, setBrandIconIndex] = React.useState(() => Math.floor(Math.random() * brandIcons.length));
+  const [brandIconIndex, setBrandIconIndex] = React.useState(0);
   const [brandIconSwapKey, setBrandIconSwapKey] = React.useState(0);
 
   React.useEffect(() => {
@@ -80,6 +80,8 @@ export function SiteHeader() {
 
   React.useEffect(() => {
     if (brandIcons.length < 2) return;
+
+    setBrandIconIndex(Math.floor(Math.random() * brandIcons.length));
 
     const interval = window.setInterval(() => {
       setBrandIconIndex((current) => {
