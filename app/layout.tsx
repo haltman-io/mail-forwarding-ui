@@ -35,6 +35,9 @@ export default function RootLayout({
 
         <ThemeProvider>
           {children}
+          <a rel="me" href="https://infosec.exchange/@haltman" className="sr-only">
+            Mastodon
+          </a>
           <Toaster
             position="top-center"
             offset={{ top: "1.5rem" }}
