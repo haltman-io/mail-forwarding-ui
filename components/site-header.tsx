@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { AbuseMenu } from "@/components/abuse-menu";
 import { PrivacyMenu } from "@/components/privacy-menu";
+import { AdminMenu } from "@/components/admin-menu";
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -135,6 +136,9 @@ export function SiteHeader() {
               </div>
               <div className="hidden sm:block">
                 <PrivacyMenu />
+              </div>
+              <div>
+                <AdminMenu />
               </div>
 
               <DropdownMenu>
