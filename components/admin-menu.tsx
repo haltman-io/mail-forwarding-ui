@@ -24,10 +24,9 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { API_HOST } from "@/lib/api-host";
-import { fetchDomains, normalizeDomains, RE_DOMAIN } from "@/lib/domains";
+import { RE_DOMAIN } from "@/lib/domains";
 import { validateAliasHandle, validateMailboxEmail } from "@/lib/utils-mail";
 import { useCopyFeedback } from "@/lib/use-copy-feedback";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -63,604 +62,58 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-type AuthStatus = "checking" | "unauthenticated" | "authenticated";
-type AdminSection = "domains" | "aliases" | "handles" | "bans" | "api_tokens" | "users" | "my_password";
-type BoolFilter = "all" | "1" | "0";
-type BanType = "email" | "domain" | "ip" | "name";
-type TokenStatusFilter = "all" | "active" | "revoked" | "expired";
-
-type AdminSession = {
-  token: string;
-  tokenType: string;
-  expiresAt: string | null;
-  email: string | null;
-  savedAt: string;
-};
-
-type AdminMe = {
-  id: number;
-  email: string;
-  is_active: number | boolean;
-  created_at?: string | null;
-  updated_at?: string | null;
-  last_login_at?: string | null;
-};
-
-type AdminMeResponse = {
-  ok?: boolean;
-  authenticated?: boolean;
-  admin?: AdminMe;
-  auth?: {
-    token_type?: string;
-    expires_at?: string;
-    session_id?: number;
-  };
-  error?: string;
-};
-
-type AdminDomain = {
-  id: number;
-  name: string;
-  active: number | boolean;
-};
-
-type AdminAlias = {
-  id: number;
-  address: string;
-  goto: string;
-  active: number | boolean;
-  domain_id?: number | null;
-  created?: string | null;
-  modified?: string | null;
-};
-
-type AdminHandle = {
-  id: number;
-  handle: string;
-  address: string;
-  active: number | boolean;
-};
-
-type AdminBan = {
-  id: number;
-  ban_type: string;
-  ban_value: string;
-  reason?: string | null;
-  expires_at?: string | null;
-  revoked_at?: string | null;
-  revoked_reason?: string | null;
-  active?: boolean | number;
-};
-
-type AdminApiToken = {
-  id: number;
-  owner_email: string;
-  token_hash?: string;
-  status?: string;
-  created_at?: string | null;
-  expires_at?: string | null;
-  revoked_at?: string | null;
-  revoked_reason?: string | null;
-  created_ip?: string | null;
-  user_agent?: string | null;
-  last_used_at?: string | null;
-  active?: boolean | number;
-};
-
-type AdminUser = {
-  id: number;
-  email: string;
-  is_active: number | boolean;
-  created_at?: string | null;
-  updated_at?: string | null;
-  last_login_at?: string | null;
-};
-
-type Pagination = {
-  total: number;
-  limit: number;
-  offset: number;
-};
-
-type ListResponse<T> = {
-  items?: T[];
-  pagination?: Partial<Pagination>;
-  error?: string;
-};
-
-type CreateUpdateResponse<T> = {
-  ok?: boolean;
-  created?: boolean;
-  updated?: boolean;
-  deleted?: boolean;
-  item?: T;
-  token?: string;
-  token_type?: string;
-  error?: string;
-  reason?: string;
-};
-
-type RequestResult<T> = {
-  ok: boolean;
-  status: number;
-  data: T | null;
-  errorCode: string | null;
-  errorReason: string | null;
-  errorWhere: string | null;
-  errorHint: string | null;
-  errorField: string | null;
-  retryAfterSeconds: number | null;
-};
-
-type ListState<T> = {
-  items: T[];
-  total: number;
-  limit: number;
-  offset: number;
-  loading: boolean;
-  loadedAt: number | null;
-  error: string | null;
-};
-
-type RequestErrorDescription = {
-  isRateLimited: boolean;
-  isLockoutGuard: boolean;
-  message: string;
-};
-
-const ADMIN_STORAGE_KEY = "haltman.admin.session.v1";
-const DEFAULT_LIMIT = 10;
-const EMAIL_PATTERN = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
-const DOMAINS_URL = `${API_HOST}/domains`;
-let adminDomainsCache: string[] | null = null;
-let adminDomainsPromise: Promise<string[]> | null = null;
-
-const clickableIconClass =
-  "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
-
-async function getAdminDomainsCached() {
-  if (adminDomainsCache) return adminDomainsCache;
-  if (adminDomainsPromise) return adminDomainsPromise;
-
-  adminDomainsPromise = (async () => {
-    try {
-      const list = await fetchDomains(DOMAINS_URL);
-      const fallbackRaw = process.env.NEXT_PUBLIC_DOMAINS ?? "";
-      const fallback = normalizeDomains(fallbackRaw.split(","));
-      const finalList = list.length ? list : fallback;
-      adminDomainsCache = finalList;
-      return finalList;
-    } catch {
-      const fallbackRaw = process.env.NEXT_PUBLIC_DOMAINS ?? "";
-      const fallback = normalizeDomains(fallbackRaw.split(","));
-      adminDomainsCache = fallback;
-      return fallback;
-    } finally {
-      adminDomainsPromise = null;
-    }
-  })();
-
-  return adminDomainsPromise;
-}
-
-function createListState<T>(): ListState<T> {
-  return {
-    items: [],
-    total: 0,
-    limit: DEFAULT_LIMIT,
-    offset: 0,
-    loading: false,
-    loadedAt: null,
-    error: null,
-  };
-}
-
-function isTrueValue(value: unknown) {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "number") return value === 1;
-  if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase();
-    return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
-  }
-  return false;
-}
-
-function boolToApi(value: boolean) {
-  return value ? 1 : 0;
-}
-
-function normalizeEmailInput(value: string) {
-  return value.replace(/\s+/g, "").toLowerCase();
-}
-
-function splitAliasAddress(value: string) {
-  const normalized = value.trim().toLowerCase();
-  const atIndex = normalized.lastIndexOf("@");
-  if (atIndex <= 0 || atIndex === normalized.length - 1) return null;
-  return {
-    handle: normalized.slice(0, atIndex),
-    domain: normalized.slice(atIndex + 1),
-  };
-}
-
-function safeDateLabel(value?: string | null) {
-  if (!value) return "-";
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) return value;
-  return new Date(parsed).toLocaleString();
-}
-
-function dateTimeLocalToIso(value: string) {
-  if (!value) return null;
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) return null;
-  return new Date(parsed).toISOString();
-}
-
-function isoToDateTimeLocal(value?: string | null) {
-  if (!value) return "";
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) return "";
-  const date = new Date(parsed);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
-function readStoredSession(): AdminSession | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.sessionStorage.getItem(ADMIN_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<AdminSession>;
-    if (typeof parsed.token !== "string" || !parsed.token) return null;
-
-    return {
-      token: parsed.token,
-      tokenType: typeof parsed.tokenType === "string" && parsed.tokenType ? parsed.tokenType : "bearer",
-      expiresAt: typeof parsed.expiresAt === "string" ? parsed.expiresAt : null,
-      email: typeof parsed.email === "string" ? parsed.email : null,
-      savedAt: typeof parsed.savedAt === "string" ? parsed.savedAt : new Date().toISOString(),
-    };
-  } catch {
-    return null;
-  }
-}
-
-function saveSession(session: AdminSession) {
-  if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(session));
-}
-
-function clearSessionStorage() {
-  if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(ADMIN_STORAGE_KEY);
-}
-
-function clearDebounceTimer(timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) {
-  if (timerRef.current === null) return;
-  clearTimeout(timerRef.current);
-  timerRef.current = null;
-}
-
-function scheduleDebouncedSearch(
-  timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
-  callback: () => void,
-  delayMs = 320
-) {
-  clearDebounceTimer(timerRef);
-  timerRef.current = setTimeout(() => {
-    timerRef.current = null;
-    callback();
-  }, delayMs);
-}
-
-function triggerSearchOnEnter(event: React.KeyboardEvent<HTMLInputElement>, callback: () => void) {
-  if (event.key !== "Enter") return;
-  event.preventDefault();
-  callback();
-}
-
-function useToastFeedback() {
-  const toastSuccess = React.useCallback((title: string, description?: string) => {
-    toast.success(title, { description, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> });
-  }, []);
-
-  const toastError = React.useCallback((title: string, description?: string) => {
-    toast.error(title, { description, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> });
-  }, []);
-
-  return { toastSuccess, toastError };
-}
-
-async function parseResponseBody<T>(response: Response): Promise<T | null> {
-  const text = await response.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    return null;
-  }
-}
-
-function readStringValue(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
-
-function readRetryAfterBodyValue(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
-    return Math.floor(value);
-  }
-  if (typeof value === "string" && value.trim()) {
-    const parsed = Number.parseInt(value.trim(), 10);
-    if (Number.isFinite(parsed) && parsed >= 0) {
-      return parsed;
-    }
-  }
-  return null;
-}
-
-function parseRetryAfterHeader(value: string | null): number | null {
-  if (!value) return null;
-
-  const seconds = Number.parseInt(value.trim(), 10);
-  if (Number.isFinite(seconds) && seconds >= 0) {
-    return seconds;
-  }
-
-  const when = Date.parse(value);
-  if (!Number.isNaN(when)) {
-    return Math.max(0, Math.ceil((when - Date.now()) / 1000));
-  }
-
-  return null;
-}
-
-function extractApiErrorDetails(data: unknown) {
-  if (!data || typeof data !== "object") {
-    return {
-      errorCode: null,
-      errorReason: null,
-      errorWhere: null,
-      errorHint: null,
-      errorField: null,
-      retryAfterSeconds: null,
-    };
-  }
-
-  const record = data as Record<string, unknown>;
-  const bodyRetryAfter =
-    readRetryAfterBodyValue(record.retry_after_seconds) ??
-    readRetryAfterBodyValue(record.retry_after) ??
-    readRetryAfterBodyValue(record.retry_after_sec) ??
-    readRetryAfterBodyValue(record.retry_in_seconds);
-
-  return {
-    errorCode: readStringValue(record.error),
-    errorReason: readStringValue(record.reason),
-    errorWhere: readStringValue(record.where),
-    errorHint: readStringValue(record.hint),
-    errorField: readStringValue(record.field),
-    retryAfterSeconds: bodyRetryAfter,
-  };
-}
-
-function humanizeErrorToken(value: string | null) {
-  if (!value) return null;
-  return value.replace(/_/g, " ").trim();
-}
-
-function formatRetryAfterHint(seconds: number | null) {
-  if (seconds === null) return "Try again in a moment.";
-  if (seconds <= 1) return "Try again in 1 second.";
-  if (seconds < 60) return `Try again in ${seconds} seconds.`;
-  if (seconds < 3600) return `Try again in ${Math.ceil(seconds / 60)} minutes.`;
-  return `Try again in ${Math.ceil(seconds / 3600)} hours.`;
-}
-
-function describeLoginRateLimitReason(reason: string | null) {
-  switch (reason) {
-    case "too_many_failed_attempts_email_ip":
-      return "Too many failed login attempts for this email + IP.";
-    case "too_many_failed_attempts_email_ip_heavy":
-      return "Too many failed login attempts for this email + IP (heavy lock).";
-    case "too_many_failed_attempts_email":
-      return "Too many failed login attempts for this email.";
-    case "too_many_failed_attempts_ip":
-      return "Too many failed login attempts for this IP.";
-    default: {
-      const readable = humanizeErrorToken(reason);
-      return readable ? `Rate limit triggered (${readable}).` : "Rate limit triggered.";
-    }
-  }
-}
-
-function describeRequestError(
-  result: Pick<RequestResult<unknown>, "status" | "errorCode" | "errorReason" | "errorWhere" | "errorHint" | "errorField" | "retryAfterSeconds">,
-  fallbackMessage: string,
-  mode: "login" | "admin" = "admin"
-): RequestErrorDescription {
-  const code = result.errorCode;
-  const reason = result.errorReason;
-  const where = result.errorWhere;
-  const hint = result.errorHint;
-  const field = result.errorField;
-  const isRateLimited = result.status === 429 || code === "rate_limited";
-
-  if (isRateLimited) {
-    const scope = where ? ` Scope: ${where}.` : "";
-    if (mode === "login") {
-      return {
-        isRateLimited: true,
-        isLockoutGuard: false,
-        message: `${describeLoginRateLimitReason(reason)}${scope} ${formatRetryAfterHint(result.retryAfterSeconds)}`.trim(),
-      };
-    }
-
-    const reasonText = humanizeErrorToken(reason);
-    const reasonLine = reasonText ? ` Reason: ${reasonText}.` : "";
-    return {
-      isRateLimited: true,
-      isLockoutGuard: false,
-      message: `Admin rate limit reached.${scope}${reasonLine} ${formatRetryAfterHint(result.retryAfterSeconds)}`.trim(),
-    };
-  }
-
-  if (code === "cannot_disable_last_admin") {
-    return {
-      isRateLimited: false,
-      isLockoutGuard: true,
-      message: "Lockout protection is active. You cannot disable or remove the last active admin user.",
-    };
-  }
-
-  if (code === "invalid_params") {
-    const parts = ["Invalid parameters."];
-    if (field) parts.push(`Field: ${field}.`);
-    if (reason) parts.push(`Reason: ${humanizeErrorToken(reason) ?? reason}.`);
-    if (hint) parts.push(`Hint: ${hint}.`);
-    return { isRateLimited: false, isLockoutGuard: false, message: parts.join(" ") };
-  }
-
-  if (code) {
-    const parts = [`${fallbackMessage} (${code}).`];
-    if (reason) parts.push(`Reason: ${humanizeErrorToken(reason) ?? reason}.`);
-    if (hint) parts.push(`Hint: ${hint}.`);
-    if (field) parts.push(`Field: ${field}.`);
-    return { isRateLimited: false, isLockoutGuard: false, message: parts.join(" ") };
-  }
-
-  if (reason) {
-    return {
-      isRateLimited: false,
-      isLockoutGuard: false,
-      message: `${fallbackMessage} (${humanizeErrorToken(reason) ?? reason}).`,
-    };
-  }
-
-  return { isRateLimited: false, isLockoutGuard: false, message: fallbackMessage };
-}
-
-async function adminRequest<T>({
-  token,
-  path,
-  method = "GET",
-  body,
-}: {
-  token: string;
-  path: string;
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
-  body?: unknown;
-}): Promise<RequestResult<T>> {
-  const headers = new Headers();
-  headers.set("Authorization", `Bearer ${token}`);
-  if (body !== undefined) {
-    headers.set("Content-Type", "application/json");
-  }
-
-  const response = await fetch(`${API_HOST}${path}`, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-
-  const data = await parseResponseBody<T>(response);
-  const errorDetails = extractApiErrorDetails(data);
-  const headerRetryAfter = parseRetryAfterHeader(response.headers.get("retry-after"));
-  const retryAfterSeconds = errorDetails.retryAfterSeconds ?? headerRetryAfter;
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    data,
-    errorCode: errorDetails.errorCode,
-    errorReason: errorDetails.errorReason,
-    errorWhere: errorDetails.errorWhere,
-    errorHint: errorDetails.errorHint,
-    errorField: errorDetails.errorField,
-    retryAfterSeconds,
-  };
-}
-
-function isUnauthorized(result: RequestResult<unknown>) {
-  if (result.status === 401) return true;
-  return result.errorCode === "missing_admin_token" || result.errorCode === "invalid_or_expired_admin_token";
-}
-
-function PaginationActions({
-  state,
-  onPrevious,
-  onNext,
-  busy,
-}: {
-  state: ListState<unknown>;
-  onPrevious: () => void;
-  onNext: () => void;
-  busy: boolean;
-}) {
-  const from = state.total === 0 ? 0 : state.offset + 1;
-  const to = Math.min(state.offset + state.limit, state.total);
-  const canPrev = state.offset > 0;
-  const canNext = state.offset + state.limit < state.total;
-
-  return (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
-      <span>
-        {from}-{to} of {state.total}
-      </span>
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!canPrev || busy}
-          className="h-7 border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
-          onClick={onPrevious}
-        >
-          Prev
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!canNext || busy}
-          className="h-7 border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
-          onClick={onNext}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function SectionContainer({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-3 rounded-lg border border-white/10 bg-black/25 p-4">
-      <div>
-        <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-        <p className="text-xs text-zinc-400">{description}</p>
-      </div>
-      <Separator className="bg-white/10" />
-      {children}
-    </section>
-  );
-}
+import { PaginationActions } from "@/features/admin-menu/components/pagination-actions";
+import { SectionContainer } from "@/features/admin-menu/components/section-container";
+import { useAdminToastFeedback } from "@/features/admin-menu/hooks/use-admin-toast-feedback";
+import {
+  adminRequest,
+  describeRequestError,
+  extractApiErrorDetails,
+  getAdminDomainsCacheSnapshot,
+  getAdminDomainsCached,
+  isUnauthorized,
+  parseResponseBody,
+  parseRetryAfterHeader,
+} from "@/features/admin-menu/services/admin-menu.service";
+import {
+  boolToApi,
+  clearDebounceTimer,
+  clearSessionStorage,
+  clickableIconClass,
+  createListState,
+  dateTimeLocalToIso,
+  EMAIL_PATTERN,
+  isoToDateTimeLocal,
+  isTrueValue,
+  normalizeEmailInput,
+  readStoredSession,
+  safeDateLabel,
+  saveSession,
+  scheduleDebouncedSearch,
+  splitAliasAddress,
+  triggerSearchOnEnter,
+} from "@/features/admin-menu/utils/admin-menu.utils";
+import type {
+  AdminAlias,
+  AdminApiToken,
+  AdminBan,
+  AdminDomain,
+  AdminHandle,
+  AdminMe,
+  AdminMeResponse,
+  AdminSection,
+  AdminSession,
+  AdminUser,
+  AuthStatus,
+  BanType,
+  BoolFilter,
+  CreateUpdateResponse,
+  ListResponse,
+  ListState,
+  TokenStatusFilter,
+} from "@/features/admin-menu/types/admin-menu.types";
 
 export function AdminMenu() {
   const sectionLoaderRef = React.useRef<(section: AdminSection) => void>(() => {});
@@ -721,7 +174,7 @@ export function AdminMenu() {
   const [aliasFormDomain, setAliasFormDomain] = React.useState("");
   const [aliasFormDestination, setAliasFormDestination] = React.useState("");
   const [aliasFormActive, setAliasFormActive] = React.useState(true);
-  const [aliasDomains, setAliasDomains] = React.useState<string[]>(() => adminDomainsCache ?? []);
+  const [aliasDomains, setAliasDomains] = React.useState<string[]>(() => getAdminDomainsCacheSnapshot());
   const [aliasDomainsLoading, setAliasDomainsLoading] = React.useState(false);
   const [aliasDomainComboboxOpen, setAliasDomainComboboxOpen] = React.useState(false);
 
@@ -771,7 +224,7 @@ export function AdminMenu() {
   const [deleteLabel, setDeleteLabel] = React.useState("");
 
   const { copiedId, copyWithFeedback } = useCopyFeedback();
-  const { toastSuccess, toastError } = useToastFeedback();
+  const { toastSuccess, toastError } = useAdminToastFeedback();
 
   const isAuthed = authStatus === "authenticated" && session !== null;
   const hasCompleteUsersSnapshot =
