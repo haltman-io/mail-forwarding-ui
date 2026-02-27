@@ -20,30 +20,33 @@ import {
 
 export function AliasConsoleCard(props: SubscribeCardProps = {}) {
   const controller = useAliasConsoleController(props);
+  const mobileTabPillIndex = controller.activeTab === "subscribe" ? 0 : 1;
+  const desktopTabPillIndex =
+    controller.activeTab === "subscribe" ? 0 : controller.activeTab === "unsubscribe" ? 1 : 2;
 
   const subscribeButtonContent = controller.subscribeButtonBusy ? (
     <>
       <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
-      Saving...
+      Creating...
     </>
   ) : (
-    "SAVE"
+    "Create Alias"
   );
 
   const unsubscribeButtonContent = controller.unsubscribeButtonBusy ? (
     <>
       <Loader2 className={`mr-2 h-4 w-4 animate-spin ${clickableIconClass}`} />
-      Deleting
+      Deleting...
     </>
   ) : (
-    "DELETE"
+    "Delete Alias"
   );
 
   return (
-    <Card className="relative overflow-hidden border-white/10 bg-gradient-to-b from-zinc-950 to-zinc-950/60">
-      <div className="pointer-events-none absolute inset-0 opacity-60">
-        <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
+    <Card className="alias-console-surface relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[color:var(--atmospheric-glow)] blur-3xl" />
+        <div className="absolute -bottom-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[color:var(--atmospheric-glow)] blur-3xl" />
       </div>
 
       <ConfirmCodeDialog
@@ -63,7 +66,7 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
       <CardHeader className="relative">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
-            <CardTitle className="tracking-tight">ALIAS CONSOLE</CardTitle>
+            <CardTitle className="tracking-tight text-[var(--text-primary)]">ALIAS CONSOLE</CardTitle>
           </div>
 
           <div className="flex items-center gap-2">
@@ -85,27 +88,35 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
 
       <CardContent className="relative space-y-6">
         <Tabs value={controller.activeTab} onValueChange={controller.onTabChange}>
-          <TabsList className="grid w-full grid-cols-2 border border-white/10 bg-black/30 sm:grid-cols-3">
+          <TabsList className="relative grid w-full grid-cols-2 p-1 sm:grid-cols-3">
+            <span
+              className="pointer-events-none absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/2)] rounded-lg border-[0.125px] border-[color:color-mix(in_oklch,var(--hairline-border)_44%,white_56%)] bg-[linear-gradient(180deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.04)_100%)] shadow-[0_14px_30px_-20px_rgba(0,0,0,0.82),inset_0_0.5px_0_rgba(255,255,255,0.12)] transition-transform duration-150 ease-out sm:hidden"
+              style={{ transform: `translateX(${mobileTabPillIndex * 100}%)` }}
+            />
+            <span
+              className="pointer-events-none absolute top-1 bottom-1 left-1 hidden w-[calc((100%-0.5rem)/3)] rounded-lg border-[0.125px] border-[color:color-mix(in_oklch,var(--hairline-border)_44%,white_56%)] bg-[linear-gradient(180deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.04)_100%)] shadow-[0_14px_30px_-20px_rgba(0,0,0,0.82),inset_0_0.5px_0_rgba(255,255,255,0.12)] transition-transform duration-150 ease-out sm:block"
+              style={{ transform: `translateX(${desktopTabPillIndex * 100}%)` }}
+            />
             <TabsTrigger
               value="subscribe"
-              className="group gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)]"
+              className="group z-10 gap-2 border-transparent bg-transparent text-[var(--text-muted)] after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
             >
               <MailPlus className={`h-4 w-4 ${clickableIconClass}`} />
-              CREATE
+              Create
             </TabsTrigger>
             <TabsTrigger
               value="unsubscribe"
-              className="group gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)]"
+              className="group z-10 gap-2 border-transparent bg-transparent text-[var(--text-muted)] after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
             >
               <MailX className={`h-4 w-4 ${clickableIconClass}`} />
-              DELETE
+              Delete
             </TabsTrigger>
             <TabsTrigger
               value="curl"
-              className="group hidden gap-2 data-[state=active]:bg-white/5 data-[state=active]:text-zinc-100 data-[state=active]:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.25)] sm:inline-flex"
+              className="group z-10 hidden gap-2 border-transparent bg-transparent text-[var(--text-muted)] after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)] sm:inline-flex"
             >
               <Terminal className={`h-4 w-4 ${clickableIconClass}`} />
-              CURL
+              cURL
             </TabsTrigger>
           </TabsList>
 
@@ -124,10 +135,12 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
             confirmedMapping={controller.confirmedMapping}
             subscribeAwaiting={controller.subscribeAwaiting}
             subscribeHasInput={controller.subscribeHasInput}
+            subscribePreviewPulseSource={controller.subscribePreviewPulseSource}
             subscribeAliasReady={controller.subscribeAliasReady}
             previewAlias={controller.previewAlias}
             subscribeTarget={controller.subscribeTarget}
             curlSubscribe={controller.curlSubscribe}
+            copiedId={controller.copiedId}
             codeBlockClass={codeBlockClass}
             clickableIconClass={clickableIconClass}
             onNameChange={controller.onNameChange}
@@ -137,19 +150,21 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
             onIsCustomAddressChange={controller.onIsCustomAddressChange}
             onCustomAddressChange={controller.onCustomAddressChange}
             onSubmit={controller.onSubscribe}
-            onGoToDeleteAlias={controller.goToUnsubscribeTab}
+            onCopySubscribePreview={controller.copySubscribePreviewCurl}
           />
 
           <UnsubscribeTabPanel
             alias={controller.alias}
             requestBusy={controller.requestBusy}
             unsubscribeButtonContent={unsubscribeButtonContent}
+            copiedId={controller.copiedId}
+            unsubscribePreviewPulseSource={controller.unsubscribePreviewPulseSource}
             curlUnsubscribe={controller.curlUnsubscribe}
             codeBlockClass={codeBlockClass}
             clickableIconClass={clickableIconClass}
             onAliasChange={controller.onAliasChange}
             onSubmit={controller.onUnsubscribe}
-            onGoToCreateAlias={controller.goToSubscribeTab}
+            onCopyUnsubscribePreview={controller.copyUnsubscribePreviewCurl}
           />
 
           <CurlTabPanel

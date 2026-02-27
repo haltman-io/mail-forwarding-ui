@@ -60,7 +60,7 @@ export function ConfirmCodeDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onDialogOpenChange}>
-        <DialogContent className="max-w-[22rem] border-white/10 bg-zinc-950/95 p-0">
+        <DialogContent className="max-w-[22rem] p-0">
           <div className="space-y-4 px-6 pt-6">
             <DialogHeader>
               <DialogTitle>Confirm email code</DialogTitle>
@@ -79,31 +79,31 @@ export function ConfirmCodeDialog({
                   containerClassName="w-full justify-start gap-2"
                   onChange={onConfirmCodeChange}
                 >
-                  <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg *:data-[slot=input-otp-slot]:border-white/15 *:data-[slot=input-otp-slot]:bg-black/30 *:data-[slot=input-otp-slot]:text-zinc-100 *:data-[slot=input-otp-slot]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                  <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg">
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
                     <InputOTPSlot index={2} />
                   </InputOTPGroup>
-                  <InputOTPSeparator className="mx-2 text-zinc-500" />
-                  <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg *:data-[slot=input-otp-slot]:border-white/15 *:data-[slot=input-otp-slot]:bg-black/30 *:data-[slot=input-otp-slot]:text-zinc-100 *:data-[slot=input-otp-slot]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                  <InputOTPSeparator className="mx-2 text-[var(--text-muted)]" />
+                  <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg">
                     <InputOTPSlot index={3} />
                     <InputOTPSlot index={4} />
                     <InputOTPSlot index={5} />
                   </InputOTPGroup>
                 </InputOTP>
-                <p className="text-xs text-zinc-400">Enter the 6-digit code from your email.</p>
+                <p className="text-xs text-[var(--text-muted)]">Enter the 6-digit code from your email.</p>
               </div>
 
               {confirmErrorText && (
-                <Alert variant="destructive" className="border-white/10 bg-black/30">
+                <Alert variant="destructive">
                   <AlertTitle>Confirmation failed</AlertTitle>
-                  <AlertDescription className="text-zinc-300">{confirmErrorText}</AlertDescription>
+                  <AlertDescription className="text-[var(--text-secondary)]">{confirmErrorText}</AlertDescription>
                 </Alert>
               )}
             </form>
           </div>
 
-          <Separator className="bg-white/10" />
+          <Separator className="bg-[color:var(--hairline-border)]" />
 
           <DialogFooter className="flex flex-col gap-2 px-6 pb-6">
             <Button form="confirm-otp-form" type="submit" className="group w-full" disabled={confirmLoading}>

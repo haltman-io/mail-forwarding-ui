@@ -8,9 +8,8 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[border-color,box-shadow,color] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium hover:border-zinc-400/30 dark:hover:border-white/15 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-zinc-400/40 dark:focus-visible:border-white/20 focus-visible:ring-zinc-400/30 dark:focus-visible:ring-white/15 focus-visible:ring-[3px] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.04)] dark:focus-visible:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        "ui-focus-ring ui-smooth ui-surface-pressed file:text-foreground placeholder:text-[var(--text-muted)] selection:bg-primary selection:text-primary-foreground h-9 w-full min-w-0 rounded-lg px-3 py-1 text-base text-[var(--text-primary)] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium hover:border-[color:color-mix(in_oklch,var(--hairline-border)_58%,white_42%)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "aria-invalid:border-destructive aria-invalid:shadow-[0_0_0_1px_rgba(220,38,38,0.4)]",
         className
       )}
       {...props}

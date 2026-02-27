@@ -14,7 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { badgeClasses } from "@/lib/utils-mail";
 import { useCopyFeedback } from "@/lib/use-copy-feedback";
+import { cn } from "@/lib/utils";
 import { CollapsedOkRecord } from "@/features/dns-setup-menu/components/collapsed-ok-record";
 import { CopyableInputRow } from "@/features/dns-setup-menu/components/copyable-input-row";
 import { FoundEntries } from "@/features/dns-setup-menu/components/found-entries";
@@ -410,23 +410,29 @@ function DnsValidationDialog({
   );
 }
 
-export function DnsSetupMenu() {
+type DnsSetupMenuProps = {
+  triggerClassName?: string;
+  triggerIconClassName?: string;
+};
+
+export function DnsSetupMenu({ triggerClassName, triggerIconClassName }: DnsSetupMenuProps = {}) {
   const [emailOpen, setEmailOpen] = React.useState(false);
 
   return (
     <>
-      <Button
+      <button
         type="button"
-        variant="outline"
-        size="sm"
-        className="group relative h-8 overflow-visible border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
+        className={cn(
+          "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
+          triggerClassName ?? "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
+        )}
         aria-label="Add domain"
         title="Use your domain for aliases"
         onClick={() => setEmailOpen(true)}
       >
-        <AtSign className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
+        <AtSign className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-zinc-300")} />
         Add Domain
-      </Button>
+      </button>
 
       <DnsValidationDialog
         open={emailOpen}

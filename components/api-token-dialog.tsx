@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { API_HOST } from "@/lib/api-host";
 import { useCopyFeedback } from "@/lib/use-copy-feedback";
 import { validateMailboxEmail } from "@/lib/utils-mail";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type ApiStatus = "idle" | "connected" | "error";
@@ -97,8 +98,12 @@ function describeConfirmError(data: ConfirmResponse | null, fallback: string | n
 
 export function ApiTokenDialog({
   onApiStatusChange,
+  triggerClassName,
+  triggerIconClassName,
 }: {
   onApiStatusChange?: (status: ApiStatus) => void;
+  triggerClassName?: string;
+  triggerIconClassName?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [apiEmail, setApiEmail] = React.useState("");
@@ -292,17 +297,18 @@ export function ApiTokenDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="sm"
-          className="group relative overflow-visible border-white/10 bg-white/5 hover:bg-white/10"
+          className={cn(
+            "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
+            triggerClassName ?? "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
+          )}
           title="Create a free token to automate alias management via API."
           aria-label="Create a free token to automate alias management via API."
         >
-          <KeyRound className="mr-2 h-4 w-4" />
+          <KeyRound className={cn("h-4 w-4", triggerIconClassName ?? "text-zinc-300")} />
           API Token
-        </Button>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] border-white/10 bg-zinc-950/95 p-0">

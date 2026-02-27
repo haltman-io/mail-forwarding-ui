@@ -5,19 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ui-smooth ui-lift-hover ui-press disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-transparent text-sm font-medium ui-focus-ring ui-smooth ui-lift-hover ui-press disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "alias-primary text-primary-foreground",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-rose-400/30 bg-[linear-gradient(180deg,rgba(209,53,80,0.34)_0%,rgba(145,38,62,0.3)_100%)] text-rose-50 shadow-[0_14px_26px_-18px_rgba(205,70,95,0.6),inset_0_1px_0_rgba(255,255,255,0.16)] hover:bg-[linear-gradient(180deg,rgba(218,64,90,0.4)_0%,rgba(155,44,72,0.34)_100%)] active:bg-[linear-gradient(180deg,rgba(190,44,72,0.36)_0%,rgba(132,32,58,0.32)_100%)]",
+        outline: "ui-interactive-elevated text-[var(--text-secondary)] hover:text-[var(--text-primary)]",
+        secondary: "ui-interactive-elevated text-[var(--text-primary)]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "border-transparent bg-transparent text-[var(--text-secondary)] hover:border-[color:var(--hairline-border)] hover:bg-[color:var(--hover-state)] hover:text-[var(--text-primary)] active:bg-[color:var(--active-state)]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

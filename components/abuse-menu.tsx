@@ -3,7 +3,6 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -24,16 +23,14 @@ export function AbuseMenu() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="sm"
-          className="group h-8 border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
+          className="group ui-focus-ring ui-smooth ui-surface-pressed inline-flex h-8 items-center justify-center rounded-lg px-2.5 text-sm font-medium text-[var(--text-muted)] hover:border-[color:color-mix(in_oklch,var(--hairline-border)_58%,white_42%)]"
           aria-label="Abuse policy"
           title="Abuse"
         >
           Abuse
-        </Button>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] w-[min(94vw,920px)] max-w-[920px] overflow-y-auto border-white/10 bg-zinc-950/95 p-0">

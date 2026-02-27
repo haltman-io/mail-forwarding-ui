@@ -26,7 +26,7 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+        "ui-surface-pressed ui-smooth text-[var(--text-muted)] inline-flex h-10 w-fit items-center justify-center rounded-xl p-1",
         className
       )}
       {...props}
@@ -42,7 +42,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "relative data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow,background-color,border-color] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] data-[state=inactive]:hover:bg-white/5 data-[state=inactive]:hover:border-white/10 focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm after:absolute after:inset-x-2 after:bottom-0 after:h-px after:bg-current after:opacity-0 after:scale-x-75 after:origin-center after:transition-[opacity,transform] after:duration-[var(--motion-duration-base)] after:ease-[var(--motion-ease-standard)] after:content-[''] data-[state=active]:after:opacity-60 data-[state=active]:after:scale-x-100 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "ui-focus-ring ui-smooth relative inline-flex h-[calc(100%-2px)] flex-1 items-center justify-center gap-1.5 rounded-lg border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-[var(--text-muted)] outline-none data-[state=active]:border-[color:color-mix(in_oklch,var(--hairline-border)_42%,white_58%)] data-[state=active]:bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.04)_100%)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-[0_12px_24px_-18px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.08)_inset,inset_0_1px_0_rgba(255,255,255,0.14)] data-[state=inactive]:hover:border-[color:var(--hairline-border)] data-[state=inactive]:hover:bg-[color:var(--hover-state)] data-[state=inactive]:hover:text-[var(--text-secondary)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}

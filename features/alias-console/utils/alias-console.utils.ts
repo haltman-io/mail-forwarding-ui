@@ -9,12 +9,12 @@ import type {
 } from "@/features/alias-console/types/alias-console.types";
 
 export const clickableIconClass =
-  "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
+  "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_8px_rgba(208,220,238,0.22)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
 
 export const staticIconClass = "cursor-default";
 
 export const codeBlockClass =
-  "overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-zinc-200/90 tracking-[0.01em] tabular-nums";
+  "overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-[color:color-mix(in_oklch,var(--text-secondary)_94%,transparent)] tracking-[0.01em] tabular-nums";
 
 export const DOMAINS_URL = `${API_HOST}/domains`;
 

@@ -1,35 +1,39 @@
 "use client";
 
-import * as React from "react";
-import { ChevronDown, PanelTop, Chromium, Flame } from "lucide-react";
+import { ChevronDown, Chromium, Flame } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 const clickableIconClass =
   "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
 
+type BrowserAddonMenuProps = {
+  triggerClassName?: string;
+  triggerIconClassName?: string;
+};
 
-export function BrowserAddonMenu() {
+export function BrowserAddonMenu({ triggerClassName, triggerIconClassName }: BrowserAddonMenuProps = {}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="group relative h-8 overflow-visible border-white/10 bg-white/5 px-2.5 text-zinc-200 hover:bg-white/10"
+        <button
+          type="button"
+          className={cn(
+            "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
+            triggerClassName ?? "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
+          )}
           aria-label="Browser Extension"
         >
-          <Chromium className={`h-4 w-4 ${clickableIconClass}`} />
+          <Chromium className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-zinc-300")} />
           Extension
-          <ChevronDown className="ml-2 h-3.5 w-3.5 text-zinc-400" />
-        </Button>
+          <ChevronDown className={cn("ml-1 h-3.5 w-3.5", triggerIconClassName ?? "text-zinc-400")} />
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

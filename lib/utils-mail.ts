@@ -96,7 +96,11 @@ export function safeJson(data: unknown) {
 }
 
 export function badgeClasses(kind: "ok" | "bad" | "idle") {
-  if (kind === "ok") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-200";
-  if (kind === "bad") return "border-rose-500/30 bg-rose-500/10 text-rose-200";
-  return "border-white/10 bg-white/5 text-zinc-200";
+  if (kind === "ok") {
+    return "border-emerald-400/30 bg-emerald-400/12 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]";
+  }
+  if (kind === "bad") {
+    return "border-rose-400/34 bg-rose-400/14 text-rose-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]";
+  }
+  return "border-[color:var(--hairline-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.03)_100%)] text-[color:var(--text-secondary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]";
 }

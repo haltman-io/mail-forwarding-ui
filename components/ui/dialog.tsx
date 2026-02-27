@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     data-slot="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+      "fixed inset-0 z-50 bg-[rgba(4,7,14,0.62)] backdrop-blur-[4px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
       className
     )}
     {...props}
@@ -37,14 +37,14 @@ const DialogContent = React.forwardRef<
       ref={ref}
       data-slot="dialog-content"
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border border-white/10 bg-zinc-950/95 p-6 text-zinc-100 shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
+        "ui-surface-overlay fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl p-6 text-[var(--text-primary)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
         className
       )}
       {...props}
     >
       {children}
       <DialogPrimitive.Close
-        className="absolute right-4 top-4 rounded-md p-1 text-zinc-400 transition hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+        className="ui-focus-ring ui-smooth absolute right-4 top-4 rounded-md border border-transparent p-1 text-[var(--text-muted)] hover:border-[color:var(--hairline-border)] hover:bg-[color:var(--hover-state)] hover:text-[var(--text-secondary)] focus-visible:outline-none"
         aria-label="Close"
       >
         <X className="h-4 w-4" />
@@ -94,7 +94,7 @@ const DialogDescription = React.forwardRef<
   <DialogPrimitive.Description
     ref={ref}
     data-slot="dialog-description"
-    className={cn("text-sm text-zinc-400", className)}
+    className={cn("text-sm text-[var(--text-muted)]", className)}
     {...props}
   />
 ))

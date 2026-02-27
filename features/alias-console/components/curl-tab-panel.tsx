@@ -31,11 +31,11 @@ export function CurlTabPanel({
 }: CurlTabPanelProps) {
   return (
     <TabsContent value="curl" className="mt-6 hidden space-y-4 sm:block">
-      <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+      <div className="ui-surface-pressed rounded-xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-zinc-200">RAW CURL</p>
-            <p className="text-xs text-zinc-400">Just copy, paste and run. No mistery.</p>
+            <p className="text-sm font-medium text-[var(--text-secondary)]">RAW CURL</p>
+            <p className="text-xs text-[var(--text-muted)]">Just copy, paste and run. No mistery.</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -43,7 +43,7 @@ export function CurlTabPanel({
               type="button"
               variant="outline"
               size="sm"
-              className="group border-white/10 bg-white/5 hover:bg-white/10"
+              className="group"
               onClick={onCopySubscribe}
               disabled={!canCopySubscribe}
             >
@@ -58,7 +58,7 @@ export function CurlTabPanel({
               type="button"
               variant="outline"
               size="sm"
-              className="group border-white/10 bg-white/5 hover:bg-white/10"
+              className="group"
               onClick={onCopyUnsubscribe}
               disabled={!canCopyUnsubscribe}
             >
@@ -72,16 +72,16 @@ export function CurlTabPanel({
           </div>
         </div>
 
-        <Separator className="my-4 bg-white/10" />
+        <Separator className="my-4 bg-[color:var(--hairline-border)]" />
 
         <div className="space-y-3">
-          <div className="rounded-lg border border-white/10 bg-black/40 p-3">
-            <p className="text-xs text-zinc-400">CREATE</p>
+          <div className="ui-surface-pressed rounded-lg p-3">
+            <p className="text-xs text-[var(--text-muted)]">CREATE</p>
             <pre className={`mt-1 ${codeBlockClass}`}>{curlSubscribe}</pre>
           </div>
 
-          <div className="rounded-lg border border-white/10 bg-black/40 p-3">
-            <p className="text-xs text-zinc-400">DELETE</p>
+          <div className="ui-surface-pressed rounded-lg p-3">
+            <p className="text-xs text-[var(--text-muted)]">DELETE</p>
             <pre className={`mt-1 ${codeBlockClass}`}>{curlUnsubscribe}</pre>
           </div>
         </div>

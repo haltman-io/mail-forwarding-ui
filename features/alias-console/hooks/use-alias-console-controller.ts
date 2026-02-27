@@ -166,6 +166,8 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
   const subscribeTarget = to.trim();
   const showConfirmedPanel = requestState === "success" && confirmedMapping?.intent === "subscribe";
   const subscribeAwaiting = subscribeActionState === "awaiting_confirmation";
+  const subscribePreviewPulseSource = `${isCustomAddress ? customAddressValue : name.trim()}|${domain.trim()}|${subscribeTarget}`;
+  const unsubscribePreviewPulseSource = alias.trim();
 
   const subscribeButtonBusy = subscribeActionState === "loading";
   const unsubscribeButtonBusy = unsubscribeActionState === "loading";
@@ -487,8 +489,16 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     copyWithFeedback("curl-subscribe-tab", curlSubscribe, "Subscribe command");
   }, [copyWithFeedback, curlSubscribe]);
 
+  const copySubscribePreviewCurl = React.useCallback(() => {
+    copyWithFeedback("preview-subscribe-curl", curlSubscribe, "Create command", 2000);
+  }, [copyWithFeedback, curlSubscribe]);
+
   const copyUnsubscribeCurl = React.useCallback(() => {
     copyWithFeedback("curl-unsubscribe-tab", curlUnsubscribe, "Unsubscribe command");
+  }, [copyWithFeedback, curlUnsubscribe]);
+
+  const copyUnsubscribePreviewCurl = React.useCallback(() => {
+    copyWithFeedback("preview-unsubscribe-curl", curlUnsubscribe, "Delete command", 2000);
   }, [copyWithFeedback, curlUnsubscribe]);
 
   return {
@@ -522,8 +532,10 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     subscribeAwaiting,
     subscribeButtonBusy,
     subscribeHasInput,
+    subscribePreviewPulseSource,
     subscribeTarget,
     to,
+    unsubscribePreviewPulseSource,
     unsubscribeActionState,
     unsubscribeButtonBusy,
     previewAlias,
@@ -546,6 +558,8 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     goToSubscribeTab,
     goToUnsubscribeTab,
     copySubscribeCurl,
+    copySubscribePreviewCurl,
     copyUnsubscribeCurl,
+    copyUnsubscribePreviewCurl,
   };
 }
