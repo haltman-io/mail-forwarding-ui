@@ -37,7 +37,7 @@ export function BrowserAddonMenu({ triggerClassName, triggerIconClassName }: Bro
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-64 border-white/10 bg-black/80 text-zinc-200 backdrop-blur"
+        className="ui-dropdown-glass w-64 border-white/10 bg-black/80 text-zinc-200"
       >
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-white/5">
           <a

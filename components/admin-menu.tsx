@@ -116,7 +116,7 @@ import type {
 } from "@/features/admin-menu/types/admin-menu.types";
 
 export function AdminMenu() {
-  const sectionLoaderRef = React.useRef<(section: AdminSection) => void>(() => {});
+  const sectionLoaderRef = React.useRef<(section: AdminSection) => void>(() => { });
 
   const [authStatus, setAuthStatus] = React.useState<AuthStatus>("checking");
   const [session, setSession] = React.useState<AdminSession | null>(null);
@@ -1598,7 +1598,7 @@ export function AdminMenu() {
             <button
               type="button"
               onClick={() => setAuthDialogOpen(true)}
-              className="group ui-focus-ring ui-smooth inline-flex h-8 items-center justify-center gap-2 rounded-xl border-[0.5px] border-[color:color-mix(in_oklch,var(--hairline-border)_78%,white_22%)] bg-[linear-gradient(180deg,rgba(121,132,151,0.17)_0%,rgba(23,30,44,0.56)_100%)] px-2.5 text-sm font-medium text-[var(--text-primary)] shadow-[0_12px_24px_-18px_rgba(0,0,0,0.9),0_3px_8px_-6px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.16),inset_0_-1px_0_rgba(0,0,0,0.36)] hover:border-[color:color-mix(in_oklch,var(--hairline-border)_61%,white_39%)] hover:bg-[linear-gradient(180deg,rgba(137,148,168,0.22)_0%,rgba(30,38,55,0.62)_100%)]"
+              className="group ui-focus-ring ui-console-chip h-8 px-2.5 text-sm font-medium text-[var(--text-primary)]"
               aria-label="Open admin authentication"
               title="Admin"
             >

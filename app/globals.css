@@ -464,13 +464,82 @@
       radial-gradient(84% 52% at 50% -14%,
         color-mix(in srgb, var(--accent-glow) 28%, transparent) 0%,
         transparent 78%),
-      var(--surface-elevated-gradient);
-    backdrop-filter: blur(14px);
+      linear-gradient(180deg, rgba(22, 22, 48, 0.88) 0%, rgba(15, 15, 30, 0.85) 100%);
+    backdrop-filter: blur(10px) saturate(130%);
     box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.22),
       0 34px 74px -46px rgba(4, 6, 12, 0.9),
       0 14px 30px -20px rgba(4, 6, 12, 0.85),
       inset 0 1px 0 var(--inner-highlight),
-      inset 0 -1px 0 color-mix(in oklch, black 36%, transparent);
+      inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    transition:
+      transform var(--motion-duration-base) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-base) var(--motion-ease-standard);
+  }
+
+  .alias-console-surface:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.28),
+      0 38px 78px -46px rgba(4, 6, 12, 0.92),
+      0 16px 32px -20px rgba(4, 6, 12, 0.88),
+      inset 0 1px 0 color-mix(in oklch, var(--inner-highlight) 120%, transparent),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.32);
+  }
+
+  .ui-console-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    border: 0.5px solid color-mix(in oklch, var(--hairline-border) 78%, white 22%);
+    background: linear-gradient(145deg, rgba(30, 30, 60, 1), rgba(15, 15, 30, 1));
+    color: var(--text-primary);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    box-shadow:
+      4px 4px 8px rgba(0, 0, 0, 0.25),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.36);
+    transition:
+      background var(--motion-duration-slow) var(--motion-ease-standard),
+      border-color var(--motion-duration-slow) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-slow) var(--motion-ease-standard),
+      transform var(--motion-duration-slow) var(--motion-ease-standard);
+  }
+
+  .ui-console-chip:hover {
+    border-color: color-mix(in oklch, var(--hairline-border) 55%, white 45%);
+    background: linear-gradient(145deg, rgba(38, 38, 72, 1), rgba(20, 20, 42, 1));
+    box-shadow:
+      2px 2px 4px rgba(0, 0, 0, 0.18),
+      6px 6px 12px rgba(0, 0, 0, 0.15),
+      inset -1px -1px 3px rgba(255, 255, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+      0 0 14px -8px color-mix(in srgb, var(--accent-glow) 40%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .ui-console-chip:active,
+  .ui-console-chip[aria-expanded="true"] {
+    background: linear-gradient(145deg, rgba(12, 12, 26, 1), rgba(22, 22, 46, 1));
+    box-shadow:
+      inset 2px 2px 5px rgba(0, 0, 0, 0.35),
+      inset -1px -1px 3px rgba(255, 255, 255, 0.04),
+      inset 0 1px 0 rgba(0, 0, 0, 0.2),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+      0 2px 4px rgba(0, 0, 0, 0.12);
+    transform: translateY(1px);
+  }
+
+  .ui-dropdown-glass {
+    backdrop-filter: blur(8px) saturate(120%);
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.3),
+      0 24px 48px -12px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .alias-primary {
@@ -582,6 +651,22 @@
     animation: alias-preview-pulse 280ms ease-out;
   }
 
+  @media (max-width: 640px) {
+    .ui-console-chip {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      box-shadow:
+        3px 3px 6px rgba(0, 0, 0, 0.3),
+        inset -2px -2px 4px rgba(255, 255, 255, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .ui-console-chip:active {
+      transform: scale(1.04);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ui-smooth {
       transition: none !important;
@@ -589,6 +674,15 @@
 
     .ui-lift-hover:hover,
     .ui-press:active {
+      transform: none !important;
+    }
+
+    .alias-console-surface,
+    .alias-console-surface:hover,
+    .ui-console-chip,
+    .ui-console-chip:hover,
+    .ui-console-chip:active {
+      transition: none !important;
       transform: none !important;
     }
 
