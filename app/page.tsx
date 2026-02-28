@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { SiteHeader } from "@/components/site-header";
-import { SiteDock } from "@/components/site-dock";
 import { SubscribeCard } from "@/components/subscribe-card";
 
 type ApiStatus = "idle" | "connected" | "error";
@@ -27,8 +26,6 @@ export default function Page() {
           </footer>
         </section>
       </main>
-
-      <SiteDock />
     </>
   );
 }

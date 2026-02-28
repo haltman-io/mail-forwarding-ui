@@ -79,9 +79,20 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [brandIconIndex, setBrandIconIndex] = React.useState(0);
   const [brandIconSwapKey, setBrandIconSwapKey] = React.useState(0);
+  const [isMobileViewport, setIsMobileViewport] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
     setHost(window.location.host);
+  }, []);
+
+  React.useEffect(() => {
+    const syncViewport = () => {
+      setIsMobileViewport(window.innerWidth < 640);
+    };
+
+    syncViewport();
+    window.addEventListener("resize", syncViewport);
+    return () => window.removeEventListener("resize", syncViewport);
   }, []);
 
   React.useEffect(() => {
@@ -111,6 +122,9 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const headerActionTriggerClass =
     `${headerChipVisualClass} h-8 px-2.5 text-sm font-medium`;
   const headerActionIconClass = "text-[var(--text-primary)] !opacity-100";
+  const mobileActionTriggerClass =
+    "group relative inline-flex h-8 w-full items-center justify-start gap-2 overflow-visible rounded-md px-2 text-sm font-medium text-[var(--text-primary)] hover:bg-white/10";
+  const mobileActionIconClass = "text-[var(--text-secondary)] !opacity-100";
 
   return (
     <>
@@ -141,28 +155,32 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <div className="hidden sm:block">
-                <BrowserAddonMenu
-                  triggerClassName={headerActionTriggerClass}
-                  triggerIconClassName={headerActionIconClass}
-                />
-              </div>
-              <div>
-                <ApiTokenDialog
-                  onApiStatusChange={onApiStatusChange}
-                  triggerClassName={headerActionTriggerClass}
-                  triggerIconClassName={headerActionIconClass}
-                />
-              </div>
-              <div>
-                <DnsSetupMenu
-                  triggerClassName={headerActionTriggerClass}
-                  triggerIconClassName={headerActionIconClass}
-                />
-              </div>
-              <div>
-                <AdminMenu />
-              </div>
+              {isMobileViewport === false ? (
+                <>
+                  <div>
+                    <BrowserAddonMenu
+                      triggerClassName={headerActionTriggerClass}
+                      triggerIconClassName={headerActionIconClass}
+                    />
+                  </div>
+                  <div>
+                    <ApiTokenDialog
+                      onApiStatusChange={onApiStatusChange}
+                      triggerClassName={headerActionTriggerClass}
+                      triggerIconClassName={headerActionIconClass}
+                    />
+                  </div>
+                  <div>
+                    <DnsSetupMenu
+                      triggerClassName={headerActionTriggerClass}
+                      triggerIconClassName={headerActionIconClass}
+                    />
+                  </div>
+                  <div>
+                    <AdminMenu />
+                  </div>
+                </>
+              ) : null}
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -179,8 +197,29 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-44 p-1 text-[var(--text-primary)]"
+                  className="w-56 p-1 text-[var(--text-primary)] sm:w-44"
                 >
+                  {isMobileViewport === true ? (
+                    <>
+                      <div className="space-y-1 p-1">
+                        <ApiTokenDialog
+                          onApiStatusChange={onApiStatusChange}
+                          triggerClassName={mobileActionTriggerClass}
+                          triggerIconClassName={mobileActionIconClass}
+                        />
+                        <DnsSetupMenu
+                          triggerClassName={mobileActionTriggerClass}
+                          triggerIconClassName={mobileActionIconClass}
+                        />
+                        <div className="w-full [&>div]:w-full [&>div]:gap-1 [&>div>button]:w-full [&>div>button]:justify-start [&>div>button]:rounded-md [&>div>button]:border-0 [&>div>button]:bg-transparent [&>div>button]:px-2 [&>div>button]:text-[var(--text-primary)] [&>div>button]:shadow-none">
+                          <AdminMenu />
+                        </div>
+                      </div>
+
+                      <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
+                    </>
+                  ) : null}
+
                   <DropdownMenuItem asChild className="cursor-pointer rounded-md">
                     <Link
                       href="https://dev.haltman.io/mail-forwarding-selfhost/get-started"

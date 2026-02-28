@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "alias-primary text-primary-foreground",
         destructive:
-          "border-rose-400/30 bg-[linear-gradient(180deg,rgba(209,53,80,0.34)_0%,rgba(145,38,62,0.3)_100%)] text-rose-50 shadow-[0_14px_26px_-18px_rgba(205,70,95,0.6),inset_0_1px_0_rgba(255,255,255,0.16)] hover:bg-[linear-gradient(180deg,rgba(218,64,90,0.4)_0%,rgba(155,44,72,0.34)_100%)] active:bg-[linear-gradient(180deg,rgba(190,44,72,0.36)_0%,rgba(132,32,58,0.32)_100%)]",
+          "alias-destructive",
         outline: "ui-interactive-elevated text-[var(--text-secondary)] hover:text-[var(--text-primary)]",
         secondary: "ui-interactive-elevated text-[var(--text-primary)]",
         ghost:

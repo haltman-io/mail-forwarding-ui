@@ -78,25 +78,19 @@
 
   --surface-base-gradient:
     linear-gradient(180deg, color-mix(in oklch, var(--inner-highlight) 24%, transparent) 0%, transparent 36%),
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       color-mix(in oklch, var(--surface-base) 98%, white 2%) 0%,
-      color-mix(in oklch, var(--surface-base) 92%, black 8%) 100%
-    );
+      color-mix(in oklch, var(--surface-base) 92%, black 8%) 100%);
   --surface-elevated-gradient:
     linear-gradient(180deg, color-mix(in oklch, var(--inner-highlight) 28%, transparent) 0%, transparent 34%),
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       color-mix(in oklch, var(--surface-elevated) 97%, white 3%) 0%,
-      color-mix(in oklch, var(--surface-elevated) 90%, black 10%) 100%
-    );
+      color-mix(in oklch, var(--surface-elevated) 90%, black 10%) 100%);
   --surface-pressed-gradient:
     linear-gradient(180deg, color-mix(in oklch, white 9%, transparent) 0%, transparent 40%),
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       color-mix(in oklch, var(--surface-pressed) 96%, white 4%) 0%,
-      color-mix(in oklch, var(--surface-pressed) 88%, black 12%) 100%
-    );
+      color-mix(in oklch, var(--surface-pressed) 88%, black 12%) 100%);
 
   --background: var(--background-base);
   --foreground: var(--text-primary);
@@ -140,29 +134,35 @@
 
   /* VISUAL TOKENS: Soft-Depth / Atmospheric */
   /* Deeper, slightly cooler background (Hue ~270) */
-  --background-base: oklch(0.12 0.02 270); 
-  
+  --background-base: oklch(0.12 0.02 270);
+
   /* Atmospheric glow for behind elements */
   --atmospheric-glow: rgba(120, 110, 160, 0.08);
 
   /* Surfaces: Dark, dense glass */
-  --surface-base: oklch(0.18 0.025 270 / 0.75);         /* Translucent for blur effect */
-  --surface-elevated: oklch(0.21 0.03 270 / 0.85);      /* Slightly lighter, more opaque */
+  --surface-base: oklch(0.18 0.025 270 / 0.75);
+  /* Translucent for blur effect */
+  --surface-elevated: oklch(0.21 0.03 270 / 0.85);
+  /* Slightly lighter, more opaque */
   --surface-pressed: oklch(0.16 0.025 270 / 0.8);
-  
+
   /* Borders: "Micro-contrast" edges */
-  --hairline-border: oklch(0.8 0.05 260 / 0.1);         /* Subtler outer edge */
-  --inner-highlight: oklch(1 0 0 / 0.1);                /* Top light catch */
-  
+  --hairline-border: oklch(0.8 0.05 260 / 0.1);
+  /* Subtler outer edge */
+  --inner-highlight: oklch(1 0 0 / 0.1);
+  /* Top light catch */
+
   /* Shadows: Diffuse & Broad for suspension */
-  --ambient-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.7); /* Deep atmospheric depth */
-  --depth-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.9);    /* Contact shadow */
-  
+  --ambient-shadow: 0 40px 100px -30px rgba(8, 12, 24, 0.85);
+  /* Deep atmospheric depth */
+  --depth-shadow: 0 10px 30px -15px rgba(5, 8, 16, 0.95);
+  /* Contact shadow */
+
   /* Text: High legibility amidst dark tones */
   --text-primary: oklch(0.96 0.01 270);
   --text-secondary: oklch(0.75 0.02 270);
   --text-muted: oklch(0.55 0.03 270);
-  
+
   /* Interactive States */
   --focus-ring: color-mix(in oklch, var(--alias-accent) 60%, transparent);
   --accent-glow: rgba(138, 120, 220, 0.15);
@@ -171,15 +171,15 @@
 
   /* Gradients: Very subtle vertical light falloff */
   --surface-base-gradient:
-    linear-gradient(180deg, rgba(255,255,255, 0.04) 0%, transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
     linear-gradient(180deg, var(--surface-base) 0%, oklch(0.15 0.025 270 / 0.9) 100%);
-    
+
   --surface-elevated-gradient:
-    linear-gradient(180deg, rgba(255,255,255, 0.06) 0%, transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 30%),
     linear-gradient(180deg, var(--surface-elevated) 0%, oklch(0.19 0.03 270 / 0.9) 100%);
-    
+
   --surface-pressed-gradient:
-    linear-gradient(180deg, rgba(0,0,0, 0.2) 0%, transparent 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, transparent 100%),
     linear-gradient(180deg, var(--surface-pressed) 0%, oklch(0.14 0.025 270 / 0.95) 100%);
 
   /* Shadcn Mappings */
@@ -201,12 +201,16 @@
   --border: var(--hairline-border);
   --input: color-mix(in oklch, var(--surface-base) 50%, transparent);
   --ring: var(--focus-ring);
-  
+
   --chart-1: var(--alias-accent);
-  --chart-2: oklch(0.7 0.12 200);   /* Teal */
-  --chart-3: oklch(0.75 0.1 50);    /* Gold/Amber */
-  --chart-4: oklch(0.6 0.15 300);   /* Magenta */
-  --chart-5: oklch(0.7 0.1 150);    /* Green */
+  --chart-2: oklch(0.7 0.12 200);
+  /* Teal */
+  --chart-3: oklch(0.75 0.1 50);
+  /* Gold/Amber */
+  --chart-4: oklch(0.6 0.15 300);
+  /* Magenta */
+  --chart-5: oklch(0.7 0.1 150);
+  /* Green */
   --sidebar: var(--surface-base);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--primary);
@@ -238,8 +242,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--text-muted) 44%, transparent)
-      transparent;
+    scrollbar-color: color-mix(in oklch, var(--text-muted) 44%, transparent) transparent;
   }
 
   *::-webkit-scrollbar {
@@ -252,22 +255,18 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: color-mix(
-      in oklch,
-      var(--text-muted) 42%,
-      transparent
-    );
+    background-color: color-mix(in oklch,
+        var(--text-muted) 42%,
+        transparent);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: padding-box;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(
-      in oklch,
-      var(--text-muted) 56%,
-      transparent
-    );
+    background-color: color-mix(in oklch,
+        var(--text-muted) 56%,
+        transparent);
   }
 
   *::-webkit-scrollbar-corner {
@@ -275,6 +274,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -334,9 +334,11 @@
     border-color: color-mix(in oklch, var(--hairline-border) 74%, white 26%);
     background: var(--surface-pressed-gradient);
     box-shadow:
-      inset 0 1px 0 color-mix(in oklch, var(--inner-highlight) 72%, transparent),
-      inset 0 -1px 0 color-mix(in oklch, black 36%, transparent),
-      0 12px 24px -20px color-mix(in oklch, black 76%, transparent);
+      inset 0 2px 6px color-mix(in oklch, black 60%, transparent),
+      inset 0 1px 0 color-mix(in oklch, black 40%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, var(--inner-highlight) 30%, transparent),
+      0 4px 12px -8px color-mix(in oklch, black 80%, transparent);
+    transform: translateY(1px);
   }
 
   .ui-surface-elevated {
@@ -353,38 +355,34 @@
     border: 1px solid color-mix(in oklch, var(--hairline-border) 90%, transparent);
     background: var(--surface-pressed-gradient);
     box-shadow:
-      inset 0 1px 0 color-mix(in oklch, var(--inner-highlight) 74%, transparent),
-      inset 0 -1px 0 color-mix(in oklch, black 34%, transparent),
-      0 8px 18px -14px color-mix(in oklch, black 70%, transparent);
+      inset 0 2px 5px color-mix(in oklch, black 45%, transparent),
+      inset 0 1px 0 color-mix(in oklch, black 30%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, var(--inner-highlight) 25%, transparent),
+      0 0 0 transparent;
   }
 
   .ui-surface-overlay {
     border: 1px solid var(--hairline-border);
     background: var(--surface-elevated-gradient);
     box-shadow:
-      0 44px 86px -48px color-mix(in oklch, black 96%, transparent),
-      0 16px 32px -22px color-mix(in oklch, black 82%, transparent),
-      inset 0 1px 0 var(--inner-highlight);
+      0 44px 86px -48px rgba(4, 6, 12, 0.9),
+      0 16px 32px -22px rgba(4, 6, 12, 0.85),
+      inset 0 1px 0 var(--inner-highlight),
+      inset 0 0 0 1px color-mix(in oklch, var(--inner-highlight) 30%, transparent);
     backdrop-filter: blur(18px) saturate(130%);
   }
 
   .ui-atmospheric-bg {
     background:
-      radial-gradient(
-        74% 44% at 50% -8%,
+      radial-gradient(74% 44% at 50% -8%,
         color-mix(in srgb, var(--atmospheric-glow) 100%, transparent) 0%,
-        transparent 74%
-      ),
-      radial-gradient(
-        72% 48% at 50% 112%,
+        transparent 74%),
+      radial-gradient(72% 48% at 50% 112%,
         color-mix(in srgb, var(--atmospheric-glow) 80%, transparent) 0%,
-        transparent 74%
-      ),
-      linear-gradient(
-        180deg,
+        transparent 74%),
+      linear-gradient(180deg,
         color-mix(in oklch, var(--background-base) 98%, black 2%) 0%,
-        color-mix(in oklch, var(--background-base) 90%, black 10%) 100%
-      );
+        color-mix(in oklch, var(--background-base) 90%, black 10%) 100%);
   }
 
   .ui-interactive-elevated {
@@ -412,9 +410,11 @@
       linear-gradient(180deg, color-mix(in oklch, var(--active-state) 80%, transparent) 0%, transparent 42%),
       var(--surface-pressed-gradient);
     box-shadow:
-      inset 0 1px 0 color-mix(in oklch, var(--inner-highlight) 62%, transparent),
-      inset 0 -1px 0 color-mix(in oklch, black 36%, transparent),
-      0 8px 18px -16px color-mix(in oklch, black 80%, transparent);
+      inset 0 2px 4px color-mix(in oklch, black 40%, transparent),
+      inset 0 1px 0 color-mix(in oklch, black 25%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, var(--inner-highlight) 35%, transparent),
+      0 4px 8px -6px color-mix(in oklch, black 80%, transparent);
+    transform: translateY(1px);
   }
 
   .ui-focus-ring:focus-visible {
@@ -461,64 +461,101 @@
   .alias-console-surface {
     border: 1px solid var(--hairline-border);
     background:
-      radial-gradient(
-        84% 52% at 50% -14%,
+      radial-gradient(84% 52% at 50% -14%,
         color-mix(in srgb, var(--accent-glow) 28%, transparent) 0%,
-        transparent 78%
-      ),
+        transparent 78%),
       var(--surface-elevated-gradient);
     backdrop-filter: blur(14px);
     box-shadow:
-      0 34px 74px -46px color-mix(in oklch, black 95%, transparent),
-      0 14px 30px -20px color-mix(in oklch, black 84%, transparent),
+      0 34px 74px -46px rgba(4, 6, 12, 0.9),
+      0 14px 30px -20px rgba(4, 6, 12, 0.85),
       inset 0 1px 0 var(--inner-highlight),
       inset 0 -1px 0 color-mix(in oklch, black 36%, transparent);
   }
 
   .alias-primary {
-    /* Dense, glassy, sophisticated accent */
-    border: 1px solid color-mix(in oklch, var(--alias-accent) 40%, var(--hairline-border));
+    border: 1px solid color-mix(in oklch, var(--alias-accent) 50%, var(--hairline-border));
     background:
-      linear-gradient(
-        180deg,
-        color-mix(in oklch, var(--alias-accent) 90%, white 10%) 0%,
-        color-mix(in oklch, var(--alias-accent) 85%, black 15%) 100%
-      );
+      linear-gradient(180deg, color-mix(in oklch, white 12%, transparent) 0%, transparent 40%),
+      linear-gradient(180deg,
+        color-mix(in oklch, var(--alias-accent) 90%, white 5%) 0%,
+        color-mix(in oklch, var(--alias-accent) 85%, black 15%) 100%);
     color: var(--alias-accent-fg);
     box-shadow:
-      0 8px 20px -10px color-mix(in oklch, var(--alias-accent) 60%, black 40%),
+      0 8px 20px -8px color-mix(in oklch, var(--alias-accent) 50%, black 50%),
       inset 0 1px 0 color-mix(in oklch, white 30%, transparent),
-      inset 0 0 0 1px color-mix(in oklch, white 10%, transparent);
+      inset 0 -1px 0 color-mix(in oklch, black 25%, transparent);
     text-shadow: 0 1px 2px color-mix(in oklch, black 20%, transparent);
   }
 
   .alias-primary:hover {
-    border-color: color-mix(in oklch, var(--alias-accent) 50%, var(--hairline-border));
+    border-color: color-mix(in oklch, var(--alias-accent) 60%, var(--hairline-border));
     background:
-      linear-gradient(
-        180deg,
-        color-mix(in oklch, var(--alias-accent) 95%, white 15%) 0%,
-        color-mix(in oklch, var(--alias-accent) 90%, black 5%) 100%
-      );
+      linear-gradient(180deg, color-mix(in oklch, white 18%, transparent) 0%, transparent 40%),
+      linear-gradient(180deg,
+        color-mix(in oklch, var(--alias-accent) 95%, white 10%) 0%,
+        color-mix(in oklch, var(--alias-accent) 90%, black 5%) 100%);
     box-shadow:
-      0 12px 28px -12px color-mix(in oklch, var(--alias-accent) 70%, black 30%),
+      0 12px 28px -10px color-mix(in oklch, var(--alias-accent) 60%, black 40%),
       inset 0 1px 0 color-mix(in oklch, white 40%, transparent),
-      inset 0 0 0 1px color-mix(in oklch, white 15%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, black 30%, transparent),
       0 0 20px -5px color-mix(in srgb, var(--alias-accent) 40%, transparent);
+    transform: translateY(-1px);
   }
 
   .alias-primary:active {
-    border-color: color-mix(in oklch, var(--alias-accent) 45%, var(--hairline-border));
+    border-color: color-mix(in oklch, var(--alias-accent) 40%, var(--hairline-border));
     background:
-      linear-gradient(
-        180deg,
-        color-mix(in oklch, var(--alias-accent) 80%, black 10%) 0%,
-        color-mix(in oklch, var(--alias-accent) 75%, black 20%) 100%
-      );
+      linear-gradient(180deg,
+        color-mix(in oklch, var(--alias-accent) 80%, black 15%) 0%,
+        color-mix(in oklch, var(--alias-accent) 75%, black 25%) 100%);
     box-shadow:
-      0 4px 12px -8px color-mix(in oklch, var(--alias-accent) 70%, black 40%),
-      inset 0 1px 0 color-mix(in oklch, white 15%, transparent),
-      inset 0 2px 4px color-mix(in oklch, black 20%, transparent);
+      inset 0 2px 5px color-mix(in oklch, black 45%, transparent),
+      inset 0 1px 0 color-mix(in oklch, black 30%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, white 15%, transparent),
+      0 4px 12px -8px color-mix(in oklch, var(--alias-accent) 60%, black 40%);
+    transform: translateY(1px);
+  }
+
+  .alias-destructive {
+    border: 1px solid color-mix(in oklch, var(--destructive) 40%, var(--hairline-border));
+    background:
+      linear-gradient(180deg, color-mix(in oklch, white 10%, transparent) 0%, transparent 40%),
+      linear-gradient(180deg,
+        color-mix(in oklch, var(--destructive) 85%, white 15%) 0%,
+        color-mix(in oklch, var(--destructive) 75%, black 25%) 100%);
+    color: white;
+    box-shadow:
+      0 8px 20px -8px color-mix(in oklch, var(--destructive) 60%, black 40%),
+      inset 0 1px 0 color-mix(in oklch, white 25%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, black 30%, transparent);
+  }
+
+  .alias-destructive:hover {
+    border-color: color-mix(in oklch, var(--destructive) 50%, var(--hairline-border));
+    background:
+      linear-gradient(180deg, color-mix(in oklch, white 15%, transparent) 0%, transparent 40%),
+      linear-gradient(180deg,
+        color-mix(in oklch, var(--destructive) 90%, white 10%) 0%,
+        color-mix(in oklch, var(--destructive) 80%, black 20%) 100%);
+    box-shadow:
+      0 12px 28px -10px color-mix(in oklch, var(--destructive) 70%, black 30%),
+      inset 0 1px 0 color-mix(in oklch, white 35%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, black 40%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .alias-destructive:active {
+    border-color: color-mix(in oklch, var(--destructive) 35%, var(--hairline-border));
+    background:
+      linear-gradient(180deg,
+        color-mix(in oklch, var(--destructive) 70%, black 30%) 0%,
+        color-mix(in oklch, var(--destructive) 60%, black 40%) 100%);
+    box-shadow:
+      inset 0 2px 5px color-mix(in oklch, black 60%, transparent),
+      inset 0 1px 0 color-mix(in oklch, black 40%, transparent),
+      inset 0 -1px 0 color-mix(in oklch, white 20%, transparent),
+      0 4px 12px -8px color-mix(in oklch, var(--destructive) 80%, black 20%);
     transform: translateY(1px);
   }
 
@@ -527,12 +564,14 @@
       box-shadow: 0 0 0 0 transparent;
       border-color: color-mix(in oklch, var(--hairline-border) 100%, transparent);
     }
+
     40% {
       box-shadow:
         0 0 0 1px color-mix(in oklch, var(--focus-ring) 62%, transparent),
         0 0 28px -16px color-mix(in srgb, var(--accent-glow) 58%, transparent);
       border-color: color-mix(in oklch, var(--focus-ring) 68%, transparent);
     }
+
     100% {
       box-shadow: 0 0 0 0 transparent;
       border-color: color-mix(in oklch, var(--hairline-border) 100%, transparent);
