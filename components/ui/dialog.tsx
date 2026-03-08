@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     data-slot="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-[rgba(4,7,14,0.62)] backdrop-blur-[4px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+      "ui-modal-overlay fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
       className
     )}
     {...props}
@@ -33,23 +33,25 @@ const DialogContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      data-slot="dialog-content"
-      className={cn(
-        "ui-surface-overlay fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl p-6 text-[var(--text-primary)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close
-        className="ui-focus-ring ui-smooth absolute right-4 top-4 rounded-md border border-transparent p-1 text-[var(--text-muted)] hover:border-[color:var(--hairline-border)] hover:bg-[color:var(--hover-state)] hover:text-[var(--text-secondary)] focus-visible:outline-none"
-        aria-label="Close"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <DialogPrimitive.Content
+        ref={ref}
+        data-slot="dialog-content"
+        className={cn(
+          "ui-glass-panel grid w-full max-w-2xl gap-4 rounded-2xl p-6 text-[var(--text-primary)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:slide-out-to-bottom-2 motion-reduce:animate-none",
+          className
+        )}
+        {...props}
       >
-        <X className="h-4 w-4" />
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
+        {children}
+        <DialogPrimitive.Close
+          className="ui-focus-ring absolute right-4 top-4 rounded-md p-1.5 text-[var(--text-muted)] transition-colors duration-150 hover:bg-[var(--hover-state)] hover:text-[var(--text-secondary)] focus-visible:outline-none"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </div>
   </DialogPortal>
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName

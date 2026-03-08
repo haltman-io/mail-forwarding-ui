@@ -85,7 +85,7 @@ function DnsValidationDialog({
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="max-h-[90vh] overflow-y-auto border-white/10 bg-zinc-950/95"
+          className="max-h-[90vh] overflow-y-auto border-[var(--hairline-border)] bg-[var(--surface-elevated)]"
           onEscapeKeyDown={
             closeGuard
               ? (event) => {
@@ -121,9 +121,9 @@ function DnsValidationDialog({
               onChange={(event) => setTarget(event.target.value)}
               autoCapitalize="none"
               spellCheck={false}
-              className="bg-black/30"
+              className="bg-[var(--surface-pressed)]"
             />
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-[var(--text-secondary)]">
               Plain domain only (no scheme or path).
             </p>
           </div>
@@ -138,9 +138,9 @@ function DnsValidationDialog({
               onChange={(event) => setToken(event.target.value)}
               autoCapitalize="none"
               spellCheck={false}
-              className="bg-black/30"
+              className="bg-[var(--surface-pressed)]"
             />
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-[var(--text-secondary)]">
               Only needed when your server requires an API key for checkdns.
             </p>
           </div>
@@ -164,7 +164,7 @@ function DnsValidationDialog({
             <Button
               type="button"
               variant="outline"
-              className="group border-white/10 bg-white/5 hover:bg-white/10"
+              className="group border-[var(--hairline-border)] bg-[var(--hover-state)] hover:bg-[var(--hover-state)]"
               onClick={requestClose}
             >
               Close
@@ -173,16 +173,16 @@ function DnsValidationDialog({
         </form>
 
         {errorText && (
-          <Alert variant="destructive" className="border-white/10 bg-black/30">
+          <Alert variant="destructive" className="border-[var(--hairline-border)] bg-[var(--surface-pressed)]">
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription className="text-zinc-300">
+            <AlertDescription className="text-[var(--text-secondary)]">
               {errorText}
             </AlertDescription>
           </Alert>
         )}
 
         {showResults && (
-          <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+          <div className="rounded-xl border border-[var(--hairline-border)] bg-[var(--surface-pressed)] p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span
@@ -201,13 +201,13 @@ function DnsValidationDialog({
                 )}
               </div>
               {nextCheckLabel && (
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-[var(--text-secondary)]">
                   Next check: {nextCheckLabel}
                 </span>
               )}
             </div>
 
-            <Separator className="my-3 bg-white/10" />
+            <Separator className="my-3 bg-[var(--hover-state)]" />
 
             {prioritizedEmailMissing.length ? (
                   <div className={pendingRecordsViewportClass}>
@@ -236,7 +236,7 @@ function DnsValidationDialog({
                               key={`${item.key}-${index}`}
                               className={`min-w-0 rounded-lg border p-3 ${cardToneClass}`}
                             >
-                              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                              <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
                                 MX
                               </p>
                               <div className="mt-2 space-y-2">
@@ -306,7 +306,7 @@ function DnsValidationDialog({
                             key={`${item.key}-${index}`}
                             className={`min-w-0 rounded-lg border p-3 ${cardToneClass}`}
                           >
-                            <p className="text-xs uppercase tracking-wide text-zinc-500">
+                            <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
                               {item.key}
                             </p>
                             <div className="mt-2 space-y-2">
@@ -344,9 +344,9 @@ function DnsValidationDialog({
                               tone={recordTone}
                             />
                             {(item.key as string) === "CNAME" && recordTone === "bad" && (
-                              <p className="mt-2 text-[11px] leading-snug text-zinc-500">
-                                An <span className="font-mono text-zinc-400">A</span> record pointing to{" "}
-                                <span className="font-mono text-zinc-400">161.97.146.91</span> is also accepted.
+                              <p className="mt-2 text-[11px] leading-snug text-[var(--text-muted)]">
+                                An <span className="font-mono text-[var(--text-secondary)]">A</span> record pointing to{" "}
+                                <span className="font-mono text-[var(--text-secondary)]">161.97.146.91</span> is also accepted.
                                 If your domain already resolves to this IP it will be approved automatically.
                               </p>
                             )}
@@ -356,14 +356,14 @@ function DnsValidationDialog({
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-[var(--text-secondary)]">
                     No missing records reported yet.
                   </p>
                 )}
 
             {status === "ACTIVE" && (
               <>
-                <Separator className="my-3 bg-white/10" />
+                <Separator className="my-3 bg-[var(--hover-state)]" />
                 <div className="flex justify-end">
                   <Button
                     type="button"
@@ -424,13 +424,13 @@ export function DnsSetupMenu({ triggerClassName, triggerIconClassName }: DnsSetu
         type="button"
         className={cn(
           "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
-          triggerClassName ?? "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
+          triggerClassName ?? "border border-[var(--hairline-border)] bg-[var(--hover-state)] text-[var(--text-primary)] hover:bg-[var(--hover-state)]"
         )}
         aria-label="Add domain"
         title="Use your domain for aliases"
         onClick={() => setEmailOpen(true)}
       >
-        <AtSign className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-zinc-300")} />
+        <AtSign className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-[var(--text-secondary)]")} />
         Add Domain
       </button>
 

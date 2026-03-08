@@ -18,7 +18,7 @@ const AlertDialogOverlay = React.forwardRef<
     ref={ref}
     data-slot="alert-dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-[rgba(4,7,14,0.62)] backdrop-blur-[4px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+      "ui-modal-overlay fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
       className
     )}
     {...props}
@@ -32,15 +32,17 @@ const AlertDialogContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPortal>
     <AlertDialogOverlay />
-    <AlertDialogPrimitive.Content
-      ref={ref}
-      data-slot="alert-dialog-content"
-      className={cn(
-        "ui-surface-overlay fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl p-6 text-[var(--text-primary)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
-        className
-      )}
-      {...props}
-    />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <AlertDialogPrimitive.Content
+        ref={ref}
+        data-slot="alert-dialog-content"
+        className={cn(
+          "ui-glass-panel grid w-full max-w-lg gap-4 rounded-2xl p-6 text-[var(--text-primary)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:slide-out-to-bottom-2 motion-reduce:animate-none",
+          className
+        )}
+        {...props}
+      />
+    </div>
   </AlertDialogPortal>
 ))
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName

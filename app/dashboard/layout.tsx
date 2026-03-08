@@ -1,0 +1,26 @@
+"use client";
+
+import { AdminAuthProvider } from "@/features/dashboard/hooks/use-admin-auth"
+import { DashboardAuthGuard } from "@/features/dashboard/components/dashboard-auth-guard"
+import { AppSidebar } from "@/features/dashboard/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+
+export default function DashboardLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <AdminAuthProvider>
+      <DashboardAuthGuard>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            {children}
+          </SidebarInset>
+        </SidebarProvider>
+      </DashboardAuthGuard>
+    </AdminAuthProvider>
+  )
+}

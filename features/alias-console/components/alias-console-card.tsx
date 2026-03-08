@@ -43,12 +43,7 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
   );
 
   return (
-    <Card className="alias-console-surface relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-70">
-        <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[color:var(--atmospheric-glow)] blur-3xl" />
-        <div className="absolute -bottom-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-[color:var(--atmospheric-glow)] blur-3xl" />
-      </div>
-
+    <Card className="alias-console-surface neu-accent-bar relative overflow-hidden -mx-4 rounded-none border-x-0 sm:mx-0 sm:rounded-2xl sm:border-x">
       <ConfirmCodeDialog
         open={controller.confirmDialogOpen}
         closeGuardOpen={controller.confirmCloseOpen}
@@ -66,11 +61,11 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
       <CardHeader className="relative">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
-            <CardTitle className="tracking-tight text-[var(--text-primary)]">ALIAS CONSOLE</CardTitle>
+            <CardTitle className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Alias Console</CardTitle>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`shrink-0 rounded-full border px-3 py-1 text-xs ${badgeClasses(controller.statusKind)}`}>
+            <div className={`neu-status-badge shrink-0 rounded-full border px-3 py-1 text-xs ${badgeClasses(controller.statusKind)}`}>
               <span className="inline-flex items-center gap-2">
                 {controller.statusKind === "ok" ? (
                   <ShieldCheck className={`h-3.5 w-3.5 ${staticIconClass}`} />
@@ -88,34 +83,34 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
 
       <CardContent className="relative space-y-6">
         <Tabs value={controller.activeTab} onValueChange={controller.onTabChange}>
-          <TabsList className="relative grid w-full grid-cols-2 p-1 sm:grid-cols-3">
+          <TabsList className="neu-tab-track relative grid w-full grid-cols-2 rounded-lg p-0.5 sm:grid-cols-3">
             <span
-              className="pointer-events-none absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/2)] rounded-lg border-[0.125px] border-[color:color-mix(in_oklch,var(--hairline-border)_44%,white_56%)] bg-[linear-gradient(180deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.04)_100%)] shadow-[0_14px_30px_-20px_rgba(0,0,0,0.82),inset_0_0.5px_0_rgba(255,255,255,0.12)] transition-transform duration-150 ease-out sm:hidden"
+              className="neu-tab-pill pointer-events-none absolute inset-y-0.5 left-0.5 w-[calc((100%-0.25rem)/2)] rounded-md transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:hidden"
               style={{ transform: `translateX(${mobileTabPillIndex * 100}%)` }}
             />
             <span
-              className="pointer-events-none absolute top-1 bottom-1 left-1 hidden w-[calc((100%-0.5rem)/3)] rounded-lg border-[0.125px] border-[color:color-mix(in_oklch,var(--hairline-border)_44%,white_56%)] bg-[linear-gradient(180deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.04)_100%)] shadow-[0_14px_30px_-20px_rgba(0,0,0,0.82),inset_0_0.5px_0_rgba(255,255,255,0.12)] transition-transform duration-150 ease-out sm:block"
+              className="neu-tab-pill pointer-events-none absolute inset-y-0.5 left-0.5 hidden w-[calc((100%-0.25rem)/3)] rounded-md transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:block"
               style={{ transform: `translateX(${desktopTabPillIndex * 100}%)` }}
             />
             <TabsTrigger
               value="subscribe"
-              className="group z-10 gap-2 border-transparent bg-transparent text-[var(--text-muted)] after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
+              className="group z-10 gap-1.5 border-transparent bg-transparent text-[var(--text-muted)] text-[13px] font-medium after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
             >
-              <MailPlus className={`h-4 w-4 ${clickableIconClass}`} />
+              <MailPlus className={`h-3.5 w-3.5 ${clickableIconClass}`} />
               Create
             </TabsTrigger>
             <TabsTrigger
               value="unsubscribe"
-              className="group z-10 gap-2 border-transparent bg-transparent text-[var(--text-muted)] after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
+              className="group z-10 gap-1.5 border-transparent bg-transparent text-[var(--text-muted)] text-[13px] font-medium after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
             >
-              <MailX className={`h-4 w-4 ${clickableIconClass}`} />
+              <MailX className={`h-3.5 w-3.5 ${clickableIconClass}`} />
               Delete
             </TabsTrigger>
             <TabsTrigger
               value="curl"
-              className="group z-10 hidden gap-2 border-transparent bg-transparent text-[var(--text-muted)] after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)] sm:inline-flex"
+              className="group z-10 hidden gap-1.5 border-transparent bg-transparent text-[var(--text-muted)] text-[13px] font-medium after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)] sm:inline-flex"
             >
-              <Terminal className={`h-4 w-4 ${clickableIconClass}`} />
+              <Terminal className={`h-3.5 w-3.5 ${clickableIconClass}`} />
               cURL
             </TabsTrigger>
           </TabsList>

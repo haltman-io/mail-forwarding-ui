@@ -112,7 +112,7 @@ export function SubscribeTabPanel({
   const customAddressToggle = (
     <Label
       htmlFor="custom-address-toggle"
-      className="ui-interactive-elevated inline-flex h-7 items-center gap-2 rounded-md px-2 text-[11px] text-[var(--text-muted)]"
+      className="inline-flex h-7 items-center gap-2 rounded-lg px-2 text-[11px] text-[var(--text-muted)] cursor-pointer hover:bg-[var(--hover-state)] transition-colors duration-150"
     >
       <Switch
         id="custom-address-toggle"
@@ -144,8 +144,7 @@ export function SubscribeTabPanel({
                   value={customAddress}
                   onChange={(e) => onCustomAddressChange(e.target.value)}
                   autoCapitalize="none"
-                  spellCheck={false}
-                />
+                  spellCheck={false}                  className="neu-inset"                />
                 <p className="text-xs text-[var(--text-muted)]">
                   NOTE: The domain{" "}
                   <span className="font-mono text-[var(--text-secondary)]">{customAddressDomain || "…"}</span> must
@@ -170,6 +169,7 @@ export function SubscribeTabPanel({
                     onChange={(e) => onNameChange(e.target.value)}
                     autoCapitalize="none"
                     spellCheck={false}
+                    className="neu-inset"
                   />
                 </div>
 
@@ -185,7 +185,7 @@ export function SubscribeTabPanel({
                         variant="outline"
                         role="combobox"
                         aria-expanded={domainComboboxOpen}
-                        className="w-full min-w-0 justify-between font-sans text-sm"
+                        className="neu-inset w-full min-w-0 justify-between font-sans text-sm"
                       >
                         <span className="truncate">{domain || "Select a domain"}</span>
                         <ChevronsUpDown className={`ml-2 h-4 w-4 shrink-0 opacity-50 ${clickableIconClass}`} />
@@ -240,6 +240,7 @@ export function SubscribeTabPanel({
               onChange={(e) => onToChange(e.target.value)}
               autoCapitalize="none"
               spellCheck={false}
+              className="neu-inset"
             />
             <p className="text-xs text-[var(--text-muted)]">Must be a valid mailbox.</p>
           </div>
@@ -247,7 +248,7 @@ export function SubscribeTabPanel({
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               type="submit"
-              className="alias-primary group w-full sm:w-auto"
+              className="alias-primary neu-btn-green group w-full sm:w-auto"
               disabled={requestBusy || (!domains.length && !isCustomAddress)}
             >
               {subscribeButtonContent}

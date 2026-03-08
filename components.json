@@ -19,7 +19,9 @@
     "hooks": "@/hooks"
   },
   "registries": {
+    "@boldkit": "https://boldkit.dev/r/{name}.json",
     "@magicui": "https://magicui.design/r/{name}",
-    "@lucide-animated": "https://lucide-animated.com/r/{name}.json"
+    "@lucide-animated": "https://lucide-animated.com/r/{name}.json",
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
   }
 }

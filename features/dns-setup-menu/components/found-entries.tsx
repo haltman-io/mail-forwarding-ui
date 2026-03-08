@@ -18,7 +18,7 @@ export function FoundEntries({ entries, foundTruncated, tone }: FoundEntriesProp
 
   return (
     <div className="mt-2 space-y-1.5">
-      <p className="text-xs text-zinc-400">
+      <p className="text-xs text-[var(--text-secondary)]">
         Found:
       </p>
       <div className="flex flex-wrap gap-1.5">

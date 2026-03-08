@@ -130,7 +130,7 @@ export function ApiTokenDialog({
 
   const tokenBusy = tokenState === "loading";
   const otpBusy = confirmLoading;
-  const otpStyleClass = "*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg *:data-[slot=input-otp-slot]:border-white/15 *:data-[slot=input-otp-slot]:bg-black/30 *:data-[slot=input-otp-slot]:text-zinc-100 *:data-[slot=input-otp-slot]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]";
+  const otpStyleClass = "*:data-[slot=input-otp-slot]:h-11 *:data-[slot=input-otp-slot]:w-10 *:data-[slot=input-otp-slot]:text-lg *:data-[slot=input-otp-slot]:border-white/15 *:data-[slot=input-otp-slot]:bg-[var(--surface-pressed)] *:data-[slot=input-otp-slot]:text-[var(--text-primary)] *:data-[slot=input-otp-slot]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]";
 
   const resetDialogState = React.useCallback(() => {
     setTokenState("idle");
@@ -301,17 +301,17 @@ export function ApiTokenDialog({
           type="button"
           className={cn(
             "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
-            triggerClassName ?? "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
+            triggerClassName ?? "border border-[var(--hairline-border)] bg-[var(--hover-state)] text-[var(--text-primary)] hover:bg-[var(--hover-state)]"
           )}
           title="Create a free token to automate alias management via API."
           aria-label="Create a free token to automate alias management via API."
         >
-          <KeyRound className={cn("h-4 w-4", triggerIconClassName ?? "text-zinc-300")} />
+          <KeyRound className={cn("h-4 w-4", triggerIconClassName ?? "text-[var(--text-secondary)]")} />
           API Token
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[22rem] border-white/10 bg-zinc-950/95 p-0">
+      <DialogContent className="max-w-[22rem] border-[var(--hairline-border)] bg-[var(--surface-elevated)] p-0">
         {tokenState !== "awaiting_confirmation" && tokenState !== "success" ? (
           <>
             <div className="space-y-4 px-6 pt-6">
@@ -341,7 +341,7 @@ export function ApiTokenDialog({
                     onChange={(e) => setApiEmail(e.target.value)}
                     autoCapitalize="none"
                     spellCheck={false}
-                    className="bg-black/30"
+                    className="bg-[var(--surface-pressed)]"
                   />
                 </div>
 
@@ -354,15 +354,15 @@ export function ApiTokenDialog({
                     max={90}
                     value={apiDays}
                     onChange={(e) => setApiDays(sanitizeDaysInput(e.target.value))}
-                    className="bg-black/30"
+                    className="bg-[var(--surface-pressed)]"
                   />
                 </div>
 
-                {feedbackText ? <p className="text-xs text-zinc-300">{feedbackText}</p> : null}
+                {feedbackText ? <p className="text-xs text-[var(--text-secondary)]">{feedbackText}</p> : null}
               </form>
             </div>
 
-            <Separator className="my-4 bg-white/10" />
+            <Separator className="my-4 bg-[var(--hover-state)]" />
 
             <DialogFooter className="flex flex-col gap-2 px-6 pb-6">
               <Button form="api-token-register-form" type="submit" disabled={tokenBusy} className="group w-full">
@@ -405,20 +405,20 @@ export function ApiTokenDialog({
                       <InputOTPSlot index={1} />
                       <InputOTPSlot index={2} />
                     </InputOTPGroup>
-                    <InputOTPSeparator className="mx-2 text-zinc-500" />
+                    <InputOTPSeparator className="mx-2 text-[var(--text-muted)]" />
                     <InputOTPGroup className={otpStyleClass}>
                       <InputOTPSlot index={3} />
                       <InputOTPSlot index={4} />
                       <InputOTPSlot index={5} />
                     </InputOTPGroup>
                   </InputOTP>
-                  <p className="text-xs text-zinc-400">Enter the 6-digit code from your email.</p>
+                  <p className="text-xs text-[var(--text-secondary)]">Enter the 6-digit code from your email.</p>
                 </div>
 
                 {confirmErrorText && (
-                  <Alert variant="destructive" className="border-white/10 bg-black/30">
+                  <Alert variant="destructive" className="border-[var(--hairline-border)] bg-[var(--surface-pressed)]">
                     <AlertTitle>Confirmation failed</AlertTitle>
-                    <AlertDescription className="text-zinc-300">{confirmErrorText}</AlertDescription>
+                    <AlertDescription className="text-[var(--text-secondary)]">{confirmErrorText}</AlertDescription>
                   </Alert>
                 )}
 
@@ -428,7 +428,7 @@ export function ApiTokenDialog({
               </form>
             </div>
 
-            <Separator className="my-4 bg-white/10" />
+            <Separator className="my-4 bg-[var(--hover-state)]" />
 
             <DialogFooter className="flex flex-col gap-2 px-6 pb-6">
               <Button form="api-token-confirm-otp-form" type="submit" className="group w-full" disabled={otpBusy}>
@@ -455,26 +455,26 @@ export function ApiTokenDialog({
 
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <p className="text-xs text-zinc-400">Email</p>
-                  <div className="rounded-md border border-white/10 bg-black/30 p-3 font-mono text-xs text-zinc-200 break-all">
+                  <p className="text-xs text-[var(--text-secondary)]">Email</p>
+                  <div className="rounded-md border border-[var(--hairline-border)] bg-[var(--surface-pressed)] p-3 font-mono text-xs text-[var(--text-primary)] break-all">
                     {confirmedEmail || "-"}
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-xs text-zinc-400">API key</p>
-                  <div className="rounded-md border border-white/10 bg-black/30 p-3 font-mono text-xs text-zinc-200 break-all">
+                  <p className="text-xs text-[var(--text-secondary)]">API key</p>
+                  <div className="rounded-md border border-[var(--hairline-border)] bg-[var(--surface-pressed)] p-3 font-mono text-xs text-[var(--text-primary)] break-all">
                     {confirmedToken || "-"}
                   </div>
                 </div>
 
                 {confirmedExpiresInDays !== null ? (
-                  <p className="text-xs text-zinc-400">Valid for {confirmedExpiresInDays} days.</p>
+                  <p className="text-xs text-[var(--text-secondary)]">Valid for {confirmedExpiresInDays} days.</p>
                 ) : null}
               </div>
             </div>
 
-            <Separator className="my-4 bg-white/10" />
+            <Separator className="my-4 bg-[var(--hover-state)]" />
 
             <DialogFooter className="flex flex-col gap-2 px-6 pb-6">
               <Button

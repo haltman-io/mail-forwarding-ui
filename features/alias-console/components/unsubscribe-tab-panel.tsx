@@ -46,8 +46,8 @@ export function UnsubscribeTabPanel({
       <div className="grid gap-6 lg:grid-cols-5">
         <form onSubmit={onSubmit} className="space-y-5 lg:col-span-3">
           <div className="space-y-2">
-            <Label htmlFor="alias" className="text-[13px] font-medium text-[var(--text-secondary)]">
-              ALIAS
+            <Label htmlFor="alias" className="text-[13px] font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+              Alias
             </Label>
             <Input
               id="alias"
@@ -57,11 +57,12 @@ export function UnsubscribeTabPanel({
               onChange={(e) => onAliasChange(e.target.value)}
               autoCapitalize="none"
               spellCheck={false}
+              className="neu-inset"
             />
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <Button type="submit" className="group w-full sm:w-auto" variant="destructive" disabled={requestBusy}>
+            <Button type="submit" className="neu-btn-destructive group w-full sm:w-auto" variant="destructive" disabled={requestBusy}>
               {unsubscribeButtonContent}
             </Button>
           </div>

@@ -31,9 +31,9 @@ export function RequestPreviewPanel({
   pulseActive,
 }: RequestPreviewPanelProps) {
   return (
-    <div className="ui-surface-pressed flex flex-col rounded-xl p-4">
-      <p className="text-sm font-medium tracking-[0.02em] text-[var(--text-secondary)]">REQUEST PREVIEW</p>
-      <Separator className="my-3 bg-[color:var(--hairline-border)]" />
+    <div className="neu-preview-panel flex flex-col rounded-xl p-4">
+      <p className="text-xs font-semibold tracking-wide text-[var(--text-muted)] uppercase">Request Preview</p>
+      <Separator className="my-3 bg-[var(--hairline-border)]" />
 
       <div className="text-sm text-[var(--text-muted)]">{message}</div>
       {details ? <div className="mt-2 text-sm text-[var(--text-muted)]">{details}</div> : null}
@@ -41,7 +41,7 @@ export function RequestPreviewPanel({
       <div
         key={pulseKey ? `preview-curl-${pulseKey}` : undefined}
         className={cn(
-          "ui-surface-pressed mt-5 rounded-lg p-3",
+          "neu-code-well mt-4 rounded-lg p-3",
           pulseActive && "alias-preview-pulse"
         )}
       >
@@ -52,16 +52,16 @@ export function RequestPreviewPanel({
       <Button
         type="button"
         variant="outline"
-        className="mt-4 w-full font-medium"
+        className="mt-4 w-full text-[13px] font-medium"
         onClick={onCopy}
         disabled={copyDisabled}
       >
         {copied ? (
-          <Check className={`mr-2 h-4 w-4 text-emerald-300 ${clickableIconClass}`} />
+          <Check className={`mr-1.5 h-3.5 w-3.5 text-green-500 ${clickableIconClass}`} />
         ) : (
-          <Copy className={`mr-2 h-4 w-4 ${clickableIconClass}`} />
+          <Copy className={`mr-1.5 h-3.5 w-3.5 ${clickableIconClass}`} />
         )}
-        {copied ? "Copied!" : "COPY TO CLIPBOARD"}
+        {copied ? "Copied" : "Copy to Clipboard"}
       </Button>
     </div>
   );

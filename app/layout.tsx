@@ -1,9 +1,9 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import ThemeProvider from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { LightRays } from "@/components/ui/light-rays";
+import { DebugToolbarLoader } from "@/components/debug-toolbar-loader";
 
 const uiSans = Inter({
   subsets: ["latin"],
@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -31,20 +37,6 @@ export default function RootLayout({
       <body
         className={`${uiSans.variable} ${uiMono.variable} min-h-screen bg-background text-foreground font-sans antialiased`}
       >
-        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-background">
-          <LightRays
-            color="rgb(var(--alias-accent-rgb) / 0.25)"
-            count={9}
-            speed={18}
-            blur={44}
-            length="88vh"
-            className="opacity-75"
-            aria-hidden
-          />
-          <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[120%] h-[80%] rounded-full bg-[radial-gradient(ellipse_at_center,_rgb(var(--alias-accent-rgb)_/_0.15),_transparent_70%)] blur-[120px] opacity-70" />
-          <div className="absolute inset-0 opacity-[0.035] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiLz4KPC9zdmc+')] mix-blend-overlay" />
-        </div>
-
         <ThemeProvider>
           {children}
           <a rel="me" href="https://infosec.exchange/@haltman" className="sr-only">
@@ -54,6 +46,7 @@ export default function RootLayout({
             position="bottom-right"
             offset={{ bottom: "2rem", right: "2rem" }}
           />
+          {DebugToolbarLoader && <DebugToolbarLoader />}
         </ThemeProvider>
       </body>
     </html>

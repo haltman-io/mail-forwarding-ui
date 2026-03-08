@@ -26,20 +26,20 @@ export function BrowserAddonMenu({ triggerClassName, triggerIconClassName }: Bro
           type="button"
           className={cn(
             "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
-            triggerClassName ?? "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
+            triggerClassName ?? "border border-[var(--hairline-border)] bg-[var(--hover-state)] text-[var(--text-primary)] hover:bg-[var(--hover-state)]"
           )}
           aria-label="Browser Extension"
         >
-          <Chromium className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-zinc-300")} />
+          <Chromium className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-[var(--text-secondary)]")} />
           Extension
-          <ChevronDown className={cn("ml-1 h-3.5 w-3.5", triggerIconClassName ?? "text-zinc-400")} />
+          <ChevronDown className={cn("ml-1 h-3.5 w-3.5", triggerIconClassName ?? "text-[var(--text-secondary)]")} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="ui-dropdown-glass w-64 border-white/10 bg-black/80 text-zinc-200"
+        className="w-64"
       >
-        <DropdownMenuItem asChild className="cursor-pointer focus:bg-white/5">
+        <DropdownMenuItem asChild className="cursor-pointer focus:bg-[var(--hover-state)]">
           <a
             href="https://addons.mozilla.org/en-US/firefox/addon/email-alias-manager-free/"
             target="_blank"
@@ -49,7 +49,7 @@ export function BrowserAddonMenu({ triggerClassName, triggerIconClassName }: Bro
             Firefox (Recommended)
           </a>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="cursor-pointer focus:bg-white/5">
+        <DropdownMenuItem asChild className="cursor-pointer focus:bg-[var(--hover-state)]">
           <a
             href="https://github.com/haltman-io/mail-forwarding-addon-google-chrome"
             target="_blank"

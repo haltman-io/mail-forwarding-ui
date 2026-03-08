@@ -1,0 +1,179 @@
+"use client";
+
+import * as React from "react";
+import { toast } from "sonner";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
+
+import type { AdminAlias, BoolFilter, ListState } from "@/features/dashboard/types/admin.types";
+import {
+  fetchAliases,
+  createAlias,
+  updateAlias,
+  deleteAlias,
+  getDashboardDomainsCached,
+  isUnauthorized,
+  describeError,
+} from "@/features/dashboard/services/aliases.service";
+
+const DEFAULT_LIMIT = 10;
+
+function mk(): ListState<AdminAlias> {
+  return { items: [], total: 0, limit: DEFAULT_LIMIT, offset: 0, loading: false, loadedAt: null, error: null };
+}
+
+function isTrueValue(v: unknown) {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v === 1;
+  if (typeof v === "string") { const n = v.trim().toLowerCase(); return n === "1" || n === "true"; }
+  return false;
+}
+
+function boolToApi(v: boolean) { return v ? 1 : 0; }
+function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
+function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
+
+export function useAliasesController(token: string | null) {
+  const [list, setList] = React.useState<ListState<AdminAlias>>(mk);
+  const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
+  const [search, setSearch] = React.useState("");
+
+  const [editorOpen, setEditorOpen] = React.useState(false);
+  const [editorBusy, setEditorBusy] = React.useState(false);
+  const [formId, setFormId] = React.useState<number | null>(null);
+  
+  const [formHandle, setFormHandle] = React.useState("");
+  const [formDomain, setFormDomain] = React.useState("");
+  const [aliasDomains, setAliasDomains] = React.useState<string[]>([]);
+  const [aliasDomainsLoading, setAliasDomainsLoading] = React.useState(false);
+  const [aliasDomainComboboxOpen, setAliasDomainComboboxOpen] = React.useState(false);
+
+  const [formGoto, setFormGoto] = React.useState("");
+  const [formActive, setFormActive] = React.useState(true);
+
+  const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; label: string } | null>(null);
+  const [deleteBusy, setDeleteBusy] = React.useState(false);
+
+  const load = React.useCallback(async (offset = 0) => {
+    if (!token) return;
+    setList((s) => ({ ...s, loading: true, error: null }));
+    try {
+      const r = await fetchAliases(token, {
+        limit: DEFAULT_LIMIT, offset, active: activeFilter,
+        address: search.trim().toLowerCase() || undefined,
+      });
+      if (isUnauthorized(r)) { setList((s) => ({ ...s, loading: false, error: "Unauthorized" })); fail("Unauthorized"); return; }
+      if (!r.ok) { const e = describeError(r, "Failed to load aliases."); setList((s) => ({ ...s, loading: false, error: e.message })); fail(e.isRateLimited ? "Rate limited" : "Load failed", e.message); return; }
+      const items = Array.isArray(r.data?.items) ? r.data.items : [];
+      const pg = r.data?.pagination;
+      setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
+    } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
+  }, [token, activeFilter, search]);
+
+  const ensureAliasDomainsLoaded = React.useCallback(async () => {
+    if (aliasDomainsLoading) return;
+    if (aliasDomains.length > 0) return;
+
+    setAliasDomainsLoading(true);
+    try {
+      const list = await getDashboardDomainsCached();
+      setAliasDomains(list);
+      setFormDomain((current) => current || list[0] || "");
+    } catch {
+      setAliasDomains([]);
+    } finally {
+      setAliasDomainsLoading(false);
+    }
+  }, [aliasDomains.length, aliasDomainsLoading]);
+
+  React.useEffect(() => {
+    if (!editorOpen) return;
+    void ensureAliasDomainsLoaded();
+  }, [editorOpen, ensureAliasDomainsLoaded]);
+
+  React.useEffect(() => { void load(0); }, [load]);
+
+  const canPrev = list.offset > 0;
+  const canNext = list.offset + list.limit < list.total;
+  const goNext = () => void load(list.offset + list.limit);
+  const goPrev = () => void load(Math.max(0, list.offset - list.limit));
+  const refresh = () => void load(0);
+  const rangeFrom = list.total === 0 ? 0 : list.offset + 1;
+  const rangeTo = Math.min(list.offset + list.limit, list.total);
+
+  function getAddressParts(address: string) {
+    const defaultDomain = aliasDomains[0] || "example.com";
+    if (!address) return { handle: "", domain: defaultDomain };
+    const parts = address.split("@");
+    if (parts.length < 2) return { handle: address, domain: defaultDomain };
+    return { handle: parts.slice(0, -1).join("@"), domain: parts[parts.length - 1] };
+  }
+
+  function openCreate() { 
+    setFormId(null); 
+    setFormHandle(""); 
+    setFormDomain(aliasDomains[0] || "");
+    setFormGoto(""); 
+    setFormActive(true); 
+    setEditorOpen(true); 
+  }
+  
+  function openEdit(item: AdminAlias) { 
+    const { handle, domain } = getAddressParts(item.address);
+    setFormId(item.id); 
+    setFormHandle(handle); 
+    setFormDomain(domain);
+    setFormGoto(item.goto); 
+    setFormActive(isTrueValue(item.active)); 
+    setEditorOpen(true); 
+  }
+
+  async function submitEditor(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    const handle = formHandle.trim().toLowerCase();
+    const domain = formDomain.trim().toLowerCase();
+    const address = `${handle}@${domain}`;
+    const goto = formGoto.trim().toLowerCase();
+    
+    if (!handle) { fail("Validation", "Alias handle is required."); return; }
+    if (!domain) { fail("Validation", "Alias domain is required."); return; }
+    if (!goto) { fail("Validation", "Destination is required."); return; }
+    setEditorBusy(true);
+    try {
+      const isEdit = formId !== null;
+      const body = { address, goto, active: boolToApi(formActive) };
+      const r = isEdit ? await updateAlias(token, formId, body) : await createAlias(token, body);
+      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
+      if (!r.ok) { const err = describeError(r, isEdit ? "Update failed." : "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
+      setEditorOpen(false); ok(isEdit ? "Alias updated" : "Alias created", address); await load(isEdit ? list.offset : 0);
+    } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
+    finally { setEditorBusy(false); }
+  }
+
+  function askDelete(item: AdminAlias) { setDeleteTarget({ id: item.id, label: item.address }); }
+  async function confirmDelete() {
+    if (!token || !deleteTarget) return;
+    setDeleteBusy(true);
+    try {
+      const r = await deleteAlias(token, deleteTarget.id);
+      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
+      if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
+      ok("Alias deleted", deleteTarget.label); setDeleteTarget(null); await load(0);
+    } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
+    finally { setDeleteBusy(false); }
+  }
+
+  return {
+    list, activeFilter, setActiveFilter, search, setSearch,
+    refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
+    editorOpen, setEditorOpen, editorBusy, formId, 
+    formHandle, setFormHandle,
+    formDomain, setFormDomain,
+    aliasDomains, aliasDomainsLoading,
+    aliasDomainComboboxOpen, setAliasDomainComboboxOpen,
+    formGoto, setFormGoto, formActive, setFormActive,
+    openCreate, openEdit, submitEditor,
+    deleteTarget, setDeleteTarget, deleteBusy, askDelete, confirmDelete,
+    isTrueValue,
+  };
+}

@@ -19,7 +19,7 @@ export function CopyableInputRow({
   return (
     <div className="space-y-1 min-w-0">
       {label ? (
-        <p className="text-[10px] uppercase tracking-wide text-zinc-500">
+        <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
           {label}
         </p>
       ) : null}
@@ -30,13 +30,13 @@ export function CopyableInputRow({
           disabled
           title={value}
           aria-label={inputLabel}
-          className="min-w-0 flex-1 bg-black/30 text-xs font-mono text-zinc-200/90 disabled:cursor-default disabled:opacity-100 truncate"
+          className="min-w-0 flex-1 bg-[var(--surface-pressed)] text-xs font-mono text-[var(--text-primary)] disabled:cursor-default disabled:opacity-100 truncate"
         />
         <Button
           type="button"
           variant="outline"
           size="icon"
-          className="group h-8 w-8 shrink-0 border-white/10 bg-white/5 hover:bg-white/10"
+          className="group h-8 w-8 shrink-0 border-[var(--hairline-border)] bg-[var(--hover-state)] hover:bg-[var(--hover-state)]"
           onClick={() => onCopy(id, value, copyLabel)}
           aria-label={`Copy ${copyLabel}`}
         >

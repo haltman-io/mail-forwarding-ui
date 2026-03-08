@@ -10,6 +10,9 @@ import {
   Menu,
   Zap,
   ShieldCheck,
+  ShieldAlert,
+  ScrollText,
+  ChevronDown,
   HatGlasses,
   Brain,
   CircleCheck,
@@ -22,11 +25,14 @@ import {
   Radar,
   Eye,
   AtSign,
+  Terminal,
+  Settings,
 } from "lucide-react";
-import { AdminMenu } from "@/components/admin-menu";
 import { BrowserAddonMenu } from "@/components/browser-addon-menu";
 import { ApiTokenDialog } from "@/components/api-token-dialog";
 import { DnsSetupMenu } from "@/components/dns-setup-menu";
+
+
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -44,7 +50,7 @@ import {
 } from "@/components/ui/dialog";
 
 const clickableIconClass =
-  "opacity-[0.85] transition-[opacity,transform,filter] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-standard)] group-hover:opacity-100 group-hover:drop-shadow-[0_0_8px_rgba(208,220,238,0.22)] group-active:scale-[0.99] motion-reduce:transition-none motion-reduce:transform-none";
+  "opacity-70 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none";
 
 const brandIcons = [
   HatGlasses,
@@ -80,6 +86,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [brandIconIndex, setBrandIconIndex] = React.useState(0);
   const [brandIconSwapKey, setBrandIconSwapKey] = React.useState(0);
   const [isMobileViewport, setIsMobileViewport] = React.useState<boolean | null>(null);
+  const [isScrolled, setIsScrolled] = React.useState(false);
 
   React.useEffect(() => {
     setHost(window.location.host);
@@ -93,6 +100,22 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
     syncViewport();
     window.addEventListener("resize", syncViewport);
     return () => window.removeEventListener("resize", syncViewport);
+  }, []);
+
+  React.useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 8);
+          ticking = false;
+        });
+      }
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   React.useEffect(() => {
@@ -115,70 +138,99 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   }, []);
 
   const hostLabel = host ? host : "haltman.io";
-  const brand = hostLabel;
   const BrandIcon = brandIcons[brandIconIndex] ?? brandIcons[0];
-  const headerChipVisualClass =
-    "group ui-focus-ring ui-console-chip text-[var(--text-primary)]";
-  const headerActionTriggerClass =
-    `${headerChipVisualClass} h-8 px-2.5 text-sm font-medium`;
-  const headerActionIconClass = "text-[var(--text-primary)] !opacity-100";
+
+  const navChipClass =
+    "group ui-focus-ring inline-flex items-center justify-center gap-1.5 rounded-lg bg-transparent px-2.5 py-1.5 text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)] active:bg-[var(--active-state)]";
+  const navTriggerClass = `${navChipClass} h-8 text-sm font-medium`;
+  const navIconClass = "text-[var(--text-secondary)] !opacity-100";
+
   const mobileActionTriggerClass =
-    "group relative inline-flex h-8 w-full items-center justify-start gap-2 overflow-visible rounded-md px-2 text-sm font-medium text-[var(--text-primary)] hover:bg-white/10";
-  const mobileActionIconClass = "text-[var(--text-secondary)] !opacity-100";
+    "group relative inline-flex h-8 w-full items-center justify-start gap-2 overflow-visible rounded-lg px-2 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--hover-state)]";
+  const mobileActionIconClass = "text-[var(--text-muted)] !opacity-100";
+
+  const actionBtnClass =
+    "alias-primary neu-btn-green group inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-mono text-xs font-medium no-underline";
+
+  const actionBtnSecondaryClass =
+    "group inline-flex items-center gap-1.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-1.5 font-mono text-xs font-medium text-[var(--text-secondary)] no-underline transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
 
   return (
     <>
-      <header className="sticky top-3 z-50 px-4 sm:top-4">
-        <div className="relative mx-auto w-full max-w-3xl">
-          <div className="pointer-events-none absolute inset-x-10 -top-7 h-20 rounded-full bg-[color:var(--atmospheric-glow)] opacity-45 blur-3xl" />
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ${
+          isScrolled ? "pt-3 sm:pt-4" : "pt-4 sm:pt-6"
+        }`}
+      >
+        <div
+          className="pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 sm:grid-cols-[1fr_auto_1fr] sm:px-6"
+          role="banner"
+        >
+          {/* ── LEFT: Host identity ── */}
+          <div className="flex min-w-0 items-center justify-self-start">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-200 hover:bg-[var(--hover-state)]"
+              aria-label="Home"
+            >
+              <span key={brandIconSwapKey} className="relative inline-flex shrink-0">
+                <BrandIcon className="h-[18px] w-[18px] sm:h-5 sm:w-5 text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100" />
+                <span className="pointer-events-none absolute inset-0 rounded-full opacity-40 blur-[6px] bg-[var(--neu-green)]" />
+              </span>
+              <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-sm">
+                {hostLabel}
+              </span>
+            </Link>
+          </div>
 
+          {/* ── CENTER: Navigation ── */}
           <nav
             aria-label="Primary"
-            className="alias-console-surface relative flex h-14 items-center justify-between gap-3 rounded-2xl px-3 sm:px-4"
+            className="flex items-center justify-self-end sm:justify-self-center"
           >
-            <div className="flex min-w-0 items-center">
-              <Link
-                href="/"
-                className={`${headerChipVisualClass} px-3 py-1 text-xs`}
-                aria-label="Home"
-              >
-                <span
-                  key={brandIconSwapKey}
-                  className="inline-flex motion-safe:animate-[spin_620ms_cubic-bezier(0.22,1,0.36,1)_1]"
-                >
-                  <BrandIcon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${headerActionIconClass}`} />
-                </span>
-                <span className="truncate font-mono text-[12px] text-[var(--text-primary)] sm:font-sans sm:text-sm sm:font-medium">
-                  {brand}
-                </span>
-              </Link>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex items-center gap-0.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-1.5 py-1 backdrop-blur-[24px] backdrop-saturate-[1.3]"
+              style={{
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px -4px rgba(0,0,0,0.20)',
+              }}
+            >
               {isMobileViewport === false ? (
                 <>
-                  <div>
-                    <BrowserAddonMenu
-                      triggerClassName={headerActionTriggerClass}
-                      triggerIconClassName={headerActionIconClass}
-                    />
-                  </div>
-                  <div>
-                    <ApiTokenDialog
-                      onApiStatusChange={onApiStatusChange}
-                      triggerClassName={headerActionTriggerClass}
-                      triggerIconClassName={headerActionIconClass}
-                    />
-                  </div>
-                  <div>
-                    <DnsSetupMenu
-                      triggerClassName={headerActionTriggerClass}
-                      triggerIconClassName={headerActionIconClass}
-                    />
-                  </div>
-                  <div>
-                    <AdminMenu />
-                  </div>
+                  <BrowserAddonMenu
+                    triggerClassName={navTriggerClass}
+                    triggerIconClassName={navIconClass}
+                  />
+                  <ApiTokenDialog
+                    onApiStatusChange={onApiStatusChange}
+                    triggerClassName={navTriggerClass}
+                    triggerIconClassName={navIconClass}
+                  />
+                  <DnsSetupMenu
+                    triggerClassName={navTriggerClass}
+                    triggerIconClassName={navIconClass}
+                  />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button type="button" className={navTriggerClass}>
+                        <ScrollText className={`h-4 w-4 ${navIconClass}`} />
+                        ToS
+                        <ChevronDown className={`ml-0.5 h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180 ${navIconClass}`} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="w-44 p-1.5">
+                      <DropdownMenuItem asChild className="cursor-pointer rounded-md">
+                        <Link href="/privacy">
+                          <ShieldCheck className="h-4 w-4 text-[var(--text-secondary)]" />
+                          Privacy
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="cursor-pointer rounded-md">
+                        <Link href="/abuse">
+                          <ShieldAlert className="h-4 w-4 text-[var(--text-secondary)]" />
+                          Abuse
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               ) : null}
 
@@ -186,21 +238,34 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className={`${headerChipVisualClass} size-8`}
+                    className="group inline-flex size-8 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]"
                     aria-label="Open navigation menu"
                     title="Open navigation menu"
                   >
-                    <Menu className={`h-4 w-4 ${headerActionIconClass} ${clickableIconClass}`} />
+                    <Menu className="h-4 w-4" />
                     <span className="sr-only">Open navigation menu</span>
                   </button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
                   align="end"
-                  className="ui-dropdown-glass w-56 p-1 text-[var(--text-primary)] sm:w-44"
+                  className="w-56 p-1.5 sm:w-48"
                 >
                   {isMobileViewport === true ? (
                     <>
+                      <div className="space-y-1 p-1">
+                        <Link href="/console" className={mobileActionTriggerClass}>
+                          <Terminal className={`h-4 w-4 ${mobileActionIconClass}`} />
+                          Console
+                        </Link>
+                        <Link href="/dashboard" className={mobileActionTriggerClass}>
+                          <Settings className={`h-4 w-4 ${mobileActionIconClass}`} />
+                          Admin
+                        </Link>
+                      </div>
+
+                      <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
+
                       <div className="space-y-1 p-1">
                         <ApiTokenDialog
                           onApiStatusChange={onApiStatusChange}
@@ -211,9 +276,14 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           triggerClassName={mobileActionTriggerClass}
                           triggerIconClassName={mobileActionIconClass}
                         />
-                        <div className="w-full [&>div]:w-full [&>div]:gap-1 [&>div>button]:w-full [&>div>button]:justify-start [&>div>button]:rounded-md [&>div>button]:border-0 [&>div>button]:bg-transparent [&>div>button]:px-2 [&>div>button]:text-[var(--text-primary)] [&>div>button]:shadow-none">
-                          <AdminMenu />
-                        </div>
+                        <Link href="/privacy" className={mobileActionTriggerClass}>
+                          <ShieldCheck className={`h-4 w-4 ${mobileActionIconClass}`} />
+                          Privacy
+                        </Link>
+                        <Link href="/abuse" className={mobileActionTriggerClass}>
+                          <ShieldAlert className={`h-4 w-4 ${mobileActionIconClass}`} />
+                          Abuse
+                        </Link>
                       </div>
 
                       <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
@@ -269,6 +339,22 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
               </DropdownMenu>
             </div>
           </nav>
+
+          {/* ── RIGHT: Actions ── */}
+          <div className="hidden min-w-0 items-center justify-self-end gap-2 sm:flex">
+            {isMobileViewport === false ? (
+              <>
+                <Link href="/console" className={actionBtnClass}>
+                  <Terminal className="h-3.5 w-3.5 opacity-80" />
+                  Console
+                </Link>
+                <Link href="/dashboard" className={actionBtnSecondaryClass}>
+                  <Settings className="h-3.5 w-3.5 opacity-80" />
+                  Admin
+                </Link>
+              </>
+            ) : null}
+          </div>
         </div>
       </header>
 

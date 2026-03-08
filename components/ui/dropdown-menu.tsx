@@ -33,7 +33,7 @@ function DropdownMenuTrigger({
 
 function DropdownMenuContent({
   className,
-  sideOffset = 4,
+  sideOffset = 8,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   return (
@@ -42,7 +42,9 @@ function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          "ui-surface-overlay bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-xl p-1.5 shadow-none",
+          "ui-glass-panel z-50 min-w-[8rem] rounded-2xl p-1.5 text-[var(--text-primary)]",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[side=bottom]:slide-in-from-top-4 data-[side=left]:slide-in-from-right-4 data-[side=right]:slide-in-from-left-4 data-[side=top]:slide-in-from-bottom-4 motion-reduce:animate-none",
+          "origin-[var(--radix-dropdown-menu-content-transform-origin)]",
           className
         )}
         {...props}
@@ -74,7 +76,12 @@ function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "ui-smooth data-[variant=destructive]:text-rose-300 data-[variant=destructive]:focus:bg-rose-900/35 data-[variant=destructive]:focus:text-rose-100 data-[variant=destructive]:data-[highlighted]:bg-rose-900/35 data-[variant=destructive]:data-[highlighted]:text-rose-100 data-[variant=destructive]:*:[svg]:!text-rose-300 [&_svg:not([class*='text-'])]:text-[var(--text-muted)] relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[var(--text-secondary)] outline-hidden select-none focus:bg-[color:var(--hover-state)] focus:text-[var(--text-primary)] data-[highlighted]:bg-[color:var(--hover-state)] data-[highlighted]:text-[var(--text-primary)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "data-[variant=destructive]:text-[var(--destructive)] data-[variant=destructive]:focus:bg-[var(--destructive)]/10 data-[variant=destructive]:focus:text-[var(--destructive)] data-[variant=destructive]:*:[svg]:!text-[var(--destructive)]",
+        "relative flex cursor-default select-none items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] outline-none transition-all duration-200 ease-out",
+        "focus:bg-[rgba(255,255,255,0.06)] focus:text-[var(--text-primary)] focus:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-40",
+        "data-[inset]:pl-8",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg]:text-[var(--text-muted)] focus:[&_svg]:text-[var(--text-primary)]",
         className
       )}
       {...props}
@@ -155,7 +162,7 @@ function DropdownMenuLabel({
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(
-        "px-2 py-1.5 text-sm font-medium text-[var(--text-muted)] data-[inset]:pl-8",
+        "px-3 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] data-[inset]:pl-9",
         className
       )}
       {...props}
@@ -170,7 +177,7 @@ function DropdownMenuSeparator({
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn("-mx-1 my-1 h-px bg-[color:var(--hairline-border)]", className)}
+      className={cn("-mx-1 my-1.5 h-px bg-[rgba(255,255,255,0.06)] shadow-[0_1px_0_rgba(0,0,0,0.1)]", className)}
       {...props}
     />
   )
@@ -230,7 +237,7 @@ function DropdownMenuSubContent({
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        "ui-surface-overlay bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-xl p-1.5 shadow-none",
+        "ui-glass-panel z-50 min-w-[8rem] rounded-xl p-1.5 text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 motion-reduce:animate-none origin-(--radix-dropdown-menu-content-transform-origin)",
         className
       )}
       {...props}
