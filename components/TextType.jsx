@@ -71,7 +71,7 @@ const TextType = ({
   textColors = [],
   highlightClassName = '',
   variableSpeed,
-  onSentenceComplete,
+  onSentenceComplete = null,
   startOnVisible = false,
   reverseMode = false,
   ...props
