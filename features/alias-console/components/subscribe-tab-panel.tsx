@@ -33,6 +33,7 @@ type SubscribeTabPanelProps = {
   subscribeTarget: string;
   curlSubscribe: string;
   copiedId: string | null;
+  canCopyPreview: boolean;
   codeBlockClass: string;
   clickableIconClass: string;
   onNameChange: (value: string) => void;
@@ -66,6 +67,7 @@ export function SubscribeTabPanel({
   subscribeTarget,
   curlSubscribe,
   copiedId,
+  canCopyPreview,
   codeBlockClass,
   clickableIconClass,
   onNameChange,
@@ -265,6 +267,7 @@ export function SubscribeTabPanel({
             clickableIconClass={clickableIconClass}
             copied={copiedId === "preview-subscribe-curl"}
             onCopy={onCopySubscribePreview}
+            copyDisabled={!canCopyPreview}
             pulseKey={subscribePreviewPulseSource}
             pulseActive={subscribeHasInput}
           />

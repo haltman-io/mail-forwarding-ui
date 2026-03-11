@@ -2,6 +2,7 @@
 
 import { Globe, AtSign } from "lucide-react";
 import type { Stats } from "@/hooks/use-stats";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function AnimatedNumber({ value }: { value: number }) {
   return (
@@ -56,6 +57,32 @@ export function StatsCards({ stats }: { stats: Stats }) {
             <p className="mt-0.5 text-2xl font-bold leading-none text-[var(--text-primary)]">
               <AnimatedNumber value={stats.aliases} />
             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function StatsCardsSkeleton() {
+  return (
+    <div className="hidden md:grid grid-cols-2 gap-4">
+      <div className="stats-card group relative overflow-hidden rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-4 backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
+        <div className="relative flex items-center gap-4">
+          <Skeleton className="h-10 w-10 shrink-0 rounded-xl bg-[var(--surface-pressed)]/80" />
+          <div className="min-w-0 space-y-2">
+            <Skeleton className="h-3 w-28 rounded-sm bg-[var(--surface-pressed)]/80" />
+            <Skeleton className="h-8 w-16 bg-[var(--surface-pressed)]/80" />
+          </div>
+        </div>
+      </div>
+
+      <div className="stats-card group relative overflow-hidden rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-4 backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
+        <div className="relative flex items-center gap-4">
+          <Skeleton className="h-10 w-10 shrink-0 rounded-xl bg-[var(--surface-pressed)]/80" />
+          <div className="min-w-0 space-y-2">
+            <Skeleton className="h-3 w-24 rounded-sm bg-[var(--surface-pressed)]/80" />
+            <Skeleton className="h-8 w-16 bg-[var(--surface-pressed)]/80" />
           </div>
         </div>
       </div>

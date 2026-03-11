@@ -45,6 +45,9 @@ export default function RootLayout({
           <Toaster
             position="bottom-right"
             offset={{ bottom: "2rem", right: "2rem" }}
+            closeButton
+            duration={Infinity}
+            swipeDirections={[]}
           />
           {DebugToolbarLoader && <DebugToolbarLoader />}
         </ThemeProvider>

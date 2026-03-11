@@ -13,6 +13,7 @@ type UnsubscribeTabPanelProps = {
   copiedId: string | null;
   unsubscribePreviewPulseSource: string;
   curlUnsubscribe: string;
+  canCopyPreview: boolean;
   codeBlockClass: string;
   clickableIconClass: string;
   onAliasChange: (value: string) => void;
@@ -27,6 +28,7 @@ export function UnsubscribeTabPanel({
   copiedId,
   unsubscribePreviewPulseSource,
   curlUnsubscribe,
+  canCopyPreview,
   codeBlockClass,
   clickableIconClass,
   onAliasChange,
@@ -77,6 +79,7 @@ export function UnsubscribeTabPanel({
             clickableIconClass={clickableIconClass}
             copied={copiedId === "preview-unsubscribe-curl"}
             onCopy={onCopyUnsubscribePreview}
+            copyDisabled={!canCopyPreview}
             pulseKey={unsubscribePreviewPulseSource}
             pulseActive={Boolean(alias.trim())}
           />

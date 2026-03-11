@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Stats } from "@/hooks/use-stats";
 import TextType from "@/components/TextType";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* ── Trust signal items ── */
 const TRUST_SIGNALS = [
@@ -129,6 +130,31 @@ export function HeroSection({ stats }: HeroSectionProps) {
               <p className="mt-1 text-[10px] font-medium tracking-wider text-[var(--text-muted)] uppercase">
                 Forever
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {!stats && (
+        <div className="mx-auto grid max-w-[520px] grid-cols-3 gap-3 sm:gap-4">
+          <div className="hero-stat-card relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
+            <div className="relative flex flex-col items-center">
+              <Skeleton className="mb-1 h-4 w-4 rounded-sm bg-[var(--surface-pressed)]/80" />
+              <Skeleton className="h-7 w-12 bg-[var(--surface-pressed)]/80" />
+              <Skeleton className="mt-1 h-2.5 w-12 rounded-sm bg-[var(--surface-pressed)]/80" />
+            </div>
+          </div>
+          <div className="hero-stat-card relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
+            <div className="relative flex flex-col items-center">
+              <Skeleton className="mb-1 h-4 w-4 rounded-sm bg-[var(--surface-pressed)]/80" />
+              <Skeleton className="h-7 w-12 bg-[var(--surface-pressed)]/80" />
+              <Skeleton className="mt-1 h-2.5 w-12 rounded-sm bg-[var(--surface-pressed)]/80" />
+            </div>
+          </div>
+          <div className="hero-stat-card relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
+            <div className="relative flex flex-col items-center">
+              <Skeleton className="mb-1 h-4 w-4 rounded-sm bg-[var(--surface-pressed)]/80" />
+              <Skeleton className="h-7 w-12 bg-[var(--surface-pressed)]/80" />
+              <Skeleton className="mt-1 h-2.5 w-12 rounded-sm bg-[var(--surface-pressed)]/80" />
             </div>
           </div>
         </div>

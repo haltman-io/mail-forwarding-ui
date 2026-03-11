@@ -290,6 +290,8 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     </>
                   ) : null}
 
+                  <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
+
                   <DropdownMenuItem asChild className="cursor-pointer rounded-md">
                     <Link
                       href="https://dev.haltman.io/mail-forwarding-selfhost/get-started"

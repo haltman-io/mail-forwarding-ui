@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { SiteHeader } from "@/components/site-header";
-import { StatsCards } from "@/components/stats-cards";
+import { StatsCards, StatsCardsSkeleton } from "@/components/stats-cards";
 import { SubscribeCard } from "@/components/subscribe-card";
 import { useStats } from "@/hooks/use-stats";
 
@@ -18,7 +18,7 @@ export default function ConsolePage() {
 
       <main className="relative mx-auto max-w-[960px] px-4 pt-24 pb-28 sm:px-6 sm:pt-36 sm:pb-32">
         <section className="mx-auto max-w-[840px] space-y-6 sm:space-y-8">
-          {stats && <StatsCards stats={stats} />}
+          {stats ? <StatsCards stats={stats} /> : <StatsCardsSkeleton />}
           <SubscribeCard apiStatus={apiStatus} onApiStatusChange={setApiStatus} />
 
           <footer className="mt-12 flex justify-center pb-8 sm:mt-16 sm:pb-12">
