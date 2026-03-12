@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: [self-hosted, linux, vps, production]
+
+    environment:
+      name: production
+      url: https://forward.haltman.io
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy release
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          TS=$(date +%Y%m%d-%H%M%S)
+          REL=/var/www/mail-forwarding/releases/${TS}-${SHA}
+
+          mkdir -p "$REL"
+          rsync -a --delete ./out/ "$REL/"
+          ln -sfn "$REL" /var/www/mail-forwarding/current
+
+          echo "Deployed: $REL"
+          echo "Current → $(readlink -f /var/www/mail-forwarding/current)"
