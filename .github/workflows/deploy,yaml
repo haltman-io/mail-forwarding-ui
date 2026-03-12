@@ -11,11 +11,11 @@ concurrency:
 jobs:
   deploy:
     name: Build & Deploy
-    runs-on: [self-hosted, linux, vps, production]
+    runs-on: [self-hosted, linux, production, haltman-io]
 
     environment:
       name: production
-      url: https://forward.haltman.io
+      url: https://mail.thc.org/
 
     steps:
       - uses: actions/checkout@v4
