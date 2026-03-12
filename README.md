@@ -220,6 +220,7 @@ If you're building privacy-respecting mail infrastructure, improving alias workf
 
 ## Credits
 
+<center>
 <table>
   <tr>
     <td align="center" width="33%">
@@ -255,3 +256,4 @@ If you're building privacy-respecting mail infrastructure, improving alias workf
 
   </tr>
 </table>
+</center>
