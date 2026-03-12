@@ -28,7 +28,7 @@ export default function Page() {
                 </span>
                 <p className="m-0 font-sans text-[11px] font-medium tracking-wider text-[var(--text-secondary)] uppercase">
                   Powered by{" "}
-                  <a href="https://haltman.io" target="_blank" rel="noreferrer" className="font-bold text-[color:var(--text-primary)] transition-colors hover:text-[var(--neu-green)]">Haltman.IO</a>
+                  <a href="https://haltman.io" target="_blank" rel="noreferrer" className="font-bold text-[color:var(--text-primary)] transition-colors hover:text-[var(--neu-green)]">Haltman.io</a>
                   <span className="mx-1.5 text-[color:var(--text-muted)]">&amp;</span>
                   <a href="https://www.thc.org" target="_blank" rel="noreferrer" className="font-bold text-[color:var(--text-primary)] transition-colors hover:text-[var(--neu-green)]">The Hacker&apos;s Choice</a>
                 </p>
