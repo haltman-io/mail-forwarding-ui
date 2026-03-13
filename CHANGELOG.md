@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.0.0...v1.1.0) (2026-03-13)
+
+
+### Features
+
+* **auth:** implement comprehensive authentication UI and hooks ([a8354ac](https://github.com/haltman-io/mail-forwarding-ui/commit/a8354ac7849a0d9df25ab4742e17716485bbb30d))
+
 ## 1.0.0 (2026-03-12)
 
 
