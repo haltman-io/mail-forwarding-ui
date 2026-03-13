@@ -1,0 +1,320 @@
+.snapshotRoot {
+  --copy-green: #30d158;
+  --copy-green-rgb: 48, 209, 88;
+  --copy-panel-bg: rgba(255, 255, 255, 0.055);
+  --copy-panel-border: rgba(255, 255, 255, 0.08);
+  --copy-panel-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --copy-panel-shadow:
+    0 18px 44px -14px rgba(0, 0, 0, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    0 4px 16px -2px rgba(0, 0, 0, 0.3);
+  --copy-text-primary: rgba(255, 255, 255, 0.87);
+  --copy-text-secondary: rgba(255, 255, 255, 0.5);
+  --copy-text-muted: rgba(255, 255, 255, 0.3);
+  --copy-input-bg: rgba(0, 0, 0, 0.24);
+  --copy-input-border: rgba(255, 255, 255, 0.04);
+  --copy-input-hover: rgba(255, 255, 255, 0.08);
+  --copy-focus-ring: rgba(48, 209, 88, 0.14);
+  --copy-danger: rgba(255, 69, 58, 0.12);
+  --copy-danger-border: rgba(255, 69, 58, 0.24);
+  --copy-danger-text: rgba(255, 188, 183, 0.96);
+  --copy-success: rgba(48, 209, 88, 0.12);
+  --copy-success-border: rgba(48, 209, 88, 0.24);
+  --copy-success-text: rgba(205, 255, 217, 0.96);
+}
+
+.pageGlow {
+  background: rgba(48, 209, 88, 0.12);
+  filter: blur(48px);
+}
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--copy-panel-bg);
+  border: 1px solid var(--copy-panel-border);
+  box-shadow: var(--copy-panel-highlight), var(--copy-panel-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top,
+    rgba(48, 209, 88, 0.16),
+    transparent 60%
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.panelGlow {
+  background: rgba(48, 209, 88, 0.05);
+  filter: blur(48px);
+}
+
+.accentBar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(48, 209, 88, 0.25),
+    transparent
+  );
+  opacity: 0.6;
+  animation: copyAccentPulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.badge {
+  border: 1px solid var(--copy-panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.iconPlate {
+  border: 1px solid rgba(48, 209, 88, 0.14);
+  background: rgba(48, 209, 88, 0.1);
+  box-shadow: 0 0 28px rgba(48, 209, 88, 0.1);
+}
+
+.tab {
+  border-radius: 18px;
+  border: 1px solid var(--copy-input-border);
+  padding: 0.75rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  transition:
+    color 300ms ease,
+    border-color 300ms ease,
+    background-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.tabIdle {
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--copy-text-secondary);
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.22);
+}
+
+.tabIdle:hover {
+  border-color: var(--copy-input-hover);
+  color: var(--copy-text-primary);
+}
+
+.tabActive {
+  border-color: rgba(48, 209, 88, 0.22);
+  background: rgba(48, 209, 88, 0.12);
+  color: var(--copy-green);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(48, 209, 88, 0.05);
+}
+
+.statusBase {
+  border-radius: 22px;
+  border: 1px solid transparent;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.statusError {
+  background: var(--copy-danger);
+  border-color: var(--copy-danger-border);
+  color: var(--copy-danger-text);
+}
+
+.statusSuccess {
+  background: var(--copy-success);
+  border-color: var(--copy-success-border);
+  color: var(--copy-success-text);
+}
+
+.fieldLabel {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--copy-text-muted);
+}
+
+.input {
+  width: 100%;
+  height: 3rem;
+  border-radius: 18px;
+  border: 1px solid var(--copy-input-border);
+  background: var(--copy-input-bg);
+  box-shadow:
+    inset 1px 1px 3px rgba(0, 0, 0, 0.25),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.02);
+  padding: 0 1rem;
+  color: var(--copy-text-primary);
+  outline: none;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease;
+}
+
+.input::placeholder {
+  color: var(--copy-text-muted);
+}
+
+.input:hover {
+  border-color: var(--copy-input-hover);
+}
+
+.input:focus {
+  border-color: rgba(48, 209, 88, 0.3);
+  box-shadow:
+    inset 1px 1px 3px rgba(0, 0, 0, 0.25),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.02),
+    0 0 0 2px var(--copy-focus-ring);
+}
+
+.primaryButton {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(48, 209, 88, 0.9) 0%,
+    rgba(40, 180, 72, 0.85) 100%
+  );
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 2px 8px rgba(48, 209, 88, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.primaryButton:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(55, 220, 95, 0.92) 0%,
+    rgba(48, 200, 80, 0.88) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 4px 16px rgba(48, 209, 88, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.primaryButton:active {
+  background: linear-gradient(
+    180deg,
+    rgba(40, 170, 68, 0.88) 0%,
+    rgba(48, 209, 88, 0.85) 100%
+  );
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(48, 209, 88, 0.15);
+  transform: scale(0.98);
+}
+
+.secondaryButton {
+  border: 1px solid var(--copy-panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--copy-text-secondary);
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.secondaryButton:hover {
+  border-color: rgba(48, 209, 88, 0.18);
+  background: rgba(48, 209, 88, 0.08);
+  color: var(--copy-green);
+}
+
+.factCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid var(--copy-panel-border);
+  background: var(--copy-panel-bg);
+  box-shadow:
+    var(--copy-panel-highlight),
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.factCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top,
+    rgba(48, 209, 88, 0.1),
+    transparent 58%
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.miniPlate {
+  border: 1px solid rgba(48, 209, 88, 0.1);
+  background: rgba(48, 209, 88, 0.08);
+}
+
+.skeleton {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.skeletonMuted {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.skeletonInset {
+  background: rgba(0, 0, 0, 0.24);
+}
+
+@keyframes copyAccentPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accentBar::after,
+  .tab,
+  .primaryButton,
+  .secondaryButton,
+  .input {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .primaryButton:hover {
+    transform: none;
+  }
+}
