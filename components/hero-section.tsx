@@ -45,11 +45,12 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
         <TextType
           as="h1"
-          className="hero-headline block font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:text-4xl md:text-5xl"
+          className="hero-headline mx-auto block min-h-[3.45em] w-full max-w-[18ch] font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:min-h-[2.35em] sm:max-w-[22ch] sm:text-4xl md:text-5xl"
           text={[
             "Your *identity* is not their *product*.",
-            "Email aliases for *hackers* who read *Phrack*.",
-            "Unlike *Proton*, we don't send your data to *FBI*.",
+            "Your *mail* is not their *telemetry*.",
+            "Built for *curiosity*. Not for *compliance*.",
+            "Because *privacy* should not need approval.",
           ]}
           highlightClassName="text-type__highlight"
           typingSpeed={75}
