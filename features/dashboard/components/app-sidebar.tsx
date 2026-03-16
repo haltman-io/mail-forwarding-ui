@@ -4,17 +4,17 @@ import * as React from "react"
 import {
   AtSign,
   Ban,
-  Clock,
   Command,
   Globe2,
   KeyRound,
+  LifeBuoy,
   LockKeyhole,
   Mail,
   Send,
   Users,
 } from "lucide-react"
 
-import { useAuth } from "@/features/auth/hooks/use-auth"
+import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth"
 import { NavAdministration } from "@/features/dashboard/components/nav-administration"
 import { NavSecondary } from "@/features/dashboard/components/nav-secondary"
 import { NavUser } from "@/features/dashboard/components/nav-user"
@@ -22,8 +22,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -33,8 +31,13 @@ import {
 const data = {
   navSecondary: [
     {
+      title: "Support",
+      url: "#",
+      icon: LifeBuoy,
+    },
+    {
       title: "Feedback",
-      url: "https://t.me/thcorg/",
+      url: "#",
       icon: Send,
     },
   ],
@@ -79,19 +82,17 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [hostLabel, setHostLabel] = React.useState("haltman.io")
-  const { user, logout } = useAuth()
+  const { admin, logout } = useAdminAuth()
 
   React.useEffect(() => {
     if (window.location.host) setHostLabel(window.location.host)
   }, [])
 
-  const isAdmin = user?.is_admin === true
-
-  const navUser = React.useMemo(() => ({
-    name: user?.email?.split("@")[0] ?? "User",
-    email: user?.email ?? "",
+  const user = React.useMemo(() => ({
+    name: admin?.email?.split("@")[0] ?? "Admin",
+    email: admin?.email ?? "",
     avatar: "",
-  }), [user])
+  }), [admin])
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -112,24 +113,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {isAdmin && <NavAdministration items={data.administration} />}
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/dashboard">
-                  <Clock />
-                  <span>Coming Soon</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+        <NavAdministration items={data.administration} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={navUser} onLogout={() => logout("Logged out.")} />
+        <NavUser user={user} onLogout={() => logout("Logged out.")} />
       </SidebarFooter>
     </Sidebar>
   )

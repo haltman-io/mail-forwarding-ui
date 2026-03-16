@@ -12,13 +12,13 @@ import { AdminPageLayout } from "@/features/dashboard/components/admin-page-layo
 import { AdminPageHeader } from "@/features/dashboard/components/admin-page-header";
 import { AdminDataCard } from "@/features/dashboard/components/admin-data-card";
 import { changeMyPassword, isUnauthorized, describeError } from "@/features/dashboard/services/users.service";
-import { useAuth } from "@/features/auth/hooks/use-auth";
+import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
 
 function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
 function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
 
 export function PasswordContent({ token }: { token: string | null }) {
-  const { logout } = useAuth();
+  const { logout } = useAdminAuth();
   const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");

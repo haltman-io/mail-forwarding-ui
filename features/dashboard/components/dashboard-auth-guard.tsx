@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { useAuth } from "@/features/auth/hooks/use-auth";
+import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
 
 export function DashboardAuthGuard({
   children,
@@ -12,7 +12,7 @@ export function DashboardAuthGuard({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { status } = useAuth();
+  const { status } = useAdminAuth();
 
   React.useEffect(() => {
     if (status === "unauthenticated") {
