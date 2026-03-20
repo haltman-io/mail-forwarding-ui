@@ -3,6 +3,10 @@
 import { ChevronDown, Chromium, Flame } from "lucide-react";
 
 import {
+  CHROME_EXTENSION_URL,
+  FIREFOX_EXTENSION_URL,
+} from "@/lib/browser-addon-links";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -41,7 +45,7 @@ export function BrowserAddonMenu({ triggerClassName, triggerIconClassName }: Bro
       >
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-[var(--hover-state)]">
           <a
-            href="https://addons.mozilla.org/en-US/firefox/addon/email-alias-manager-free/"
+            href={FIREFOX_EXTENSION_URL}
             target="_blank"
             rel="noreferrer"
           >
@@ -51,7 +55,7 @@ export function BrowserAddonMenu({ triggerClassName, triggerIconClassName }: Bro
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-[var(--hover-state)]">
           <a
-            href="https://github.com/haltman-io/mail-forwarding-addon-google-chrome"
+            href={CHROME_EXTENSION_URL}
             target="_blank"
             rel="noreferrer"
           >

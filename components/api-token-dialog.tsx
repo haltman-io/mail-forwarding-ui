@@ -100,10 +100,12 @@ export function ApiTokenDialog({
   onApiStatusChange,
   triggerClassName,
   triggerIconClassName,
+  triggerLabel = "API Token",
 }: {
   onApiStatusChange?: (status: ApiStatus) => void;
   triggerClassName?: string;
   triggerIconClassName?: string;
+  triggerLabel?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [apiEmail, setApiEmail] = React.useState("");
@@ -307,7 +309,7 @@ export function ApiTokenDialog({
           aria-label="Create a free token to automate alias management via API."
         >
           <KeyRound className={cn("h-4 w-4", triggerIconClassName ?? "text-[var(--text-secondary)]")} />
-          API Token
+          {triggerLabel}
         </button>
       </DialogTrigger>
 

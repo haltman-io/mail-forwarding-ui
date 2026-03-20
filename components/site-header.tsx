@@ -11,8 +11,8 @@ import {
   Zap,
   ShieldCheck,
   ShieldAlert,
-  ScrollText,
-  ChevronDown,
+  Chromium,
+  Flame,
   HatGlasses,
   Brain,
   CircleCheck,
@@ -28,17 +28,24 @@ import {
   Terminal,
   Settings,
 } from "lucide-react";
-import { BrowserAddonMenu } from "@/components/browser-addon-menu";
+import { GetStartedMenu } from "@/components/get-started-menu";
+import { DevelopersMenu } from "@/components/developers-menu";
+import { ManageMenu } from "@/components/manage-menu";
+import { LearnMenu } from "@/components/learn-menu";
+import { LegalMenu } from "@/components/legal-menu";
 import { ApiTokenDialog } from "@/components/api-token-dialog";
 import { DnsSetupMenu } from "@/components/dns-setup-menu";
+import {
+  MobileNavSection,
+  mobileNavItemClassName,
+  mobileNavItemIconClassName,
+} from "@/components/mobile-nav-section";
 
 
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -48,6 +55,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  CHROME_EXTENSION_URL,
+  FIREFOX_EXTENSION_URL,
+} from "@/lib/browser-addon-links";
+import {
+  API_REFERENCE_URL,
+  DOCUMENTATION_URL,
+  SOURCE_CODE_URL,
+} from "@/lib/site-links";
 
 const clickableIconClass =
   "opacity-70 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none";
@@ -87,6 +103,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [brandIconSwapKey, setBrandIconSwapKey] = React.useState(0);
   const [isMobileViewport, setIsMobileViewport] = React.useState<boolean | null>(null);
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     setHost(window.location.host);
@@ -146,14 +163,17 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const navIconClass = "text-[var(--text-secondary)] !opacity-100";
 
   const mobileActionTriggerClass =
-    "group relative inline-flex h-8 w-full items-center justify-start gap-2 overflow-visible rounded-lg px-2 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--hover-state)]";
-  const mobileActionIconClass = "text-[var(--text-muted)] !opacity-100";
+    "group relative inline-flex min-h-9 w-full items-center justify-start gap-2 overflow-visible rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
+  const mobileActionIconClass = "text-[var(--text-secondary)] !opacity-100";
 
   const actionBtnClass =
     "alias-primary neu-btn-green group inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-mono text-xs font-medium no-underline";
 
   const actionBtnSecondaryClass =
     "group inline-flex items-center gap-1.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-1.5 font-mono text-xs font-medium text-[var(--text-secondary)] no-underline transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
+  const closeMobileMenu = React.useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
 
   return (
     <>
@@ -195,150 +215,165 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
             >
               {isMobileViewport === false ? (
                 <>
-                  <BrowserAddonMenu
+                  <GetStartedMenu
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
                   />
-                  <ApiTokenDialog
+                  <DevelopersMenu
                     onApiStatusChange={onApiStatusChange}
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
                   />
-                  <DnsSetupMenu
+                  <ManageMenu
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
                   />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button type="button" className={navTriggerClass}>
-                        <ScrollText className={`h-4 w-4 ${navIconClass}`} />
-                        ToS
-                        <ChevronDown className={`ml-0.5 h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180 ${navIconClass}`} />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center" className="w-44 p-1.5">
-                      <DropdownMenuItem asChild className="cursor-pointer rounded-md">
-                        <Link href="/privacy">
-                          <ShieldCheck className="h-4 w-4 text-[var(--text-secondary)]" />
-                          Privacy
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="cursor-pointer rounded-md">
-                        <Link href="/abuse">
-                          <ShieldAlert className="h-4 w-4 text-[var(--text-secondary)]" />
-                          Abuse
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <LearnMenu
+                    onAboutSelect={() => setAboutOpen(true)}
+                    triggerClassName={navTriggerClass}
+                    triggerIconClassName={navIconClass}
+                  />
+                  <LegalMenu
+                    triggerClassName={navTriggerClass}
+                    triggerIconClassName={navIconClass}
+                  />
                 </>
               ) : null}
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="group inline-flex size-8 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]"
-                    aria-label="Open navigation menu"
-                    title="Open navigation menu"
-                  >
-                    <Menu className="h-4 w-4" />
-                    <span className="sr-only">Open navigation menu</span>
-                  </button>
-                </DropdownMenuTrigger>
+              <div className="sm:hidden">
+                <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="group inline-flex size-8 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]"
+                      aria-label="Open navigation menu"
+                      title="Open navigation menu"
+                    >
+                      <Menu className="h-4 w-4" />
+                      <span className="sr-only">Open navigation menu</span>
+                    </button>
+                  </DropdownMenuTrigger>
 
-                <DropdownMenuContent
-                  align="end"
-                  className="w-56 p-1.5 sm:w-48"
-                >
-                  {isMobileViewport === true ? (
-                    <>
-                      <div className="space-y-1 p-1">
-                        <Link href="/console" className={mobileActionTriggerClass}>
-                          <Terminal className={`h-4 w-4 ${mobileActionIconClass}`} />
+                  <DropdownMenuContent
+                    align="end"
+                    className="max-h-[80vh] w-[min(92vw,320px)] overflow-y-auto p-2"
+                  >
+                    <div className="space-y-2">
+                      <MobileNavSection label="Get Started">
+                        <Link href="/console" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                          <Terminal className={mobileNavItemIconClassName} />
                           Console
                         </Link>
-                        <Link href="/dashboard" className={mobileActionTriggerClass}>
-                          <Settings className={`h-4 w-4 ${mobileActionIconClass}`} />
-                          Admin
-                        </Link>
-                      </div>
 
-                      <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
+                        <MobileNavSection
+                          label="Browser Extension"
+                          nested
+                          icon={<Chromium className={mobileNavItemIconClassName} />}
+                        >
+                          <Link
+                            href={FIREFOX_EXTENSION_URL}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={mobileNavItemClassName}
+                            onClick={closeMobileMenu}
+                          >
+                            <Flame className={mobileNavItemIconClassName} />
+                            Firefox Extension
+                          </Link>
+                          <Link
+                            href={CHROME_EXTENSION_URL}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={mobileNavItemClassName}
+                            onClick={closeMobileMenu}
+                          >
+                            <Chromium className={mobileNavItemIconClassName} />
+                            Chrome Extension
+                          </Link>
+                        </MobileNavSection>
+                      </MobileNavSection>
 
-                      <div className="space-y-1 p-1">
+                      <MobileNavSection label="Developers">
                         <ApiTokenDialog
                           onApiStatusChange={onApiStatusChange}
+                          triggerLabel="Create API Token"
                           triggerClassName={mobileActionTriggerClass}
                           triggerIconClassName={mobileActionIconClass}
                         />
+                        <Link
+                          href={API_REFERENCE_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={mobileNavItemClassName}
+                          onClick={closeMobileMenu}
+                        >
+                          <Zap className={mobileNavItemIconClassName} />
+                          API Reference
+                        </Link>
+                      </MobileNavSection>
+
+                      <MobileNavSection label="Manage">
                         <DnsSetupMenu
                           triggerClassName={mobileActionTriggerClass}
                           triggerIconClassName={mobileActionIconClass}
                         />
-                        <Link href="/privacy" className={mobileActionTriggerClass}>
-                          <ShieldCheck className={`h-4 w-4 ${mobileActionIconClass}`} />
+                      </MobileNavSection>
+
+                      <MobileNavSection label="Learn">
+                        <Link
+                          href={DOCUMENTATION_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={mobileNavItemClassName}
+                          onClick={closeMobileMenu}
+                        >
+                          <BookOpen className={mobileNavItemIconClassName} />
+                          Documentation
+                        </Link>
+                        <Link
+                          href={SOURCE_CODE_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={mobileNavItemClassName}
+                          onClick={closeMobileMenu}
+                        >
+                          <Github className={mobileNavItemIconClassName} />
+                          Source Code
+                        </Link>
+                        <button
+                          type="button"
+                          className={mobileNavItemClassName}
+                          onClick={() => {
+                            closeMobileMenu();
+                            setAboutOpen(true);
+                          }}
+                        >
+                          <Info className={mobileNavItemIconClassName} />
+                          About
+                        </button>
+                      </MobileNavSection>
+
+                      <MobileNavSection label="Legal">
+                        <Link href="/privacy" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                          <ShieldCheck className={mobileNavItemIconClassName} />
                           Privacy
                         </Link>
-                        <Link href="/abuse" className={mobileActionTriggerClass}>
-                          <ShieldAlert className={`h-4 w-4 ${mobileActionIconClass}`} />
+                        <Link href="/abuse" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                          <ShieldAlert className={mobileNavItemIconClassName} />
                           Abuse
                         </Link>
+                      </MobileNavSection>
+
+                      <div className="rounded-2xl border border-[var(--hairline-border)] bg-[rgba(255,255,255,0.03)] p-1.5">
+                        <Link href="/dashboard" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                          <Settings className={mobileNavItemIconClassName} />
+                          Admin
+                        </Link>
                       </div>
-
-                      <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
-                    </>
-                  ) : null}
-
-                  <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
-
-                  <DropdownMenuItem asChild className="cursor-pointer rounded-md">
-                    <Link
-                      href="https://dev.haltman.io/mail-forwarding-selfhost/get-started"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <BookOpen className="h-4 w-4 text-[var(--text-secondary)]" />
-                      Documentation
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild className="cursor-pointer rounded-md">
-                    <Link
-                      href="https://dev.haltman.io/api-reference/get-domains"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Zap className="h-4 w-4 text-[var(--text-secondary)]" />
-                      API Reference
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild className="cursor-pointer rounded-md">
-                    <Link
-                      href="https://github.com/haltman-io/mail-forwarding"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Github className="h-4 w-4 text-[var(--text-secondary)]" />
-                      Source Code
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator className="bg-[color:var(--hairline-border)]" />
-
-                  <DropdownMenuItem
-                    className="cursor-pointer rounded-md"
-                    onSelect={(event) => {
-                      event.preventDefault();
-                      setAboutOpen(true);
-                    }}
-                  >
-                    <Info className="h-4 w-4 text-[var(--text-secondary)]" />
-                    About
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </nav>
 

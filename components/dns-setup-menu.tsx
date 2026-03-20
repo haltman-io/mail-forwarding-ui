@@ -415,7 +415,10 @@ type DnsSetupMenuProps = {
   triggerIconClassName?: string;
 };
 
-export function DnsSetupMenu({ triggerClassName, triggerIconClassName }: DnsSetupMenuProps = {}) {
+export function DnsSetupMenu({
+  triggerClassName,
+  triggerIconClassName,
+}: DnsSetupMenuProps = {}) {
   const [emailOpen, setEmailOpen] = React.useState(false);
 
   return (
