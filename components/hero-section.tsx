@@ -156,20 +156,20 @@ export function HeroSection({ stats }: HeroSectionProps) {
       <div className="flex flex-col items-center gap-3 pt-2">
         <div className="flex flex-col items-center gap-3 sm:flex-row">
           <Link
+            href="/faq"
+            className="group inline-flex items-center justify-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-2.5 text-center font-mono text-sm font-medium text-[var(--text-secondary)] transition-all duration-300 hover:scale-[1.02] hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]"
+          >
+            <CircleHelp className="h-4 w-4 opacity-70" />
+            Why trust this?
+          </Link>
+
+          <Link
             href="/console"
             className="group inline-flex items-center gap-2 rounded-full border border-[rgba(48,209,88,0.15)] bg-[rgba(48,209,88,0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] transition-all duration-300 hover:scale-[1.02] hover:border-[rgba(48,209,88,0.25)] hover:bg-[rgba(48,209,88,0.12)] hover:shadow-[0_0_20px_rgba(48,209,88,0.10)]"
           >
             <Terminal className="h-4 w-4 opacity-70" />
             Create an alias
             <ArrowRight className="h-3.5 w-3.5 opacity-50 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </Link>
-
-          <Link
-            href="/faq"
-            className="group inline-flex items-center justify-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-2.5 text-center font-mono text-sm font-medium text-[var(--text-secondary)] transition-all duration-300 hover:scale-[1.02] hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]"
-          >
-            <CircleHelp className="h-4 w-4 opacity-70" />
-            Why trust this?
           </Link>
         </div>
         <span className="font-mono text-[10px] tracking-wider text-[var(--text-muted)] uppercase">

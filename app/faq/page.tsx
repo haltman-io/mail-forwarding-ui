@@ -42,7 +42,7 @@ const FAQ_ITEMS = [
     answer: (
       <>
         <p>
-          You get 29 domains, unlimited aliases, and unlimited destinations.
+          You get 48 domains, unlimited aliases, and unlimited destinations.
           Pick a handle, point it at your real inbox, and mail gets forwarded.
         </p>
         <p>
@@ -116,11 +116,7 @@ export default function FaqPage() {
               Frequently Asked Questions
             </h1>
             <p className="font-mono text-sm uppercase tracking-[0.04em] text-[var(--neu-green)]">
-              Straight answers about the mail forwarding service.
-            </p>
-            <p className="font-mono text-sm leading-[1.6] text-[var(--text-secondary)]">
-              This page reworks the homepage manifesto into a dedicated FAQ.
-              Open any section for the longer version.
+              Answers about the mail forwarding service.
             </p>
           </header>
 
