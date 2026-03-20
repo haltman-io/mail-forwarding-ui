@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.0.0...v1.1.0) (2026-03-20)
+
+
+### Features
+
+* add FAQ page and integrate links in header and legal menu ([06628af](https://github.com/haltman-io/mail-forwarding-ui/commit/06628afc1933b72170053169130dad1c321d1128))
+* add navigation menus and links for browser extensions, developers, and learning resources ([bb0c40b](https://github.com/haltman-io/mail-forwarding-ui/commit/bb0c40bf1c602dd5c6d3eea7d86c376a38bf9d93))
+* **auth:** implement comprehensive authentication UI and hooks ([a8354ac](https://github.com/haltman-io/mail-forwarding-ui/commit/a8354ac7849a0d9df25ab4742e17716485bbb30d))
+
+
+### Bug Fixes
+
+* update debug UI setting and improve hero section text ([78cc8fb](https://github.com/haltman-io/mail-forwarding-ui/commit/78cc8fb7cfcf17f68186de81973e85afb7a19c14))
+* update FAQ content and enhance hero section call-to-action link ([758f12b](https://github.com/haltman-io/mail-forwarding-ui/commit/758f12b754715931b849ec5405baab2e68d7a9a2))
+
 ## 1.0.0 (2026-03-12)
 
 
