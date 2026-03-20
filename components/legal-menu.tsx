@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Scale, ShieldAlert, ShieldCheck } from "lucide-react";
+import { CircleHelp, Scale, ShieldAlert, ShieldCheck } from "lucide-react";
 
 import {
   NavGroupMenu,
@@ -27,6 +27,12 @@ export function LegalMenu({
       triggerIconClassName={triggerIconClassName}
       contentClassName="w-44 p-1.5"
     >
+      <DropdownMenuItem asChild className={navMenuItemClassName}>
+        <Link href="/faq">
+          <CircleHelp className={navMenuItemIconClassName} />
+          FAQ
+        </Link>
+      </DropdownMenuItem>
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href="/privacy">
           <ShieldCheck className={navMenuItemIconClassName} />

@@ -16,6 +16,7 @@ import {
   HatGlasses,
   Brain,
   CircleCheck,
+  CircleHelp,
   Cat,
   Earth,
   Fingerprint,
@@ -354,6 +355,10 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                       </MobileNavSection>
 
                       <MobileNavSection label="Legal">
+                        <Link href="/faq" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                          <CircleHelp className={mobileNavItemIconClassName} />
+                          FAQ
+                        </Link>
                         <Link href="/privacy" className={mobileNavItemClassName} onClick={closeMobileMenu}>
                           <ShieldCheck className={mobileNavItemIconClassName} />
                           Privacy
