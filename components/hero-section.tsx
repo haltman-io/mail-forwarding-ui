@@ -36,12 +36,8 @@ export function HeroSection({ stats }: HeroSectionProps) {
     <section className="hero-section relative space-y-8 sm:space-y-10">
       {/* ── Headline ── */}
       <div className="space-y-4 text-center">
-        <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-3.5 py-1.5 backdrop-blur-[var(--glass-blur)]">
-          <Terminal className="h-3.5 w-3.5 text-[var(--neu-green)] opacity-80" />
-          <span className="font-mono text-[11px] font-medium tracking-wider text-[var(--text-secondary)] uppercase">
-            Built by hackers. Run by hackers.
-          </span>
-        </div>
+        <>
+        </>
 
         <TextType
           as="h1"
