@@ -20,12 +20,16 @@ type DevelopersMenuProps = {
   onApiStatusChange?: (status: ApiStatus) => void;
   triggerClassName?: string;
   triggerIconClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export function DevelopersMenu({
   onApiStatusChange,
   triggerClassName,
   triggerIconClassName,
+  open,
+  onOpenChange,
 }: DevelopersMenuProps = {}) {
   return (
     <NavGroupMenu
@@ -33,6 +37,8 @@ export function DevelopersMenu({
       icon={Code2}
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <ApiTokenDialog
         onApiStatusChange={onApiStatusChange}

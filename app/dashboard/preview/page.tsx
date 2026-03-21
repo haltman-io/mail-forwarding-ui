@@ -5,12 +5,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
-import { ApiTokensContent } from "@/features/dashboard/components/api-tokens-content";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
+import { PreviewContent } from "@/features/dashboard/components/preview-content";
 
-export default function ApiTokensPage() {
-  const { token } = useAdminAuth();
-
+export default function PreviewPage() {
   return (
     <>
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(255,255,255,0.06)] px-5">
@@ -26,7 +23,7 @@ export default function ApiTokensPage() {
             <BreadcrumbSeparator className="hidden text-[var(--text-muted)] md:block" />
             <BreadcrumbItem>
               <BreadcrumbPage className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-secondary)]">
-                API Tokens
+                Preview
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -36,7 +33,7 @@ export default function ApiTokensPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <ApiTokensContent token={token} />
+        <PreviewContent />
       </div>
     </>
   );

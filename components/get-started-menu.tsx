@@ -16,11 +16,15 @@ import {
 type GetStartedMenuProps = {
   triggerClassName?: string;
   triggerIconClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export function GetStartedMenu({
   triggerClassName,
   triggerIconClassName,
+  open,
+  onOpenChange,
 }: GetStartedMenuProps = {}) {
   return (
     <NavGroupMenu
@@ -28,6 +32,8 @@ export function GetStartedMenu({
       icon={Rocket}
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href="/console">

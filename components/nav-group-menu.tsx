@@ -18,6 +18,8 @@ type NavGroupMenuProps = {
   triggerIconClassName?: string;
   contentClassName?: string;
   align?: "start" | "center" | "end";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export const navMenuItemClassName = "cursor-pointer rounded-md";
@@ -34,9 +36,11 @@ export function NavGroupMenu({
   triggerIconClassName,
   contentClassName,
   align = "center",
+  open,
+  onOpenChange,
 }: NavGroupMenuProps) {
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"

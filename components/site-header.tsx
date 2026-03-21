@@ -105,6 +105,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [isMobileViewport, setIsMobileViewport] = React.useState<boolean | null>(null);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [openDesktopMenu, setOpenDesktopMenu] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setHost(window.location.host);
@@ -135,6 +136,12 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  React.useEffect(() => {
+    if (isMobileViewport !== false) {
+      setOpenDesktopMenu(null);
+    }
+  }, [isMobileViewport]);
 
   React.useEffect(() => {
     if (brandIcons.length < 2) return;
@@ -175,6 +182,19 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const closeMobileMenu = React.useCallback(() => {
     setMobileMenuOpen(false);
   }, []);
+
+  const handleDesktopMenuOpenChange = React.useCallback(
+    (menuId: string) => (open: boolean) => {
+      setOpenDesktopMenu((currentOpenMenu) => {
+        if (open) {
+          return menuId;
+        }
+
+        return currentOpenMenu === menuId ? null : currentOpenMenu;
+      });
+    },
+    []
+  );
 
   return (
     <>
@@ -219,24 +239,37 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                   <GetStartedMenu
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
+                    open={openDesktopMenu === "get-started"}
+                    onOpenChange={handleDesktopMenuOpenChange("get-started")}
                   />
                   <DevelopersMenu
                     onApiStatusChange={onApiStatusChange}
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
+                    open={openDesktopMenu === "developers"}
+                    onOpenChange={handleDesktopMenuOpenChange("developers")}
                   />
                   <ManageMenu
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
+                    open={openDesktopMenu === "manage"}
+                    onOpenChange={handleDesktopMenuOpenChange("manage")}
                   />
                   <LearnMenu
-                    onAboutSelect={() => setAboutOpen(true)}
+                    onAboutSelect={() => {
+                      setOpenDesktopMenu(null);
+                      setAboutOpen(true);
+                    }}
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
+                    open={openDesktopMenu === "learn"}
+                    onOpenChange={handleDesktopMenuOpenChange("learn")}
                   />
                   <LegalMenu
                     triggerClassName={navTriggerClass}
                     triggerIconClassName={navIconClass}
+                    open={openDesktopMenu === "legal"}
+                    onOpenChange={handleDesktopMenuOpenChange("legal")}
                   />
                 </>
               ) : null}

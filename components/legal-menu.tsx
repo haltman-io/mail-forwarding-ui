@@ -13,11 +13,15 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 type LegalMenuProps = {
   triggerClassName?: string;
   triggerIconClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export function LegalMenu({
   triggerClassName,
   triggerIconClassName,
+  open,
+  onOpenChange,
 }: LegalMenuProps = {}) {
   return (
     <NavGroupMenu
@@ -26,6 +30,8 @@ export function LegalMenu({
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
       contentClassName="w-44 p-1.5"
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href="/faq">

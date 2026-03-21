@@ -9,10 +9,6 @@ interface AdminPageHeaderProps {
   className?: string;
 }
 
-/**
- * Standardised page header for every admin listing page.
- * Title + optional description on the left, primary actions on the right.
- */
 export function AdminPageHeader({
   icon,
   title,
@@ -29,14 +25,18 @@ export function AdminPageHeader({
     >
       <div className="flex items-start gap-3">
         {icon && (
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)] text-[var(--neu-green)]">
             {icon}
           </div>
         )}
         <div className="space-y-0.5">
-          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">
+            {title}
+          </h1>
           {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <p className="text-[13px] text-[var(--text-muted)]">
+              {description}
+            </p>
           )}
         </div>
       </div>

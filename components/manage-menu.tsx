@@ -12,11 +12,15 @@ import {
 type ManageMenuProps = {
   triggerClassName?: string;
   triggerIconClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export function ManageMenu({
   triggerClassName,
   triggerIconClassName,
+  open,
+  onOpenChange,
 }: ManageMenuProps = {}) {
   return (
     <NavGroupMenu
@@ -25,6 +29,8 @@ export function ManageMenu({
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
       contentClassName="w-52 p-1.5"
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <DnsSetupMenu
         triggerClassName={navMenuDialogTriggerClassName}

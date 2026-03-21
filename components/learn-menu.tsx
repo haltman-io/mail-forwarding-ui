@@ -18,12 +18,16 @@ type LearnMenuProps = {
   onAboutSelect: () => void;
   triggerClassName?: string;
   triggerIconClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export function LearnMenu({
   onAboutSelect,
   triggerClassName,
   triggerIconClassName,
+  open,
+  onOpenChange,
 }: LearnMenuProps) {
   return (
     <NavGroupMenu
@@ -31,6 +35,8 @@ export function LearnMenu({
       icon={BookOpen}
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href={DOCUMENTATION_URL} target="_blank" rel="noreferrer">

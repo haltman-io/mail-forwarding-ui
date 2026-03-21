@@ -9,10 +9,6 @@ interface EmptyStateProps {
   className?: string;
 }
 
-/**
- * Polished empty-state placeholder for admin data tables.
- * Centred vertically inside the data card with a controlled min-height.
- */
 export function EmptyState({
   icon,
   title,
@@ -28,14 +24,16 @@ export function EmptyState({
       )}
     >
       {icon && (
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)] text-[var(--neu-green)]">
           {icon}
         </div>
       )}
       <div className="space-y-1">
-        <p className="text-sm font-medium">{title}</p>
+        <p className="text-sm font-medium text-[var(--text-primary)]">
+          {title}
+        </p>
         {description && (
-          <p className="max-w-[280px] text-sm text-muted-foreground">
+          <p className="max-w-[280px] text-[13px] text-[var(--text-muted)]">
             {description}
           </p>
         )}

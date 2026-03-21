@@ -6,17 +6,18 @@ interface AdminToolbarProps {
   className?: string;
 }
 
-/**
- * Horizontal toolbar strip that sits between the page header and the data surface.
- * Left side → search / filters. Right side → secondary actions (refresh, etc).
- */
 export function AdminToolbar({ children, className }: AdminToolbarProps) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-2 rounded-2xl px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
+      style={{
+        background: "var(--neu-surface-lo)",
+        border: "1px solid rgba(255, 255, 255, 0.03)",
+        boxShadow: "var(--neu-shadow-in)",
+      }}
     >
       {children}
     </div>

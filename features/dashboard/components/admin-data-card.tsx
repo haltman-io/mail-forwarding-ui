@@ -6,17 +6,18 @@ interface AdminDataCardProps {
   className?: string;
 }
 
-/**
- * Surface container for data tables on admin pages.
- * Provides consistent border, radius, and background.
- */
 export function AdminDataCard({ children, className }: AdminDataCardProps) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border border-[var(--hairline-border)] bg-[var(--surface-base)]",
+        "overflow-hidden rounded-2xl",
         className,
       )}
+      style={{
+        background: "var(--neu-surface-lo)",
+        border: "1px solid rgba(255, 255, 255, 0.03)",
+        boxShadow: "var(--neu-shadow-in)",
+      }}
     >
       {children}
     </div>
