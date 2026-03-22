@@ -47,7 +47,7 @@ function toastFail(title: string, description?: string) {
   toast.error(title, { description, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> });
 }
 
-export function useDomainsController(token: string | null) {
+export function useDomainsController() {
   const [domains, setDomains] = React.useState<ListState<AdminDomain>>(createListState);
   const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
 
@@ -65,11 +65,10 @@ export function useDomainsController(token: string | null) {
   /* ── load ── */
   const load = React.useCallback(
     async (offset = 0) => {
-      if (!token) return;
       setDomains((s) => ({ ...s, loading: true, error: null }));
 
       try {
-        const result = await fetchDomains(token, {
+        const result = await fetchDomains({
           limit: DEFAULT_LIMIT,
           offset,
           active: activeFilter,
@@ -106,7 +105,7 @@ export function useDomainsController(token: string | null) {
         toastFail("Network error", msg);
       }
     },
-    [token, activeFilter],
+    [activeFilter],
   );
 
   /* auto-load on filter change */
@@ -140,8 +139,6 @@ export function useDomainsController(token: string | null) {
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
-
     const name = formName.trim().toLowerCase();
     if (!name) {
       toastFail("Validation", "Domain name is required.");
@@ -153,8 +150,8 @@ export function useDomainsController(token: string | null) {
       const isEdit = formId !== null;
       const body = { name, active: boolToApi(formActive) };
       const result = isEdit
-        ? await updateDomain(token, formId, body)
-        : await createDomain(token, body);
+        ? await updateDomain(formId, body)
+        : await createDomain(body);
 
       if (isUnauthorized(result)) {
         toastFail("Unauthorized", "Session expired.");
@@ -183,10 +180,10 @@ export function useDomainsController(token: string | null) {
   }
 
   async function confirmDelete() {
-    if (!token || !deleteTarget) return;
+    if (!deleteTarget) return;
     setDeleteBusy(true);
     try {
-      const result = await deleteDomain(token, deleteTarget.id);
+      const result = await deleteDomain(deleteTarget.id);
 
       if (isUnauthorized(result)) {
         toastFail("Unauthorized", "Session expired.");

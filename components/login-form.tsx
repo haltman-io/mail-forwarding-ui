@@ -16,15 +16,17 @@ import {
   AlertTriangle,
   Send,
   ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  AdminAuthProvider,
-  useAdminAuth,
-} from "@/features/dashboard/hooks/use-admin-auth";
+  AuthProvider,
+  useAuth,
+} from "@/features/auth/hooks/use-auth";
+import { describeAuthError, isRateLimited } from "@/lib/auth-client";
 
 /* ────────────────────────────────────────────────────────────
    Mode switcher pill
@@ -117,8 +119,30 @@ function AuthField({
    Password Recovery — full card takeover
    ──────────────────────────────────────────────────────────── */
 function RecoveryView({ onBack }: { onBack: () => void }) {
+  const { forgotPassword } = useAuth();
   const [recoveryEmail, setRecoveryEmail] = React.useState("");
   const [sent, setSent] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  async function handleSend() {
+    const email = recoveryEmail.trim().toLowerCase();
+    if (!email) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await forgotPassword(email);
+      if (result.ok) {
+        setSent(true);
+      } else {
+        setError(describeAuthError(result, "Failed to send recovery email."));
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <>
@@ -154,15 +178,18 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
               </div>
               <div className="space-y-1.5 text-center">
                 <p className="text-[14px] font-medium text-[var(--text-primary)]">
-                  Recovery link sent
+                  Recovery instructions sent
                 </p>
                 <p className="text-[12px] leading-[1.6] text-[var(--text-muted)]">
                   If an account exists for{" "}
                   <span className="font-mono text-[11px] text-[var(--text-secondary)]">
                     {recoveryEmail}
                   </span>
-                  , you&apos;ll receive an email with instructions to reset your
-                  password.
+                  , you&apos;ll receive an email with a reset token. Paste it on the{" "}
+                  <a href="/reset-password" className="text-[var(--neu-green)] underline underline-offset-2">
+                    reset password
+                  </a>{" "}
+                  page.
                 </p>
               </div>
             </div>
@@ -183,8 +210,15 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
           <div className="space-y-5">
             <p className="text-[13px] leading-[1.7] text-[var(--text-secondary)]">
               Enter the email address linked to your account. We&apos;ll send
-              you a secure link to create a new password.
+              you a token to create a new password.
             </p>
+
+            {error && (
+              <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.20)] bg-[rgba(255,69,58,0.06)] px-4 py-3">
+                <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF453A] shadow-[0_0_6px_rgba(255,69,58,0.5)]" />
+                <p className="text-[13px] leading-5 text-[rgba(255,208,204,0.90)]">{error}</p>
+              </div>
+            )}
 
             <AuthField id="recovery-email" label="Email Address" icon={Mail}>
               <Input
@@ -205,12 +239,21 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
 
             <Button
               type="button"
-              onClick={() => setSent(true)}
-              disabled={!recoveryEmail.trim()}
+              onClick={handleSend}
+              disabled={!recoveryEmail.trim() || busy}
               className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
             >
-              <Send className="h-3.5 w-3.5" />
-              Send Recovery Link
+              {busy ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-3.5 w-3.5" />
+                  Send Recovery Token
+                </>
+              )}
             </Button>
 
             <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.06)] to-transparent" />
@@ -268,6 +311,66 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Sign-up success view
+   ──────────────────────────────────────────────────────────── */
+function SignUpSuccess({ email, onBack }: { email: string; onBack: () => void }) {
+  return (
+    <>
+      <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
+        <div className="flex items-center gap-3">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+            <CheckCircle2 className="h-3.5 w-3.5 text-[var(--neu-green)]" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+              Check your email
+            </h1>
+            <p className="text-[11px] leading-4 text-[var(--text-muted)]">
+              Verify your account to get started
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-5 px-7 py-6">
+        <div className="flex flex-col items-center gap-4 py-2">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(48,209,88,0.20)] bg-[rgba(48,209,88,0.08)]">
+            <Mail className="h-5 w-5 text-[var(--neu-green)]" />
+          </div>
+          <div className="space-y-1.5 text-center">
+            <p className="text-[14px] font-medium text-[var(--text-primary)]">
+              Verification token sent
+            </p>
+            <p className="text-[12px] leading-[1.6] text-[var(--text-muted)]">
+              We sent a verification token to{" "}
+              <span className="font-mono text-[11px] text-[var(--text-secondary)]">
+                {email}
+              </span>
+              . Paste it on the{" "}
+              <a href="/verify-email" className="text-[var(--neu-green)] underline underline-offset-2">
+                verify email
+              </a>{" "}
+              page to activate your account.
+            </p>
+          </div>
+        </div>
+
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.06)] to-transparent" />
+
+        <Button
+          type="button"
+          onClick={onBack}
+          className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          Back to Sign In
+        </Button>
+      </div>
+    </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    Main form
    ──────────────────────────────────────────────────────────── */
 function LoginFormInner({
@@ -275,10 +378,12 @@ function LoginFormInner({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const { status, login } = useAdminAuth();
+  const { status, signIn, signUp } = useAuth();
 
   const [mode, setMode] = React.useState<AuthMode>("signin");
   const [showRecovery, setShowRecovery] = React.useState(false);
+  const [signUpEmail, setSignUpEmail] = React.useState<string | null>(null);
+  const [identifier, setIdentifier] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -316,33 +421,62 @@ function LoginFormInner({
     event.preventDefault();
 
     const errors: Record<string, string | null> = {};
-    const trimmedUsername = username.trim().toLowerCase();
 
-    if (!trimmedUsername) errors.username = "Username is required.";
-    if (isSignUp && !email.trim()) errors.email = "Email is required.";
-    if (!password.trim()) errors.password = "Password is required.";
-    if (isSignUp && password !== confirmPassword)
-      errors.confirm = "Passwords do not match.";
+    if (isSignUp) {
+      const trimmedUsername = username.trim().toLowerCase();
+      const trimmedEmail = email.trim().toLowerCase();
+      if (!trimmedUsername) errors.username = "Username is required.";
+      if (!trimmedEmail) errors.email = "Email is required.";
+      if (!password) errors.password = "Password is required.";
+      else if (password.length < 8) errors.password = "Password must be at least 8 characters.";
+      if (password !== confirmPassword) errors.confirm = "Passwords do not match.";
 
-    setUsername(trimmedUsername);
-    setFieldErrors(errors);
-    setFormError(null);
+      setUsername(trimmedUsername);
+      setEmail(trimmedEmail);
+      setFieldErrors(errors);
+      setFormError(null);
+      if (Object.values(errors).some(Boolean)) return;
 
-    if (Object.values(errors).some(Boolean)) return;
-
-    setBusy(true);
-
-    try {
-      const result = await login(trimmedUsername, password);
-
-      if (!result.ok) {
-        setFormError(result.error ?? "Invalid credentials.");
-        return;
+      setBusy(true);
+      try {
+        const result = await signUp(trimmedEmail, trimmedUsername, password);
+        if (result.ok) {
+          setSignUpEmail(trimmedEmail);
+        } else {
+          setFormError(describeAuthError(result, "Sign up failed."));
+        }
+      } catch {
+        setFormError("Network error. Please try again.");
+      } finally {
+        setBusy(false);
       }
+    } else {
+      const trimmedIdentifier = identifier.trim().toLowerCase();
+      if (!trimmedIdentifier) errors.identifier = "Email or username is required.";
+      if (!password) errors.password = "Password is required.";
 
-      router.replace("/dashboard/domains");
-    } finally {
-      setBusy(false);
+      setIdentifier(trimmedIdentifier);
+      setFieldErrors(errors);
+      setFormError(null);
+      if (Object.values(errors).some(Boolean)) return;
+
+      setBusy(true);
+      try {
+        const result = await signIn(trimmedIdentifier, password);
+        if (result.ok) {
+          router.replace("/dashboard/domains");
+        } else {
+          if (isRateLimited(result)) {
+            setFormError(describeAuthError(result, "Sign in failed."));
+          } else {
+            setFormError(describeAuthError(result, "Invalid credentials."));
+          }
+        }
+      } catch {
+        setFormError("Network error. Please try again.");
+      } finally {
+        setBusy(false);
+      }
     }
   }
 
@@ -377,14 +511,10 @@ function LoginFormInner({
       {...props}
     >
       {showRecovery ? (
-        /* ════════════════════════════════════════════════════════
-           Recovery — full card takeover
-           ════════════════════════════════════════════════════════ */
         <RecoveryView onBack={() => setShowRecovery(false)} />
+      ) : signUpEmail ? (
+        <SignUpSuccess email={signUpEmail} onBack={() => { setSignUpEmail(null); handleModeChange("signin"); }} />
       ) : (
-        /* ════════════════════════════════════════════════════════
-           Auth — Sign In / Sign Up
-           ════════════════════════════════════════════════════════ */
         <>
           {/* ── Header ── */}
           <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
@@ -426,36 +556,68 @@ function LoginFormInner({
               </div>
             )}
 
-            {/* Username */}
-            <AuthField
-              id="username"
-              label="Username"
-              icon={User}
-              error={fieldErrors.username}
-              errorId="err-username"
-            >
-              <Input
+            {/* Identifier (sign-in) or Username (sign-up) */}
+            {isSignUp ? (
+              <AuthField
                 id="username"
-                type="text"
-                placeholder="johndoe"
-                required
-                disabled={busy}
-                autoFocus
-                autoComplete="username"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                aria-invalid={fieldErrors.username ? "true" : "false"}
-                aria-describedby={fieldErrors.username ? "err-username" : undefined}
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setFieldErrors((p) => ({ ...p, username: null }));
-                  setFormError(null);
-                }}
-                className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
-              />
-            </AuthField>
+                label="Username"
+                icon={User}
+                error={fieldErrors.username}
+                errorId="err-username"
+              >
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="johndoe"
+                  required
+                  disabled={busy}
+                  autoFocus
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  aria-invalid={fieldErrors.username ? "true" : "false"}
+                  aria-describedby={fieldErrors.username ? "err-username" : undefined}
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setFieldErrors((p) => ({ ...p, username: null }));
+                    setFormError(null);
+                  }}
+                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
+                />
+              </AuthField>
+            ) : (
+              <AuthField
+                id="identifier"
+                label="Email or Username"
+                icon={User}
+                error={fieldErrors.identifier}
+                errorId="err-identifier"
+              >
+                <Input
+                  id="identifier"
+                  type="text"
+                  placeholder="you@example.com"
+                  required
+                  disabled={busy}
+                  autoFocus
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  aria-invalid={fieldErrors.identifier ? "true" : "false"}
+                  aria-describedby={fieldErrors.identifier ? "err-identifier" : undefined}
+                  value={identifier}
+                  onChange={(e) => {
+                    setIdentifier(e.target.value);
+                    setFieldErrors((p) => ({ ...p, identifier: null }));
+                    setFormError(null);
+                  }}
+                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
+                />
+              </AuthField>
+            )}
 
             {/* Email — sign up only */}
             {isSignUp && (
@@ -660,8 +822,8 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   return (
-    <AdminAuthProvider>
+    <AuthProvider>
       <LoginFormInner className={className} {...props} />
-    </AdminAuthProvider>
+    </AuthProvider>
   );
 }

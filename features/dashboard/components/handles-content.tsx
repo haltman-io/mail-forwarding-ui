@@ -38,8 +38,8 @@ import { EmptyState } from "@/features/dashboard/components/empty-state";
 import { useHandlesController } from "@/features/dashboard/hooks/use-handles-controller";
 import type { BoolFilter } from "@/features/dashboard/types/admin.types";
 
-export function HandlesContent({ token }: { token: string | null }) {
-  const c = useHandlesController(token);
+export function HandlesContent() {
+  const c = useHandlesController();
 
   return (
     <AdminPageLayout>

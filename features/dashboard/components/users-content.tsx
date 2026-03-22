@@ -39,8 +39,8 @@ import { useUsersController } from "@/features/dashboard/hooks/use-users-control
 import type { BoolFilter } from "@/features/dashboard/types/admin.types";
 import { safeDateLabel } from "@/lib/utils";
 
-export function UsersContent({ token }: { token: string | null }) {
-  const c = useUsersController(token);
+export function UsersContent() {
+  const c = useUsersController();
 
   return (
     <AdminPageLayout>

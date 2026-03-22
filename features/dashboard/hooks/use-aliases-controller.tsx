@@ -32,7 +32,7 @@ function boolToApi(v: boolean) { return v ? 1 : 0; }
 function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
 function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
 
-export function useAliasesController(token: string | null) {
+export function useAliasesController() {
   const [list, setList] = React.useState<ListState<AdminAlias>>(mk);
   const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
   const [search, setSearch] = React.useState("");
@@ -54,10 +54,9 @@ export function useAliasesController(token: string | null) {
   const [deleteBusy, setDeleteBusy] = React.useState(false);
 
   const load = React.useCallback(async (offset = 0) => {
-    if (!token) return;
     setList((s) => ({ ...s, loading: true, error: null }));
     try {
-      const r = await fetchAliases(token, {
+      const r = await fetchAliases({
         limit: DEFAULT_LIMIT, offset, active: activeFilter,
         address: search.trim().toLowerCase() || undefined,
       });
@@ -67,7 +66,7 @@ export function useAliasesController(token: string | null) {
       const pg = r.data?.pagination;
       setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
     } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
-  }, [token, activeFilter, search]);
+  }, [activeFilter, search]);
 
   const ensureAliasDomainsLoaded = React.useCallback(async () => {
     if (aliasDomainsLoading) return;
@@ -129,7 +128,6 @@ export function useAliasesController(token: string | null) {
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
     const handle = formHandle.trim().toLowerCase();
     const domain = formDomain.trim().toLowerCase();
     const address = `${handle}@${domain}`;
@@ -142,7 +140,7 @@ export function useAliasesController(token: string | null) {
     try {
       const isEdit = formId !== null;
       const body = { address, goto, active: boolToApi(formActive) };
-      const r = isEdit ? await updateAlias(token, formId, body) : await createAlias(token, body);
+      const r = isEdit ? await updateAlias(formId, body) : await createAlias(body);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const err = describeError(r, isEdit ? "Update failed." : "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
       setEditorOpen(false); ok(isEdit ? "Alias updated" : "Alias created", address); await load(isEdit ? list.offset : 0);
@@ -152,10 +150,10 @@ export function useAliasesController(token: string | null) {
 
   function askDelete(item: AdminAlias) { setDeleteTarget({ id: item.id, label: item.address }); }
   async function confirmDelete() {
-    if (!token || !deleteTarget) return;
+    if (!deleteTarget) return;
     setDeleteBusy(true);
     try {
-      const r = await deleteAlias(token, deleteTarget.id);
+      const r = await deleteAlias(deleteTarget.id);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
       ok("Alias deleted", deleteTarget.label); setDeleteTarget(null); await load(0);

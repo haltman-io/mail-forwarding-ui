@@ -26,7 +26,7 @@ function isoToDateTimeLocal(v?: string | null) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-export function useApiTokensController(token: string | null) {
+export function useApiTokensController() {
   const [list, setList] = React.useState<ListState<AdminApiToken>>(mk);
   const [statusFilter, setStatusFilter] = React.useState<TokenStatusFilter>("all");
   const [ownerSearch, setOwnerSearch] = React.useState("");
@@ -45,10 +45,9 @@ export function useApiTokensController(token: string | null) {
   const [deleteBusy, setDeleteBusy] = React.useState(false);
 
   const load = React.useCallback(async (offset = 0) => {
-    if (!token) return;
     setList((s) => ({ ...s, loading: true, error: null }));
     try {
-      const r = await fetchApiTokens(token, {
+      const r = await fetchApiTokens({
         limit: DEFAULT_LIMIT, offset, status: statusFilter,
         owner_email: ownerSearch.trim().toLowerCase() || undefined,
       });
@@ -58,7 +57,7 @@ export function useApiTokensController(token: string | null) {
       const pg = r.data?.pagination;
       setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
     } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
-  }, [token, statusFilter, ownerSearch]);
+  }, [statusFilter, ownerSearch]);
 
   React.useEffect(() => { void load(0); }, [load]);
 
@@ -82,7 +81,6 @@ export function useApiTokensController(token: string | null) {
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
     const owner = formOwnerEmail.trim().toLowerCase();
     if (!owner) { fail("Validation", "Owner email is required."); return; }
     setEditorBusy(true);
@@ -95,14 +93,14 @@ export function useApiTokensController(token: string | null) {
         if (expiresIso) body.expires_at = expiresIso;
         body.revoked = formRevoked ? 1 : 0;
         if (formRevokedReason.trim()) body.revoked_reason = formRevokedReason.trim();
-        const r = await updateApiToken(token, formId, body);
+        const r = await updateApiToken(formId, body);
         if (isUnauthorized(r)) { fail("Unauthorized"); return; }
         if (!r.ok) { const err = describeError(r, "Update failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
         setEditorOpen(false); ok("API token updated", owner);
       } else {
         const days = Number.parseInt(formDays, 10);
         if (!Number.isFinite(days) || days < 1 || days > 90) { fail("Validation", "Days must be between 1 and 90."); setEditorBusy(false); return; }
-        const r = await createApiToken(token, { owner_email: owner, days });
+        const r = await createApiToken({ owner_email: owner, days });
         if (isUnauthorized(r)) { fail("Unauthorized"); return; }
         if (!r.ok) { const err = describeError(r, "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
         if (typeof r.data?.token === "string" && r.data.token) setCreatedPlaintext(r.data.token);
@@ -115,10 +113,10 @@ export function useApiTokensController(token: string | null) {
 
   function askDelete(item: AdminApiToken) { setDeleteTarget({ id: item.id, label: item.owner_email }); }
   async function confirmDelete() {
-    if (!token || !deleteTarget) return;
+    if (!deleteTarget) return;
     setDeleteBusy(true);
     try {
-      const r = await deleteApiToken(token, deleteTarget.id);
+      const r = await deleteApiToken(deleteTarget.id);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
       ok("API token deleted", deleteTarget.label); setDeleteTarget(null); await load(0);

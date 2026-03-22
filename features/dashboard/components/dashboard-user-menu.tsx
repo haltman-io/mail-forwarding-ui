@@ -21,19 +21,19 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 
 export function DashboardUserMenu() {
-  const { admin, logout } = useAdminAuth();
+  const { user, signOut } = useAuth();
 
-  const userName = admin?.email?.split("@")[0] ?? "Admin";
-  const userEmail = admin?.email ?? "";
+  const userName = user?.username ?? user?.email?.split("@")[0] ?? "User";
+  const userEmail = user?.email ?? "";
   const initials = userName
     .split(/[^a-zA-Z0-9]/)
     .filter(Boolean)
     .slice(0, 2)
     .map((s) => s[0]?.toUpperCase() ?? "")
-    .join("") || "AD";
+    .join("") || "U";
 
   return (
     <DropdownMenu>
@@ -118,7 +118,7 @@ export function DashboardUserMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem variant="destructive" onClick={() => logout("Logged out.")}>
+        <DropdownMenuItem variant="destructive" onClick={() => void signOut()}>
           <LogOut />
           Sign Out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

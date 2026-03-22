@@ -6,10 +6,8 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
 import { ApiTokensContent } from "@/features/dashboard/components/api-tokens-content";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
 
 export default function ApiTokensPage() {
-  const { token } = useAdminAuth();
 
   return (
     <>
@@ -36,7 +34,7 @@ export default function ApiTokensPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <ApiTokensContent token={token} />
+        <ApiTokensContent />
       </div>
     </>
   );

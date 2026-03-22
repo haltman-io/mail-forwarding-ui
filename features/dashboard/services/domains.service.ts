@@ -54,22 +54,20 @@ function parseRetryAfterHeader(value: string | null): number | null {
 }
 
 export async function adminRequest<T>({
-  token,
   path,
   method = "GET",
   body,
 }: {
-  token: string;
   path: string;
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
 }): Promise<RequestResult<T>> {
   const headers = new Headers();
-  headers.set("Authorization", `Bearer ${token}`);
   if (body !== undefined) headers.set("Content-Type", "application/json");
 
   const res = await fetch(`${API_HOST}${path}`, {
     method,
+    credentials: "include",
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -93,7 +91,11 @@ export async function adminRequest<T>({
 
 export function isUnauthorized(result: RequestResult<unknown>) {
   if (result.status === 401) return true;
-  return result.errorCode === "missing_admin_token" || result.errorCode === "invalid_or_expired_admin_token";
+  return (
+    result.errorCode === "missing_admin_token" ||
+    result.errorCode === "invalid_or_expired_admin_token" ||
+    result.errorCode === "invalid_or_expired_session"
+  );
 }
 
 export function describeError(
@@ -128,7 +130,6 @@ export function describeError(
 /* ── domain CRUD ── */
 
 export async function fetchDomains(
-  token: string,
   params: { limit: number; offset: number; active?: string },
 ) {
   const qs = new URLSearchParams({
@@ -138,17 +139,14 @@ export async function fetchDomains(
   if (params.active && params.active !== "all") qs.set("active", params.active);
 
   return adminRequest<ListResponse<AdminDomain>>({
-    token,
     path: `/admin/domains?${qs.toString()}`,
   });
 }
 
 export async function createDomain(
-  token: string,
   body: { name: string; active: number },
 ) {
   return adminRequest<CreateUpdateResponse<AdminDomain>>({
-    token,
     path: "/admin/domains",
     method: "POST",
     body,
@@ -156,21 +154,18 @@ export async function createDomain(
 }
 
 export async function updateDomain(
-  token: string,
   id: number,
   body: { name: string; active: number },
 ) {
   return adminRequest<CreateUpdateResponse<AdminDomain>>({
-    token,
     path: `/admin/domains/${id}`,
     method: "PATCH",
     body,
   });
 }
 
-export async function deleteDomain(token: string, id: number) {
+export async function deleteDomain(id: number) {
   return adminRequest<CreateUpdateResponse<unknown>>({
-    token,
     path: `/admin/domains/${id}`,
     method: "DELETE",
   });

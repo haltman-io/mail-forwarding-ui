@@ -12,13 +12,13 @@ import { AdminPageLayout } from "@/features/dashboard/components/admin-page-layo
 import { AdminPageHeader } from "@/features/dashboard/components/admin-page-header";
 import { AdminDataCard } from "@/features/dashboard/components/admin-data-card";
 import { changeMyPassword, isUnauthorized, describeError } from "@/features/dashboard/services/users.service";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 
 function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
 function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
 
-export function PasswordContent({ token }: { token: string | null }) {
-  const { logout } = useAdminAuth();
+export function PasswordContent() {
+  const { signOut } = useAuth();
   const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -26,13 +26,12 @@ export function PasswordContent({ token }: { token: string | null }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) { fail("No token", "You must be authenticated."); return; }
-    if (newPassword.length < 6) { fail("Validation", "New password must have at least 6 characters."); return; }
+    if (newPassword.length < 8) { fail("Validation", "New password must have at least 8 characters."); return; }
     if (newPassword !== confirmPassword) { fail("Validation", "Passwords do not match."); return; }
 
     setBusy(true);
     try {
-      const r = await changeMyPassword(token, { current_password: currentPassword, new_password: newPassword });
+      const r = await changeMyPassword({ current_password: currentPassword, new_password: newPassword });
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) {
         const err = describeError(r, "Password change failed.");
@@ -45,8 +44,8 @@ export function PasswordContent({ token }: { token: string | null }) {
       setConfirmPassword("");
 
       if (r.data?.reauth_required) {
-        ok("Password changed", "Please login again.");
-        logout("Password updated. Please login again.");
+        ok("Password changed", "Please sign in again.");
+        await signOut();
       } else {
         ok("Password changed", "Your password has been updated.");
       }

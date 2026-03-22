@@ -6,10 +6,8 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
 import { BansContent } from "@/features/dashboard/components/bans-content";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
 
 export default function BansPage() {
-  const { token } = useAdminAuth();
 
   return (
     <>
@@ -36,7 +34,7 @@ export default function BansPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <BansContent token={token} />
+        <BansContent />
       </div>
     </>
   );

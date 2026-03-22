@@ -26,7 +26,7 @@ function boolToApi(v: boolean) { return v ? 1 : 0; }
 function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
 function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
 
-export function useUsersController(token: string | null) {
+export function useUsersController() {
   const [list, setList] = React.useState<ListState<AdminUser>>(mk);
   const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
   const [search, setSearch] = React.useState("");
@@ -52,10 +52,9 @@ export function useUsersController(token: string | null) {
   }, [isSingleActive, list.items]);
 
   const load = React.useCallback(async (offset = 0) => {
-    if (!token) return;
     setList((s) => ({ ...s, loading: true, error: null }));
     try {
-      const r = await fetchUsers(token, {
+      const r = await fetchUsers({
         limit: DEFAULT_LIMIT, offset, active: activeFilter,
         email: search.trim().toLowerCase() || undefined,
       });
@@ -65,7 +64,7 @@ export function useUsersController(token: string | null) {
       const pg = r.data?.pagination;
       setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
     } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
-  }, [token, activeFilter, search]);
+  }, [activeFilter, search]);
 
   React.useEffect(() => { void load(0); }, [load]);
 
@@ -82,7 +81,6 @@ export function useUsersController(token: string | null) {
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
     const email = formEmail.trim().toLowerCase();
     if (!email) { fail("Validation", "Email is required."); return; }
     const isEdit = formId !== null;
@@ -93,12 +91,12 @@ export function useUsersController(token: string | null) {
       if (isEdit) {
         const body: Record<string, unknown> = { email, is_active: boolToApi(formActive) };
         if (formPassword.trim()) body.password = formPassword;
-        const r = await updateUser(token, formId, body);
+        const r = await updateUser(formId, body);
         if (isUnauthorized(r)) { fail("Unauthorized"); return; }
         if (!r.ok) { const err = describeError(r, "Update failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
         setEditorOpen(false); ok("User updated", email);
       } else {
-        const r = await createUser(token, { email, password: formPassword, is_active: boolToApi(formActive) });
+        const r = await createUser({ email, password: formPassword, is_active: boolToApi(formActive) });
         if (isUnauthorized(r)) { fail("Unauthorized"); return; }
         if (!r.ok) { const err = describeError(r, "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
         setEditorOpen(false); ok("User created", email);
@@ -113,10 +111,10 @@ export function useUsersController(token: string | null) {
     setDeleteTarget({ id: item.id, label: item.email });
   }
   async function confirmDelete() {
-    if (!token || !deleteTarget) return;
+    if (!deleteTarget) return;
     setDeleteBusy(true);
     try {
-      const r = await deleteUser(token, deleteTarget.id);
+      const r = await deleteUser(deleteTarget.id);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
       ok("User deleted", deleteTarget.label); setDeleteTarget(null); await load(0);

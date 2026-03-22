@@ -70,8 +70,8 @@ import { EmptyState } from "@/features/dashboard/components/empty-state";
 import { useDomainsController } from "@/features/dashboard/hooks/use-domains-controller";
 import type { BoolFilter } from "@/features/dashboard/types/domains.types";
 
-export function DomainsContent({ token }: { token: string | null }) {
-  const c = useDomainsController(token);
+export function DomainsContent() {
+  const c = useDomainsController();
 
   return (
     <AdminPageLayout>

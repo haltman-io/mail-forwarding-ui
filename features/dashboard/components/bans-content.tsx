@@ -46,8 +46,8 @@ const BAN_TYPE_LABELS: Record<string, string> = {
   name: "Name",
 };
 
-export function BansContent({ token }: { token: string | null }) {
-  const c = useBansController(token);
+export function BansContent() {
+  const c = useBansController();
 
   return (
     <AdminPageLayout>

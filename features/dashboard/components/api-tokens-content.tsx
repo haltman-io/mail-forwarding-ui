@@ -58,8 +58,8 @@ const STATUS_BADGE: Record<string, React.ReactNode> = {
   expired: <Badge variant="outline" className="border-amber-400/40 text-amber-500">expired</Badge>,
 };
 
-export function ApiTokensContent({ token }: { token: string | null }) {
-  const c = useApiTokensController(token);
+export function ApiTokensContent() {
+  const c = useApiTokensController();
 
   /* copy plaintext token to clipboard when one is created */
   React.useEffect(() => {

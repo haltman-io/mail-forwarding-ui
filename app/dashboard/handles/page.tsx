@@ -6,10 +6,8 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
 import { HandlesContent } from "@/features/dashboard/components/handles-content";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
 
 export default function HandlesPage() {
-  const { token } = useAdminAuth();
 
   return (
     <>
@@ -36,7 +34,7 @@ export default function HandlesPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <HandlesContent token={token} />
+        <HandlesContent />
       </div>
     </>
   );

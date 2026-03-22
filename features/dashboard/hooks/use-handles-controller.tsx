@@ -26,7 +26,7 @@ function boolToApi(v: boolean) { return v ? 1 : 0; }
 function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
 function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
 
-export function useHandlesController(token: string | null) {
+export function useHandlesController() {
   const [list, setList] = React.useState<ListState<AdminHandle>>(mk);
   const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
   const [search, setSearch] = React.useState("");
@@ -42,10 +42,9 @@ export function useHandlesController(token: string | null) {
   const [deleteBusy, setDeleteBusy] = React.useState(false);
 
   const load = React.useCallback(async (offset = 0) => {
-    if (!token) return;
     setList((s) => ({ ...s, loading: true, error: null }));
     try {
-      const r = await fetchHandles(token, {
+      const r = await fetchHandles({
         limit: DEFAULT_LIMIT, offset, active: activeFilter,
         handle: search.trim().toLowerCase() || undefined,
       });
@@ -55,7 +54,7 @@ export function useHandlesController(token: string | null) {
       const pg = r.data?.pagination;
       setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
     } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
-  }, [token, activeFilter, search]);
+  }, [activeFilter, search]);
 
   React.useEffect(() => { void load(0); }, [load]);
 
@@ -72,7 +71,6 @@ export function useHandlesController(token: string | null) {
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
     const handle = formHandle.trim().toLowerCase();
     const address = formAddress.trim().toLowerCase();
     if (!handle) { fail("Validation", "Handle is required."); return; }
@@ -81,7 +79,7 @@ export function useHandlesController(token: string | null) {
     try {
       const isEdit = formId !== null;
       const body = { handle, address, active: boolToApi(formActive) };
-      const r = isEdit ? await updateHandle(token, formId, body) : await createHandle(token, body);
+      const r = isEdit ? await updateHandle(formId, body) : await createHandle(body);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const err = describeError(r, isEdit ? "Update failed." : "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
       setEditorOpen(false); ok(isEdit ? "Handle updated" : "Handle created", `${handle} → ${address}`); await load(isEdit ? list.offset : 0);
@@ -91,10 +89,10 @@ export function useHandlesController(token: string | null) {
 
   function askDelete(item: AdminHandle) { setDeleteTarget({ id: item.id, label: item.handle }); }
   async function confirmDelete() {
-    if (!token || !deleteTarget) return;
+    if (!deleteTarget) return;
     setDeleteBusy(true);
     try {
-      const r = await deleteHandle(token, deleteTarget.id);
+      const r = await deleteHandle(deleteTarget.id);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
       ok("Handle deleted", deleteTarget.label); setDeleteTarget(null); await load(0);

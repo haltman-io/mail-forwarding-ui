@@ -38,31 +38,28 @@ export async function getDashboardDomainsCached() {
 }
 
 export async function fetchAliases(
-  token: string,
   params: { limit: number; offset: number; active?: string; address?: string; goto?: string },
 ) {
   const qs = new URLSearchParams({ limit: String(params.limit), offset: String(params.offset) });
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.address) qs.set("address", params.address);
   if (params.goto) qs.set("goto", params.goto);
-  return adminRequest<ListResponse<AdminAlias>>({ token, path: `/admin/aliases?${qs.toString()}` });
+  return adminRequest<ListResponse<AdminAlias>>({ path: `/admin/aliases?${qs.toString()}` });
 }
 
 export async function createAlias(
-  token: string,
   body: { address: string; goto: string; active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminAlias>>({ token, path: "/admin/aliases", method: "POST", body });
+  return adminRequest<CreateUpdateResponse<AdminAlias>>({ path: "/admin/aliases", method: "POST", body });
 }
 
 export async function updateAlias(
-  token: string,
   id: number,
   body: { address: string; goto: string; active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminAlias>>({ token, path: `/admin/aliases/${id}`, method: "PATCH", body });
+  return adminRequest<CreateUpdateResponse<AdminAlias>>({ path: `/admin/aliases/${id}`, method: "PATCH", body });
 }
 
-export async function deleteAlias(token: string, id: number) {
-  return adminRequest<CreateUpdateResponse<unknown>>({ token, path: `/admin/aliases/${id}`, method: "DELETE" });
+export async function deleteAlias(id: number) {
+  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/admin/aliases/${id}`, method: "DELETE" });
 }

@@ -6,11 +6,8 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
 import { DomainsContent } from "@/features/dashboard/components/domains-content";
-import { useAdminAuth } from "@/features/dashboard/hooks/use-admin-auth";
 
 export default function DomainsPage() {
-  const { token } = useAdminAuth();
-
   return (
     <>
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(255,255,255,0.06)] px-5">
@@ -36,7 +33,7 @@ export default function DomainsPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <DomainsContent token={token} />
+        <DomainsContent />
       </div>
     </>
   );

@@ -46,8 +46,8 @@ import { useAliasesController } from "@/features/dashboard/hooks/use-aliases-con
 import type { BoolFilter } from "@/features/dashboard/types/admin.types";
 import { safeDateLabel } from "@/lib/utils";
 
-export function AliasesContent({ token }: { token: string | null }) {
-  const c = useAliasesController(token);
+export function AliasesContent() {
+  const c = useAliasesController();
 
   return (
     <AdminPageLayout>

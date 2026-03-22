@@ -163,6 +163,7 @@ NEXT_PUBLIC_DOMAINS=alias1.example.com,alias2.example.com
 # Enables the floating debug toolbar in local development only.
 NEXT_PUBLIC_DEBUG_UI=false
 ```
+**This is obsolete. We are proxying the backend/API at the same UI host.**
 
 ### Variable Notes
 
