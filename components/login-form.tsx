@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { DASHBOARD_ENABLED } from "@/lib/dashboard-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -167,8 +168,18 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
+      {/* ── Dashboard disabled alert ── */}
+      {!DASHBOARD_ENABLED && (
+        <div className="mx-7 mt-5 flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.30)] bg-[rgba(255,69,58,0.10)] px-4 py-3">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF453A]" />
+          <p className="text-[13px] font-medium leading-5 text-[#FF453A]">
+            Dashboard is disabled in this environment.
+          </p>
+        </div>
+      )}
+
       {/* ── Body ── */}
-      <div className="space-y-5 px-7 py-6">
+      <div className={cn("space-y-5 px-7 py-6", !DASHBOARD_ENABLED && "pointer-events-none opacity-50")}>
         {sent ? (
           /* ── Success state ── */
           <div className="space-y-5">
@@ -231,6 +242,7 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
                 autoCorrect="off"
                 spellCheck={false}
                 inputMode="email"
+                disabled={!DASHBOARD_ENABLED}
                 value={recoveryEmail}
                 onChange={(e) => setRecoveryEmail(e.target.value)}
                 className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
@@ -240,7 +252,7 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
             <Button
               type="button"
               onClick={handleSend}
-              disabled={!recoveryEmail.trim() || busy}
+              disabled={!recoveryEmail.trim() || busy || !DASHBOARD_ENABLED}
               className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
             >
               {busy ? (
@@ -541,8 +553,18 @@ function LoginFormInner({
             <ModeSwitch mode={mode} onChange={handleModeChange} />
           </div>
 
+          {/* ── Dashboard disabled alert ── */}
+          {!DASHBOARD_ENABLED && (
+            <div className="mx-7 mt-5 flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.30)] bg-[rgba(255,69,58,0.10)] px-4 py-3">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF453A]" />
+              <p className="text-[13px] font-medium leading-5 text-[#FF453A]">
+                Dashboard is disabled in this environment.
+              </p>
+            </div>
+          )}
+
           {/* ── Body ── */}
-          <form onSubmit={onSubmit} className="space-y-4 px-7 py-6" noValidate>
+          <form onSubmit={onSubmit} className={cn("space-y-4 px-7 py-6", !DASHBOARD_ENABLED && "pointer-events-none opacity-50")} noValidate>
             {formError && (
               <div
                 role="alert"
@@ -570,7 +592,7 @@ function LoginFormInner({
                   type="text"
                   placeholder="johndoe"
                   required
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   autoFocus
                   autoComplete="username"
                   autoCapitalize="none"
@@ -600,7 +622,7 @@ function LoginFormInner({
                   type="text"
                   placeholder="you@example.com"
                   required
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   autoFocus
                   autoComplete="username"
                   autoCapitalize="none"
@@ -633,7 +655,7 @@ function LoginFormInner({
                   type="email"
                   placeholder="you@example.com"
                   required
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   autoComplete="email"
                   autoCapitalize="none"
                   autoCorrect="off"
@@ -666,7 +688,7 @@ function LoginFormInner({
                   type={showPassword ? "text" : "password"}
                   placeholder={isSignUp ? "Min. 8 characters" : "Enter your password"}
                   required
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   autoComplete={isSignUp ? "new-password" : "current-password"}
                   enterKeyHint={isSignUp ? "next" : "go"}
                   aria-invalid={fieldErrors.password ? "true" : "false"}
@@ -686,7 +708,7 @@ function LoginFormInner({
                   type="button"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   onClick={() => setShowPassword((v) => !v)}
                   className="ui-focus-ring absolute top-1/2 right-2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-[var(--text-primary)] disabled:pointer-events-none disabled:opacity-40"
                 >
@@ -718,7 +740,7 @@ function LoginFormInner({
                   type={showPassword ? "text" : "password"}
                   placeholder="Re-enter your password"
                   required
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   autoComplete="new-password"
                   enterKeyHint="go"
                   aria-invalid={fieldErrors.confirm ? "true" : "false"}
@@ -749,7 +771,7 @@ function LoginFormInner({
             {/* Submit */}
             <Button
               type="submit"
-              disabled={busy}
+              disabled={busy || !DASHBOARD_ENABLED}
               className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
             >
               {busy ? (

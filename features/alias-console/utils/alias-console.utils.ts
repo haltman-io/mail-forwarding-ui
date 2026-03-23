@@ -16,7 +16,7 @@ export const staticIconClass = "cursor-default";
 export const codeBlockClass =
   "overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-[var(--text-secondary)] tracking-[0.01em] tabular-nums";
 
-export const DOMAINS_URL = `${API_HOST}/domains`;
+export const DOMAINS_URL = `${API_HOST}/api/domains`;
 
 export function sanitizeOtpToken(value: string) {
   return value.replace(/\D/g, "").slice(0, 6);
@@ -41,19 +41,19 @@ export function buildSubscribeCurl(args: {
   if (args.isCustomAddress) {
     const address = clampLower(args.customAddress.trim()) || "{alias_email}";
     const params = new URLSearchParams({ address, to: target });
-    return `curl '${API_HOST}/forward/subscribe?${params.toString()}'`;
+    return `curl '${API_HOST}/api/forward/subscribe?${params.toString()}'`;
   }
 
   const handle = clampLower(args.name) || "{alias_handle}";
   const aliasDomain = clampLower(args.domain) || "{alias_domain}";
   const params = new URLSearchParams({ name: handle, domain: aliasDomain, to: target });
-  return `curl '${API_HOST}/forward/subscribe?${params.toString()}'`;
+  return `curl '${API_HOST}/api/forward/subscribe?${params.toString()}'`;
 }
 
 export function buildUnsubscribeCurl(alias: string) {
   const normalizedAlias = clampLower(alias) || "{alias_email}";
   const params = new URLSearchParams({ alias: normalizedAlias });
-  return `curl '${API_HOST}/forward/unsubscribe?${params.toString()}'`;
+  return `curl '${API_HOST}/api/forward/unsubscribe?${params.toString()}'`;
 }
 
 export function getStatusPillText(requestState: RequestState) {

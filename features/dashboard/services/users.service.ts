@@ -14,28 +14,28 @@ export async function fetchUsers(
   const qs = new URLSearchParams({ limit: String(params.limit), offset: String(params.offset) });
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.email) qs.set("email", params.email);
-  return adminRequest<ListResponse<AdminUser>>({ path: `/admin/users?${qs.toString()}` });
+  return adminRequest<ListResponse<AdminUser>>({ path: `/api/admin/users?${qs.toString()}` });
 }
 
 export async function createUser(
   body: { email: string; password: string; is_active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminUser>>({ path: "/admin/users", method: "POST", body });
+  return adminRequest<CreateUpdateResponse<AdminUser>>({ path: "/api/admin/users", method: "POST", body });
 }
 
 export async function updateUser(
   id: number,
   body: Record<string, unknown>,
 ) {
-  return adminRequest<CreateUpdateResponse<AdminUser>>({ path: `/admin/users/${id}`, method: "PATCH", body });
+  return adminRequest<CreateUpdateResponse<AdminUser>>({ path: `/api/admin/users/${id}`, method: "PATCH", body });
 }
 
 export async function deleteUser(id: number) {
-  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/admin/users/${id}`, method: "DELETE" });
+  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/api/admin/users/${id}`, method: "DELETE" });
 }
 
 export async function changeMyPassword(
   body: { current_password: string; new_password: string },
 ) {
-  return adminRequest<PasswordChangeResponse>({ path: "/admin/users/me/password", method: "PATCH", body });
+  return adminRequest<PasswordChangeResponse>({ path: "/api/admin/users/me/password", method: "PATCH", body });
 }

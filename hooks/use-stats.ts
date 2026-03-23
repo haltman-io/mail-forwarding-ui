@@ -11,7 +11,7 @@ export function useStats() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`${API_HOST}/stats`)
+    fetch(`${API_HOST}/api/stats`)
       .then((r) => {
         if (!r.ok) throw new Error("stats fetch failed");
         return r.json() as Promise<Stats>;

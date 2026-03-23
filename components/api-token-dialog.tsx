@@ -322,7 +322,7 @@ export function ApiTokenDialog({
                 <DialogDescription>
                   Create an API token for alias automation.{" "}
                   <a
-                    href={`${API_HOST}/docs`}
+                    href={`${API_HOST}/api/docs`}
                     target="_blank"
                     rel="noreferrer"
                     className="underline underline-offset-4"

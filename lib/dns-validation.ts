@@ -114,7 +114,7 @@ async function fetchJson<T>(url: string, options: FetchJsonOptions): Promise<T> 
 }
 
 export function requestEmail(target: string, signal?: AbortSignal) {
-  return fetchJson<DnsRequestResponse>(`${API_HOST}/request/email`, {
+  return fetchJson<DnsRequestResponse>(`${API_HOST}/api/request/email`, {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({ target }),

@@ -13,6 +13,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+import { DASHBOARD_ENABLED } from "@/lib/dashboard-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authResetPassword, describeAuthError } from "@/lib/auth-client";
@@ -85,8 +87,18 @@ export default function ResetPasswordPage() {
             </div>
           </div>
 
+          {/* Dashboard disabled alert */}
+          {!DASHBOARD_ENABLED && (
+            <div className="mx-7 mt-5 flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.30)] bg-[rgba(255,69,58,0.10)] px-4 py-3">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF453A]" />
+              <p className="text-[13px] font-medium leading-5 text-[#FF453A]">
+                Dashboard is disabled in this environment.
+              </p>
+            </div>
+          )}
+
           {/* Body */}
-          <div className="space-y-5 px-7 py-6">
+          <div className={cn("space-y-5 px-7 py-6", !DASHBOARD_ENABLED && "pointer-events-none opacity-50")}>
             {success ? (
               <div className="space-y-5">
                 <div className="flex flex-col items-center gap-4 py-2">
@@ -144,7 +156,7 @@ export default function ResetPasswordPage() {
                     spellCheck={false}
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
-                    disabled={busy}
+                    disabled={busy || !DASHBOARD_ENABLED}
                     className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
                   />
                 </div>
@@ -166,7 +178,7 @@ export default function ResetPasswordPage() {
                       autoComplete="new-password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      disabled={busy}
+                      disabled={busy || !DASHBOARD_ENABLED}
                       className="neu-inset h-11 rounded-xl px-4 pr-11 font-mono text-sm"
                     />
                     <button
@@ -196,14 +208,14 @@ export default function ResetPasswordPage() {
                     autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    disabled={busy}
+                    disabled={busy || !DASHBOARD_ENABLED}
                     className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
                   />
                 </div>
 
                 <Button
                   type="submit"
-                  disabled={busy}
+                  disabled={busy || !DASHBOARD_ENABLED}
                   className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
                 >
                   {busy ? (

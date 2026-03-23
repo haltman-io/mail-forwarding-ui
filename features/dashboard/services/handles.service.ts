@@ -14,22 +14,22 @@ export async function fetchHandles(
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.handle) qs.set("handle", params.handle);
   if (params.address) qs.set("address", params.address);
-  return adminRequest<ListResponse<AdminHandle>>({ path: `/admin/handles?${qs.toString()}` });
+  return adminRequest<ListResponse<AdminHandle>>({ path: `/api/admin/handles?${qs.toString()}` });
 }
 
 export async function createHandle(
   body: { handle: string; address: string; active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminHandle>>({ path: "/admin/handles", method: "POST", body });
+  return adminRequest<CreateUpdateResponse<AdminHandle>>({ path: "/api/admin/handles", method: "POST", body });
 }
 
 export async function updateHandle(
   id: number,
   body: { handle: string; address: string; active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminHandle>>({ path: `/admin/handles/${id}`, method: "PATCH", body });
+  return adminRequest<CreateUpdateResponse<AdminHandle>>({ path: `/api/admin/handles/${id}`, method: "PATCH", body });
 }
 
 export async function deleteHandle(id: number) {
-  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/admin/handles/${id}`, method: "DELETE" });
+  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/api/admin/handles/${id}`, method: "DELETE" });
 }

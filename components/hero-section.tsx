@@ -10,8 +10,7 @@ import {
   Lock,
   Code2,
   Infinity,
-  ArrowRight,
-  CircleHelp,
+  ArrowRight
 } from "lucide-react";
 import type { Stats } from "@/hooks/use-stats";
 import TextType from "@/components/TextType";
@@ -39,7 +38,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
           className="hero-headline mx-auto block min-h-[3.45em] w-full max-w-[18ch] font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:min-h-[2.35em] sm:max-w-[22ch] sm:text-4xl md:text-5xl"
           text={[
             "Your *identity* is not their *product*.",
-            "Your *mail* is not their *telemetry*.",
+            "Your *email* is not their *telemetry*.",
             "Built for *curiosity*. Not for *compliance*.",
             "Because *privacy* should not need approval.",
           ]}
@@ -55,10 +54,11 @@ export function HeroSection({ stats }: HeroSectionProps) {
         />
 
         <p className="mx-auto max-w-[540px] text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-base">
-          Your free email alias forwarding.&nbsp;
+          A free email alias service.&nbsp;
           <br className="hidden sm:block" />
           No corporate bullshit. No VC money. No data harvesting.
-          <span className="hidden sm:inline"> Just aliases.</span>
+          <br className="hidden sm:block" />
+          <span className="hidden sm:inline">Just aliases.</span>
         </p>
       </div>
 
@@ -154,15 +154,8 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
       {/* ── CTA ── */}
       <div className="flex flex-col items-center gap-3 pt-2">
-        <div className="flex flex-col items-center gap-3 sm:flex-row">
-          <Link
-            href="/faq"
-            className="group inline-flex items-center justify-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-2.5 text-center font-mono text-sm font-medium text-[var(--text-secondary)] transition-all duration-300 hover:scale-[1.02] hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]"
-          >
-            <CircleHelp className="h-4 w-4 opacity-70" />
-            Why trust this?
-          </Link>
-
+ 
+        <div className="flex items-center justify-center">
           <Link
             href="/console"
             className="group inline-flex items-center gap-2 rounded-full border border-[rgba(48,209,88,0.15)] bg-[rgba(48,209,88,0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] transition-all duration-300 hover:scale-[1.02] hover:border-[rgba(48,209,88,0.25)] hover:bg-[rgba(48,209,88,0.12)] hover:shadow-[0_0_20px_rgba(48,209,88,0.10)]"

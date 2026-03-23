@@ -143,7 +143,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       | { ok: false; reason: string }
     > => {
       try {
-        const response = await fetch(`${API_HOST}/admin/me`, {
+        const response = await fetch(`${API_HOST}/api/admin/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -232,7 +232,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       password: string,
     ): Promise<{ ok: boolean; error?: string }> => {
       try {
-        const response = await fetch(`${API_HOST}/admin/login`, {
+        const response = await fetch(`${API_HOST}/api/admin/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),

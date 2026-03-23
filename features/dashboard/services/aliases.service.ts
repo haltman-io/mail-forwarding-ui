@@ -18,7 +18,7 @@ export async function getDashboardDomainsCached() {
 
   domainsPromise = (async () => {
     try {
-      const list = await fetchDomains(`${API_HOST}/domains`);
+      const list = await fetchDomains(`${API_HOST}/api/domains`);
       const fallbackRaw = process.env.NEXT_PUBLIC_DOMAINS ?? "";
       const fallback = normalizeDomains(fallbackRaw.split(","));
       const finalList = list.length ? list : fallback;
@@ -44,22 +44,22 @@ export async function fetchAliases(
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.address) qs.set("address", params.address);
   if (params.goto) qs.set("goto", params.goto);
-  return adminRequest<ListResponse<AdminAlias>>({ path: `/admin/aliases?${qs.toString()}` });
+  return adminRequest<ListResponse<AdminAlias>>({ path: `/api/admin/aliases?${qs.toString()}` });
 }
 
 export async function createAlias(
   body: { address: string; goto: string; active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminAlias>>({ path: "/admin/aliases", method: "POST", body });
+  return adminRequest<CreateUpdateResponse<AdminAlias>>({ path: "/api/admin/aliases", method: "POST", body });
 }
 
 export async function updateAlias(
   id: number,
   body: { address: string; goto: string; active: number },
 ) {
-  return adminRequest<CreateUpdateResponse<AdminAlias>>({ path: `/admin/aliases/${id}`, method: "PATCH", body });
+  return adminRequest<CreateUpdateResponse<AdminAlias>>({ path: `/api/admin/aliases/${id}`, method: "PATCH", body });
 }
 
 export async function deleteAlias(id: number) {
-  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/admin/aliases/${id}`, method: "DELETE" });
+  return adminRequest<CreateUpdateResponse<unknown>>({ path: `/api/admin/aliases/${id}`, method: "DELETE" });
 }

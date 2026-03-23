@@ -17,15 +17,15 @@ export async function loadAvailableDomains(domainsUrl: string, fallbackRaw: stri
 
 export function buildSubscribeUrl(params: { name: string; domain: string; to: string } | { address: string; to: string }) {
   const query = new URLSearchParams(params).toString();
-  return `${API_HOST}/forward/subscribe?${query}`;
+  return `${API_HOST}/api/forward/subscribe?${query}`;
 }
 
 export function buildUnsubscribeUrl(alias: string) {
-  return `${API_HOST}/forward/unsubscribe?${new URLSearchParams({ alias }).toString()}`;
+  return `${API_HOST}/api/forward/unsubscribe?${new URLSearchParams({ alias }).toString()}`;
 }
 
 export function buildConfirmUrl(token: string) {
-  return `${API_HOST}/forward/confirm?${new URLSearchParams({ token }).toString()}`;
+  return `${API_HOST}/api/forward/confirm?${new URLSearchParams({ token }).toString()}`;
 }
 
 export async function requestForwarding(url: string): Promise<ForwardingRequestResult> {

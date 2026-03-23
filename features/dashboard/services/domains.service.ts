@@ -139,7 +139,7 @@ export async function fetchDomains(
   if (params.active && params.active !== "all") qs.set("active", params.active);
 
   return adminRequest<ListResponse<AdminDomain>>({
-    path: `/admin/domains?${qs.toString()}`,
+    path: `/api/admin/domains?${qs.toString()}`,
   });
 }
 
@@ -147,7 +147,7 @@ export async function createDomain(
   body: { name: string; active: number },
 ) {
   return adminRequest<CreateUpdateResponse<AdminDomain>>({
-    path: "/admin/domains",
+    path: "/api/admin/domains",
     method: "POST",
     body,
   });
@@ -158,7 +158,7 @@ export async function updateDomain(
   body: { name: string; active: number },
 ) {
   return adminRequest<CreateUpdateResponse<AdminDomain>>({
-    path: `/admin/domains/${id}`,
+    path: `/api/admin/domains/${id}`,
     method: "PATCH",
     body,
   });
@@ -166,7 +166,7 @@ export async function updateDomain(
 
 export async function deleteDomain(id: number) {
   return adminRequest<CreateUpdateResponse<unknown>>({
-    path: `/admin/domains/${id}`,
+    path: `/api/admin/domains/${id}`,
     method: "DELETE",
   });
 }

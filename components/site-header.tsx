@@ -28,6 +28,7 @@ import {
   AtSign,
   Terminal,
   Settings,
+  User
 } from "lucide-react";
 import { GetStartedMenu } from "@/components/get-started-menu";
 import { DevelopersMenu } from "@/components/developers-menu";
@@ -177,8 +178,6 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const actionBtnClass =
     "alias-primary neu-btn-green group inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-mono text-xs font-medium no-underline";
 
-  const actionBtnSecondaryClass =
-    "group inline-flex items-center gap-1.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-1.5 font-mono text-xs font-medium text-[var(--text-secondary)] no-underline transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
   const closeMobileMenu = React.useCallback(() => {
     setMobileMenuOpen(false);
   }, []);
@@ -419,13 +418,9 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           <div className="hidden min-w-0 items-center justify-self-end gap-2 sm:flex">
             {isMobileViewport === false ? (
               <>
-                <Link href="/console" className={actionBtnClass}>
-                  <Terminal className="h-3.5 w-3.5 opacity-80" />
-                  Console
-                </Link>
-                <Link href="/dashboard" className={actionBtnSecondaryClass}>
-                  <Settings className="h-3.5 w-3.5 opacity-80" />
-                  Admin
+                <Link href="/dashboard" className={actionBtnClass}>
+                  <User className="h-3.5 w-3.5 opacity-80" />
+                  Account
                 </Link>
               </>
             ) : null}

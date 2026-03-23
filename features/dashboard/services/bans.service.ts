@@ -14,25 +14,25 @@ export async function fetchBans(
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.ban_type && params.ban_type !== "all") qs.set("ban_type", params.ban_type);
   if (params.ban_value) qs.set("ban_value", params.ban_value);
-  return adminRequest<ListResponse<AdminBan>>({ path: `/admin/bans?${qs.toString()}` });
+  return adminRequest<ListResponse<AdminBan>>({ path: `/api/admin/bans?${qs.toString()}` });
 }
 
 export async function createBan(
   body: Record<string, unknown>,
 ) {
-  return adminRequest<CreateUpdateResponse<AdminBan>>({ path: "/admin/bans", method: "POST", body });
+  return adminRequest<CreateUpdateResponse<AdminBan>>({ path: "/api/admin/bans", method: "POST", body });
 }
 
 export async function updateBan(
   id: number,
   body: Record<string, unknown>,
 ) {
-  return adminRequest<CreateUpdateResponse<AdminBan>>({ path: `/admin/bans/${id}`, method: "PATCH", body });
+  return adminRequest<CreateUpdateResponse<AdminBan>>({ path: `/api/admin/bans/${id}`, method: "PATCH", body });
 }
 
 export async function deleteBan(id: number) {
   return adminRequest<CreateUpdateResponse<unknown>>({
-    path: `/admin/bans/${id}`,
+    path: `/api/admin/bans/${id}`,
     method: "DELETE",
     body: { revoked_reason: "manual cleanup" },
   });

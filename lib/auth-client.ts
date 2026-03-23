@@ -128,7 +128,7 @@ export async function getCsrfToken(forceRefresh = false): Promise<string> {
   if (!forceRefresh && csrfCache && Date.now() - csrfCache.at < 4 * 60 * 1000) {
     return csrfCache.token;
   }
-  const result = await authRequest<CsrfData>("/auth/csrf");
+  const result = await authRequest<CsrfData>("/api/auth/csrf");
   if (!result.ok || !result.data?.csrf_token) {
     throw new Error(result.error ?? "csrf_fetch_failed");
   }
@@ -155,24 +155,24 @@ async function withCsrfRetry<T>(
 /* ── Endpoints ── */
 
 export async function authSignUp(params: { email: string; username: string; password: string }) {
-  return authRequest<SignUpData>("/auth/sign-up", { method: "POST", body: params });
+  return authRequest<SignUpData>("/api/auth/sign-up", { method: "POST", body: params });
 }
 
 export async function authVerifyEmail(params: { token: string }) {
-  return authRequest<VerifyEmailData>("/auth/verify-email", { method: "POST", body: params });
+  return authRequest<VerifyEmailData>("/api/auth/verify-email", { method: "POST", body: params });
 }
 
 export async function authSignIn(params: { identifier: string; password: string }) {
-  return authRequest<SignInData>("/auth/sign-in", { method: "POST", body: params });
+  return authRequest<SignInData>("/api/auth/sign-in", { method: "POST", body: params });
 }
 
 export async function authGetSession() {
-  return authRequest<SessionData>("/auth/session");
+  return authRequest<SessionData>("/api/auth/session");
 }
 
 export async function authRefresh() {
   return withCsrfRetry<RefreshData>((csrf) =>
-    authRequest("/auth/refresh", { method: "POST", csrfToken: csrf }),
+    authRequest("/api/auth/refresh", { method: "POST", csrfToken: csrf }),
   );
 }
 
@@ -183,14 +183,14 @@ export async function authSignOut() {
   } catch {
     /* no session — proceed without CSRF */
   }
-  const result = await authRequest<SignOutData>("/auth/sign-out", {
+  const result = await authRequest<SignOutData>("/api/auth/sign-out", {
     method: "POST",
     csrfToken,
   });
   if (csrfToken && result.status === 403 && (result.error === "csrf_required" || result.error === "invalid_csrf_token")) {
     try {
       const fresh = await getCsrfToken(true);
-      const retry = await authRequest<SignOutData>("/auth/sign-out", { method: "POST", csrfToken: fresh });
+      const retry = await authRequest<SignOutData>("/api/auth/sign-out", { method: "POST", csrfToken: fresh });
       clearCsrfCache();
       return retry;
     } catch {
@@ -203,18 +203,18 @@ export async function authSignOut() {
 
 export async function authSignOutAll() {
   const result = await withCsrfRetry<SignOutAllData>((csrf) =>
-    authRequest("/auth/sign-out-all", { method: "POST", csrfToken: csrf }),
+    authRequest("/api/auth/sign-out-all", { method: "POST", csrfToken: csrf }),
   );
   clearCsrfCache();
   return result;
 }
 
 export async function authForgotPassword(params: { email: string }) {
-  return authRequest<ForgotPasswordData>("/auth/forgot-password", { method: "POST", body: params });
+  return authRequest<ForgotPasswordData>("/api/auth/forgot-password", { method: "POST", body: params });
 }
 
 export async function authResetPassword(params: { token: string; new_password: string }) {
-  return authRequest<ResetPasswordData>("/auth/reset-password", { method: "POST", body: params });
+  return authRequest<ResetPasswordData>("/api/auth/reset-password", { method: "POST", body: params });
 }
 
 /* ── Error display ── */
