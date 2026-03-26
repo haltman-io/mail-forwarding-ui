@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.1.0...v1.2.0) (2026-03-26)
+
+
+### Features
+
+* add PreviewContent component with various UI elements and fake data for testing ([3631299](https://github.com/haltman-io/mail-forwarding-ui/commit/3631299b66c6d9b2ae29d45a60769ca310349add))
+* enable dashboard feature toggle and update API endpoints ([f178a0c](https://github.com/haltman-io/mail-forwarding-ui/commit/f178a0ce0f338dfb5b9a88f03b24b82432dc062e))
+* enhance navigation menus with new API and Docs sections, and improve button styling ([fca9b6c](https://github.com/haltman-io/mail-forwarding-ui/commit/fca9b6c4631ab4ee565e1385b2d7be8cb39c89fb))
+* enhance user management and DNS request handling ([29ae5cb](https://github.com/haltman-io/mail-forwarding-ui/commit/29ae5cb2d8e6c31bb292f04ff3baca4f65299b61))
+* update responsive breakpoints for mobile and desktop views in SiteHeader component ([afa6fbd](https://github.com/haltman-io/mail-forwarding-ui/commit/afa6fbdd0d09d387cbfbc0c47e14be6ac664f564))
+
 ## [1.1.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.0.0...v1.1.0) (2026-03-20)
 
 
