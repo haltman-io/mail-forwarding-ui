@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 import {
   Collapsible,
@@ -18,10 +18,42 @@ type MobileNavSectionProps = {
   icon?: React.ReactNode;
 };
 
-export const mobileNavItemClassName =
-  "group inline-flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
+/* ── shared row base ── */
+const mobileNavRowBase =
+  "group flex w-full items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
 
-export const mobileNavItemIconClassName = "h-4 w-4 text-[var(--text-secondary)]";
+/* ── L1: top-level direct links (Console, Admin) ── */
+export const mobileNavItemClassName =
+  `${mobileNavRowBase} min-h-10 px-3 text-[var(--text-primary)]`;
+
+export const mobileNavItemIconClassName =
+  "h-4 w-4 shrink-0 text-[var(--text-secondary)]";
+
+/* ── L2: children of a section (Add Domain, API Reference, Documentation…) ── */
+export const mobileNavL2ClassName =
+  `${mobileNavRowBase} min-h-9 pl-7 pr-3 text-[var(--text-secondary)]`;
+
+export const mobileNavL2IconClassName =
+  "h-4 w-4 shrink-0 text-[var(--text-secondary)]";
+
+/* ── L3: deeply nested items (Firefox Extension, Chrome Extension) ── */
+export const mobileNavL3ClassName =
+  `${mobileNavRowBase} min-h-9 pl-11 pr-3 text-[var(--text-secondary)] opacity-85`;
+
+export const mobileNavL3IconClassName =
+  "h-4 w-4 shrink-0 text-[var(--text-muted)]";
+
+/* ── chevron indicator for link rows ── */
+const indicatorClassName = "ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60";
+
+export function MobileNavLinkIndicator() {
+  return <ChevronRight className={indicatorClassName} />;
+}
+
+/* ── separator ── */
+export function MobileNavSeparator() {
+  return <div className="my-1 mx-3 h-px bg-[var(--hairline-border)] opacity-40" />;
+}
 
 export function MobileNavSection({
   label,
@@ -34,45 +66,37 @@ export function MobileNavSection({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <div
-        className={cn(
-          "overflow-hidden border border-[var(--hairline-border)] bg-[rgba(255,255,255,0.03)]",
-          nested ? "rounded-xl" : "rounded-2xl"
-        )}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
+      <CollapsibleTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            mobileNavRowBase,
+            "justify-between",
+            nested
+              ? "min-h-9 pl-7 pr-3 text-[var(--text-secondary)]"
+              : "min-h-10 px-3 text-[var(--text-primary)]"
+          )}
+          aria-label={label}
+        >
+          <span className="inline-flex items-center gap-3">
+            {icon}
+            {label}
+          </span>
+          <ChevronDown
             className={cn(
-              "group flex w-full items-center justify-between gap-3 text-left transition-colors duration-200 hover:bg-[var(--hover-state)]",
-              nested ? "px-3 py-2" : "px-3.5 py-3"
+              indicatorClassName,
+              "transition-transform duration-200",
+              open && "rotate-180"
             )}
-            aria-label={label}
-          >
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
-              {icon}
-              {label}
-            </span>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 text-[var(--text-muted)] transition-transform duration-200",
-                open ? "rotate-180" : ""
-              )}
-            />
-          </button>
-        </CollapsibleTrigger>
+          />
+        </button>
+      </CollapsibleTrigger>
 
-        <CollapsibleContent>
-          <div
-            className={cn(
-              "border-t border-[var(--hairline-border)]",
-              nested ? "space-y-1 p-2" : "space-y-1 p-2.5"
-            )}
-          >
-            {children}
-          </div>
-        </CollapsibleContent>
-      </div>
+      <CollapsibleContent>
+        <div className="space-y-0.5">
+          {children}
+        </div>
+      </CollapsibleContent>
     </Collapsible>
   );
 }

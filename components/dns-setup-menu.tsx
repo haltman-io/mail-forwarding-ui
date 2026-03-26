@@ -426,8 +426,8 @@ export function DnsSetupMenu({
       <button
         type="button"
         className={cn(
-          "group relative inline-flex h-8 items-center justify-center gap-2 overflow-visible rounded-lg px-2.5 text-sm font-medium",
-          triggerClassName ?? "border border-[var(--hairline-border)] bg-[var(--hover-state)] text-[var(--text-primary)] hover:bg-[var(--hover-state)]"
+          "group relative inline-flex items-center gap-2 overflow-visible rounded-lg text-sm font-medium",
+          triggerClassName ?? "h-8 justify-center px-2.5 border border-[var(--hairline-border)] bg-[var(--hover-state)] text-[var(--text-primary)] hover:bg-[var(--hover-state)]"
         )}
         aria-label="Add domain"
         title="Use your domain for aliases"

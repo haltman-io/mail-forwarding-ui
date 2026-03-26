@@ -30,17 +30,21 @@ import {
   Settings,
   User
 } from "lucide-react";
-import { GetStartedMenu } from "@/components/get-started-menu";
-import { DevelopersMenu } from "@/components/developers-menu";
-import { ManageMenu } from "@/components/manage-menu";
-import { LearnMenu } from "@/components/learn-menu";
-import { LegalMenu } from "@/components/legal-menu";
+import { SetupMenu } from "@/components/setup-menu";
+import { ApiMenu } from "@/components/api-menu";
+import { DocsMenu } from "@/components/docs-menu";
 import { ApiTokenDialog } from "@/components/api-token-dialog";
 import { DnsSetupMenu } from "@/components/dns-setup-menu";
 import {
   MobileNavSection,
+  MobileNavLinkIndicator,
+  MobileNavSeparator,
   mobileNavItemClassName,
   mobileNavItemIconClassName,
+  mobileNavL2ClassName,
+  mobileNavL2IconClassName,
+  mobileNavL3ClassName,
+  mobileNavL3IconClassName,
 } from "@/components/mobile-nav-section";
 
 
@@ -166,14 +170,9 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const hostLabel = host ? host : "haltman.io";
   const BrandIcon = brandIcons[brandIconIndex] ?? brandIcons[0];
 
-  const navChipClass =
-    "group ui-focus-ring inline-flex items-center justify-center gap-1.5 rounded-lg bg-transparent px-2.5 py-1.5 text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)] active:bg-[var(--active-state)]";
-  const navTriggerClass = `${navChipClass} h-8 text-sm font-medium`;
+  const navItemClass =
+    "group ui-focus-ring inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-transparent px-2.5 py-1.5 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)] active:bg-[var(--active-state)]";
   const navIconClass = "text-[var(--text-secondary)] !opacity-100";
-
-  const mobileActionTriggerClass =
-    "group relative inline-flex min-h-9 w-full items-center justify-start gap-2 overflow-visible rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]";
-  const mobileActionIconClass = "text-[var(--text-secondary)] !opacity-100";
 
   const actionBtnClass =
     "alias-primary neu-btn-green group inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-mono text-xs font-medium no-underline";
@@ -203,7 +202,11 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
         }`}
       >
         <div
-          className="pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 sm:grid-cols-[1fr_auto_1fr] sm:px-6"
+          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 sm:grid-cols-[1fr_auto_1fr] sm:px-6 rounded-2xl transition-all duration-500 ${
+            isScrolled
+              ? "bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-[24px] backdrop-saturate-[1.3] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.04)] py-2"
+              : "bg-transparent border border-transparent py-0"
+          }`}
           role="banner"
         >
           {/* ── LEFT: Host identity ── */}
@@ -235,40 +238,32 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
             >
               {isMobileViewport === false ? (
                 <>
-                  <GetStartedMenu
-                    triggerClassName={navTriggerClass}
+                  <Link href="/console" className={navItemClass}>
+                    <Terminal className="h-4 w-4 text-[var(--text-secondary)]" />
+                    Console
+                  </Link>
+                  <SetupMenu
+                    triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "get-started"}
-                    onOpenChange={handleDesktopMenuOpenChange("get-started")}
+                    open={openDesktopMenu === "setup"}
+                    onOpenChange={handleDesktopMenuOpenChange("setup")}
                   />
-                  <DevelopersMenu
+                  <ApiMenu
                     onApiStatusChange={onApiStatusChange}
-                    triggerClassName={navTriggerClass}
+                    triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "developers"}
-                    onOpenChange={handleDesktopMenuOpenChange("developers")}
+                    open={openDesktopMenu === "api"}
+                    onOpenChange={handleDesktopMenuOpenChange("api")}
                   />
-                  <ManageMenu
-                    triggerClassName={navTriggerClass}
-                    triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "manage"}
-                    onOpenChange={handleDesktopMenuOpenChange("manage")}
-                  />
-                  <LearnMenu
+                  <DocsMenu
                     onAboutSelect={() => {
                       setOpenDesktopMenu(null);
                       setAboutOpen(true);
                     }}
-                    triggerClassName={navTriggerClass}
+                    triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "learn"}
-                    onOpenChange={handleDesktopMenuOpenChange("learn")}
-                  />
-                  <LegalMenu
-                    triggerClassName={navTriggerClass}
-                    triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "legal"}
-                    onOpenChange={handleDesktopMenuOpenChange("legal")}
+                    open={openDesktopMenu === "docs"}
+                    onOpenChange={handleDesktopMenuOpenChange("docs")}
                   />
                 </>
               ) : null}
@@ -291,122 +286,138 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     align="end"
                     className="max-h-[80vh] w-[min(92vw,320px)] overflow-y-auto p-2"
                   >
-                    <div className="space-y-2">
-                      <MobileNavSection label="Get Started">
-                        <Link href="/console" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                          <Terminal className={mobileNavItemIconClassName} />
-                          Console
-                        </Link>
+                    <div className="space-y-0.5">
+                      {/* ── L1: Console ── */}
+                      <Link href="/console" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                        <Terminal className={mobileNavItemIconClassName} />
+                        Console
+                        <MobileNavLinkIndicator />
+                      </Link>
 
+                      <MobileNavSeparator />
+
+                      {/* ── L1: Setup (expandable) ── */}
+                      <MobileNavSection label="Setup">
+                        <DnsSetupMenu
+                          triggerClassName={mobileNavL2ClassName}
+                          triggerIconClassName={mobileNavL2IconClassName}
+                        />
                         <MobileNavSection
                           label="Browser Extension"
                           nested
-                          icon={<Chromium className={mobileNavItemIconClassName} />}
+                          icon={<Chromium className={mobileNavL2IconClassName} />}
                         >
                           <Link
                             href={FIREFOX_EXTENSION_URL}
                             target="_blank"
                             rel="noreferrer"
-                            className={mobileNavItemClassName}
+                            className={mobileNavL3ClassName}
                             onClick={closeMobileMenu}
                           >
-                            <Flame className={mobileNavItemIconClassName} />
+                            <Flame className={mobileNavL3IconClassName} />
                             Firefox Extension
+                            <MobileNavLinkIndicator />
                           </Link>
                           <Link
                             href={CHROME_EXTENSION_URL}
                             target="_blank"
                             rel="noreferrer"
-                            className={mobileNavItemClassName}
+                            className={mobileNavL3ClassName}
                             onClick={closeMobileMenu}
                           >
-                            <Chromium className={mobileNavItemIconClassName} />
+                            <Chromium className={mobileNavL3IconClassName} />
                             Chrome Extension
+                            <MobileNavLinkIndicator />
                           </Link>
                         </MobileNavSection>
                       </MobileNavSection>
 
-                      <MobileNavSection label="Developers">
+                      <MobileNavSeparator />
+
+                      {/* ── L1: API (expandable) ── */}
+                      <MobileNavSection label="API">
                         <ApiTokenDialog
                           onApiStatusChange={onApiStatusChange}
                           triggerLabel="Create API Token"
-                          triggerClassName={mobileActionTriggerClass}
-                          triggerIconClassName={mobileActionIconClass}
+                          triggerClassName={mobileNavL2ClassName}
+                          triggerIconClassName={mobileNavL2IconClassName}
                         />
                         <Link
                           href={API_REFERENCE_URL}
                           target="_blank"
                           rel="noreferrer"
-                          className={mobileNavItemClassName}
+                          className={mobileNavL2ClassName}
                           onClick={closeMobileMenu}
                         >
-                          <Zap className={mobileNavItemIconClassName} />
+                          <Zap className={mobileNavL2IconClassName} />
                           API Reference
+                          <MobileNavLinkIndicator />
                         </Link>
                       </MobileNavSection>
 
-                      <MobileNavSection label="Manage">
-                        <DnsSetupMenu
-                          triggerClassName={mobileActionTriggerClass}
-                          triggerIconClassName={mobileActionIconClass}
-                        />
-                      </MobileNavSection>
+                      <MobileNavSeparator />
 
-                      <MobileNavSection label="Learn">
+                      {/* ── L1: Docs (expandable) ── */}
+                      <MobileNavSection label="Docs">
                         <Link
                           href={DOCUMENTATION_URL}
                           target="_blank"
                           rel="noreferrer"
-                          className={mobileNavItemClassName}
+                          className={mobileNavL2ClassName}
                           onClick={closeMobileMenu}
                         >
-                          <BookOpen className={mobileNavItemIconClassName} />
+                          <BookOpen className={mobileNavL2IconClassName} />
                           Documentation
+                          <MobileNavLinkIndicator />
                         </Link>
                         <Link
                           href={SOURCE_CODE_URL}
                           target="_blank"
                           rel="noreferrer"
-                          className={mobileNavItemClassName}
+                          className={mobileNavL2ClassName}
                           onClick={closeMobileMenu}
                         >
-                          <Github className={mobileNavItemIconClassName} />
+                          <Github className={mobileNavL2IconClassName} />
                           Source Code
+                          <MobileNavLinkIndicator />
                         </Link>
                         <button
                           type="button"
-                          className={mobileNavItemClassName}
+                          className={mobileNavL2ClassName}
                           onClick={() => {
                             closeMobileMenu();
                             setAboutOpen(true);
                           }}
                         >
-                          <Info className={mobileNavItemIconClassName} />
+                          <Info className={mobileNavL2IconClassName} />
                           About
+                          <MobileNavLinkIndicator />
                         </button>
-                      </MobileNavSection>
-
-                      <MobileNavSection label="Legal">
-                        <Link href="/faq" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                          <CircleHelp className={mobileNavItemIconClassName} />
+                        <Link href="/faq" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <CircleHelp className={mobileNavL2IconClassName} />
                           FAQ
+                          <MobileNavLinkIndicator />
                         </Link>
-                        <Link href="/privacy" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                          <ShieldCheck className={mobileNavItemIconClassName} />
+                        <Link href="/privacy" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <ShieldCheck className={mobileNavL2IconClassName} />
                           Privacy
+                          <MobileNavLinkIndicator />
                         </Link>
-                        <Link href="/abuse" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                          <ShieldAlert className={mobileNavItemIconClassName} />
+                        <Link href="/abuse" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <ShieldAlert className={mobileNavL2IconClassName} />
                           Abuse
+                          <MobileNavLinkIndicator />
                         </Link>
                       </MobileNavSection>
 
-                      <div className="rounded-2xl border border-[var(--hairline-border)] bg-[rgba(255,255,255,0.03)] p-1.5">
-                        <Link href="/dashboard" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                          <Settings className={mobileNavItemIconClassName} />
-                          Admin
-                        </Link>
-                      </div>
+                      <MobileNavSeparator />
+
+                      {/* ── L1: Admin ── */}
+                      <Link href="/dashboard" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                        <Settings className={mobileNavItemIconClassName} />
+                        Admin
+                        <MobileNavLinkIndicator />
+                      </Link>
                     </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
