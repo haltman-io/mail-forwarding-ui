@@ -19,6 +19,7 @@ import {
   Mail,
   MessageSquare,
   Palette,
+  Radar,
   Shield,
   Sparkles,
   Users,
@@ -48,7 +49,8 @@ const adminItems = [
   { name: "Handles", url: "/dashboard/admin/handles", icon: Mail },
   { name: "Bans", url: "/dashboard/admin/bans", icon: Ban },
   { name: "API Tokens", url: "/dashboard/admin/api-tokens", icon: KeyRound },
-  { name: "Admin Users", url: "/dashboard/admin/users", icon: Users },
+  { name: "Users", url: "/dashboard/admin/users", icon: Users },
+  { name: "DNS Requests", url: "/dashboard/admin/dns-requests", icon: Radar },
   { name: "My Password", url: "/dashboard/admin/password", icon: LockKeyhole },
 ]
 

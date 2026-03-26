@@ -1,4 +1,5 @@
 import { API_HOST } from "@/lib/api-host";
+import { getCsrfToken } from "@/lib/auth-client";
 import type {
   RequestResult,
   CreateUpdateResponse,
@@ -53,17 +54,17 @@ function parseRetryAfterHeader(value: string | null): number | null {
   return null;
 }
 
-export async function adminRequest<T>({
-  path,
-  method = "GET",
-  body,
-}: {
-  path: string;
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
-  body?: unknown;
-}): Promise<RequestResult<T>> {
+const MUTATING_METHODS = new Set(["POST", "PATCH", "DELETE"]);
+
+async function doAdminRequest<T>(
+  path: string,
+  method: string,
+  body: unknown | undefined,
+  csrfToken?: string,
+): Promise<RequestResult<T>> {
   const headers = new Headers();
   if (body !== undefined) headers.set("Content-Type", "application/json");
+  if (csrfToken) headers.set("X-CSRF-Token", csrfToken);
 
   const res = await fetch(`${API_HOST}${path}`, {
     method,
@@ -87,6 +88,33 @@ export async function adminRequest<T>({
     errorField: err.errorField,
     retryAfterSeconds: err.retryAfterSeconds ?? headerRetry,
   };
+}
+
+export async function adminRequest<T>({
+  path,
+  method = "GET",
+  body,
+}: {
+  path: string;
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  body?: unknown;
+}): Promise<RequestResult<T>> {
+  if (!MUTATING_METHODS.has(method)) {
+    return doAdminRequest<T>(path, method, body);
+  }
+
+  const csrf = await getCsrfToken();
+  const result = await doAdminRequest<T>(path, method, body, csrf);
+
+  if (
+    result.status === 403 &&
+    (result.errorCode === "csrf_required" || result.errorCode === "invalid_csrf_token")
+  ) {
+    const freshCsrf = await getCsrfToken(true);
+    return doAdminRequest<T>(path, method, body, freshCsrf);
+  }
+
+  return result;
 }
 
 export function isUnauthorized(result: RequestResult<unknown>) {

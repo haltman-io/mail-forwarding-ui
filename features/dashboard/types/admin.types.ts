@@ -101,11 +101,24 @@ export type AdminApiToken = {
 
 export type AdminUser = {
   id: number;
+  username: string;
   email: string;
+  email_verified_at?: string | null;
   is_active: number | boolean;
+  is_admin: boolean;
   created_at?: string | null;
   updated_at?: string | null;
   last_login_at?: string | null;
+};
+
+export type AdminDnsRequest = {
+  id: number;
+  target: string;
+  type: "UI" | "EMAIL";
+  status: string;
+  last_check_result_json?: Record<string, unknown> | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
 export type PasswordChangeResponse = {

@@ -34,9 +34,11 @@ export function useUsersController() {
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editorBusy, setEditorBusy] = React.useState(false);
   const [formId, setFormId] = React.useState<number | null>(null);
+  const [formUsername, setFormUsername] = React.useState("");
   const [formEmail, setFormEmail] = React.useState("");
   const [formPassword, setFormPassword] = React.useState("");
   const [formActive, setFormActive] = React.useState(true);
+  const [formIsAdmin, setFormIsAdmin] = React.useState(false);
 
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; label: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
@@ -76,12 +78,31 @@ export function useUsersController() {
   const rangeFrom = list.total === 0 ? 0 : list.offset + 1;
   const rangeTo = Math.min(list.offset + list.limit, list.total);
 
-  function openCreate() { setFormId(null); setFormEmail(""); setFormPassword(""); setFormActive(true); setEditorOpen(true); }
-  function openEdit(item: AdminUser) { setFormId(item.id); setFormEmail(item.email); setFormPassword(""); setFormActive(isTrueValue(item.is_active)); setEditorOpen(true); }
+  function openCreate() {
+    setFormId(null);
+    setFormUsername("");
+    setFormEmail("");
+    setFormPassword("");
+    setFormActive(true);
+    setFormIsAdmin(false);
+    setEditorOpen(true);
+  }
+
+  function openEdit(item: AdminUser) {
+    setFormId(item.id);
+    setFormUsername(item.username);
+    setFormEmail(item.email);
+    setFormPassword("");
+    setFormActive(isTrueValue(item.is_active));
+    setFormIsAdmin(item.is_admin);
+    setEditorOpen(true);
+  }
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
+    const username = formUsername.trim();
     const email = formEmail.trim().toLowerCase();
+    if (!username) { fail("Validation", "Username is required."); return; }
     if (!email) { fail("Validation", "Email is required."); return; }
     const isEdit = formId !== null;
     if (isEdit && !formActive && isSoleActiveById(formId)) { fail("Lockout protection", "Cannot disable the last active admin user."); return; }
@@ -89,17 +110,17 @@ export function useUsersController() {
     setEditorBusy(true);
     try {
       if (isEdit) {
-        const body: Record<string, unknown> = { email, is_active: boolToApi(formActive) };
+        const body: Record<string, unknown> = { username, email, is_active: boolToApi(formActive), is_admin: formIsAdmin };
         if (formPassword.trim()) body.password = formPassword;
         const r = await updateUser(formId, body);
         if (isUnauthorized(r)) { fail("Unauthorized"); return; }
         if (!r.ok) { const err = describeError(r, "Update failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
-        setEditorOpen(false); ok("User updated", email);
+        setEditorOpen(false); ok("User updated", username);
       } else {
-        const r = await createUser({ email, password: formPassword, is_active: boolToApi(formActive) });
+        const r = await createUser({ username, email, password: formPassword, is_active: boolToApi(formActive), is_admin: formIsAdmin });
         if (isUnauthorized(r)) { fail("Unauthorized"); return; }
         if (!r.ok) { const err = describeError(r, "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
-        setEditorOpen(false); ok("User created", email);
+        setEditorOpen(false); ok("User created", username);
       }
       await load(isEdit ? list.offset : 0);
     } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
@@ -108,8 +129,9 @@ export function useUsersController() {
 
   function askDelete(item: AdminUser) {
     if (isSoleActiveById(item.id)) { fail("Lockout protection", "Cannot delete the last active admin user."); return; }
-    setDeleteTarget({ id: item.id, label: item.email });
+    setDeleteTarget({ id: item.id, label: item.username || item.email });
   }
+
   async function confirmDelete() {
     if (!deleteTarget) return;
     setDeleteBusy(true);
@@ -126,7 +148,9 @@ export function useUsersController() {
     list, activeFilter, setActiveFilter, search, setSearch,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
     editorOpen, setEditorOpen, editorBusy, formId,
-    formEmail, setFormEmail, formPassword, setFormPassword, formActive, setFormActive,
+    formUsername, setFormUsername,
+    formEmail, setFormEmail, formPassword, setFormPassword,
+    formActive, setFormActive, formIsAdmin, setFormIsAdmin,
     openCreate, openEdit, submitEditor,
     deleteTarget, setDeleteTarget, deleteBusy, askDelete, confirmDelete,
     isTrueValue, isSoleActiveById,

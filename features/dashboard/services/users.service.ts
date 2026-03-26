@@ -18,7 +18,7 @@ export async function fetchUsers(
 }
 
 export async function createUser(
-  body: { email: string; password: string; is_active: number },
+  body: { username: string; email: string; password: string; is_active: number; is_admin: boolean },
 ) {
   return adminRequest<CreateUpdateResponse<AdminUser>>({ path: "/api/admin/users", method: "POST", body });
 }

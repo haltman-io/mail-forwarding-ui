@@ -5,10 +5,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
-import { UsersContent } from "@/features/dashboard/components/users-content";
+import { DnsRequestsContent } from "@/features/dashboard/components/dns-requests-content";
 
-export default function UsersPage() {
-
+export default function DnsRequestsPage() {
   return (
     <>
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(255,255,255,0.06)] px-5">
@@ -24,7 +23,7 @@ export default function UsersPage() {
             <BreadcrumbSeparator className="hidden text-[var(--text-muted)] md:block" />
             <BreadcrumbItem>
               <BreadcrumbPage className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-secondary)]">
-                Users
+                DNS Requests
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -34,7 +33,7 @@ export default function UsersPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <UsersContent />
+        <DnsRequestsContent />
       </div>
     </>
   );
