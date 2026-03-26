@@ -118,7 +118,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
 
   React.useEffect(() => {
     const syncViewport = () => {
-      setIsMobileViewport(window.innerWidth < 640);
+      setIsMobileViewport(window.innerWidth < 768);
     };
 
     syncViewport();
@@ -198,11 +198,11 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ${
-          isScrolled ? "pt-3 sm:pt-4" : "pt-4 sm:pt-6"
+          isScrolled ? "pt-3 md:pt-4" : "pt-4 md:pt-6"
         }`}
       >
         <div
-          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 sm:grid-cols-[1fr_auto_1fr] sm:px-6 rounded-2xl transition-all duration-500 ${
+          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 md:grid-cols-[1fr_auto_1fr] md:px-6 rounded-2xl transition-all duration-500 ${
             isScrolled
               ? "bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-[24px] backdrop-saturate-[1.3] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.04)] py-2"
               : "bg-transparent border border-transparent py-0"
@@ -210,17 +210,17 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           role="banner"
         >
           {/* ── LEFT: Host identity ── */}
-          <div className="flex min-w-0 items-center justify-self-start">
+          <div className="flex min-w-0 max-w-[200px] items-center justify-self-start">
             <Link
               href="/"
               className="group inline-flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-200 hover:bg-[var(--hover-state)]"
               aria-label="Home"
             >
               <span key={brandIconSwapKey} className="relative inline-flex shrink-0">
-                <BrandIcon className="h-[18px] w-[18px] sm:h-5 sm:w-5 text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100" />
+                <BrandIcon className="h-[18px] w-[18px] md:h-5 md:w-5 text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100" />
                 <span className="pointer-events-none absolute inset-0 rounded-full opacity-40 blur-[6px] bg-[var(--neu-green)]" />
               </span>
-              <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] sm:text-sm">
+              <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] md:text-sm">
                 {hostLabel}
               </span>
             </Link>
@@ -229,7 +229,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           {/* ── CENTER: Navigation ── */}
           <nav
             aria-label="Primary"
-            className="flex items-center justify-self-end sm:justify-self-center"
+            className="flex shrink-0 items-center justify-self-end md:justify-self-center"
           >
             <div className="flex items-center gap-0.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-1.5 py-1 backdrop-blur-[24px] backdrop-saturate-[1.3]"
               style={{
@@ -268,7 +268,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                 </>
               ) : null}
 
-              <div className="sm:hidden">
+              <div className="md:hidden">
                 <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <button
@@ -426,7 +426,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           </nav>
 
           {/* ── RIGHT: Actions ── */}
-          <div className="hidden min-w-0 items-center justify-self-end gap-2 sm:flex">
+          <div className="hidden min-w-0 shrink-0 items-center justify-self-end gap-2 md:flex">
             {isMobileViewport === false ? (
               <>
                 <Link href="/dashboard" className={actionBtnClass}>
