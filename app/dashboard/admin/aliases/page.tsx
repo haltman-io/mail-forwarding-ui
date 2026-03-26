@@ -17,7 +17,7 @@ export default function AliasesPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/dashboard" className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
+              <BreadcrumbLink href="/dashboard/admin" className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
                 Administration
               </BreadcrumbLink>
             </BreadcrumbItem>

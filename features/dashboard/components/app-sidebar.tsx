@@ -22,10 +22,12 @@ import {
   Shield,
   Sparkles,
   Users,
+  Rocket,
   Zap,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/features/auth/hooks/use-auth"
 import {
   Sidebar,
   SidebarContent,
@@ -36,14 +38,18 @@ import {
 /* ────────────────────────────────────────────────────────────
    Navigation data
    ──────────────────────────────────────────────────────────── */
+const mainItems = [
+  { name: "Get Started", url: "/dashboard/get-started", icon: Rocket },
+]
+
 const adminItems = [
-  { name: "Domains", url: "/dashboard/domains", icon: Globe2 },
-  { name: "Aliases", url: "/dashboard/aliases", icon: AtSign },
-  { name: "Handles", url: "/dashboard/handles", icon: Mail },
-  { name: "Bans", url: "/dashboard/bans", icon: Ban },
-  { name: "API Tokens", url: "/dashboard/api-tokens", icon: KeyRound },
-  { name: "Admin Users", url: "/dashboard/users", icon: Users },
-  { name: "My Password", url: "/dashboard/password", icon: LockKeyhole },
+  { name: "Domains", url: "/dashboard/admin/domains", icon: Globe2 },
+  { name: "Aliases", url: "/dashboard/admin/aliases", icon: AtSign },
+  { name: "Handles", url: "/dashboard/admin/handles", icon: Mail },
+  { name: "Bans", url: "/dashboard/admin/bans", icon: Ban },
+  { name: "API Tokens", url: "/dashboard/admin/api-tokens", icon: KeyRound },
+  { name: "Admin Users", url: "/dashboard/admin/users", icon: Users },
+  { name: "My Password", url: "/dashboard/admin/password", icon: LockKeyhole },
 ]
 
 const previewItems = [
@@ -127,6 +133,52 @@ function NavItem({
 }
 
 /* ────────────────────────────────────────────────────────────
+   Collapsible section (category-level)
+   ──────────────────────────────────────────────────────────── */
+function NavSection({
+  label,
+  defaultOpen = true,
+  children,
+}: {
+  label: string
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) {
+  const [open, setOpen] = React.useState(defaultOpen)
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="mb-2 flex w-full items-center justify-between px-3"
+      >
+        <span className="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase">
+          {label}
+        </span>
+        <ChevronRight
+          className={cn(
+            "h-3 w-3 text-[var(--text-muted)] transition-transform duration-200",
+            open && "rotate-90",
+          )}
+        />
+      </button>
+
+      <div
+        className={cn(
+          "grid transition-[grid-template-rows] duration-200 ease-in-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
+      >
+        <div className="overflow-hidden">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ────────────────────────────────────────────────────────────
    Collapsible submenu
    ──────────────────────────────────────────────────────────── */
 function NavSubmenu({
@@ -172,6 +224,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const [hostLabel, setHostLabel] = React.useState("haltman.io")
   const { isMobile, setOpenMobile } = useSidebar()
+  const { user } = useAuth()
 
   React.useEffect(() => {
     if (window.location.host) setHostLabel(window.location.host)
@@ -225,91 +278,126 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
          Content
          ══════════════════════════════════════════════════════ */}
       <SidebarContent className="p-4 pt-5">
-        {/* Section label */}
-        <p className="mb-2 px-3 font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase">
-          Administration
-        </p>
+        {/* ── Main section ── */}
+        <NavSection label="Main">
+          <div
+            className="rounded-2xl p-1.5"
+            style={{
+              background: "var(--neu-surface-lo)",
+              border: "1px solid rgba(255, 255, 255, 0.03)",
+              boxShadow: "var(--neu-shadow-in)",
+            }}
+          >
+            <nav className="flex flex-col gap-0.5" onClick={handleNav}>
+              {mainItems.map((item) => {
+                const isActive =
+                  pathname === item.url ||
+                  (pathname?.startsWith(item.url + "/") ?? false)
+                return (
+                  <NavItem
+                    key={item.name}
+                    href={item.url}
+                    icon={item.icon}
+                    label={item.name}
+                    isActive={isActive}
+                  />
+                )
+              })}
+            </nav>
+          </div>
+        </NavSection>
 
-        {/* ── Recessed nav track ── */}
-        <div
-          className="rounded-2xl p-1.5"
-          style={{
-            background: "var(--neu-surface-lo)",
-            border: "1px solid rgba(255, 255, 255, 0.03)",
-            boxShadow: "var(--neu-shadow-in)",
-          }}
-        >
-          <nav className="flex flex-col gap-0.5" onClick={handleNav}>
-            {adminItems.map((item) => {
-              const isActive =
-                pathname === item.url ||
-                (pathname?.startsWith(item.url + "/") ?? false)
-              return (
-                <NavItem
-                  key={item.name}
-                  href={item.url}
-                  icon={item.icon}
-                  label={item.name}
-                  isActive={isActive}
-                />
-              )
-            })}
-          </nav>
-        </div>
+        {/* ── Administration section (admin only) ── */}
+        {user?.is_admin && (
+          <>
+            <div className="mt-3" />
+            <NavSection label="Administration">
+              <div
+                className="rounded-2xl p-1.5"
+                style={{
+                  background: "var(--neu-surface-lo)",
+                  border: "1px solid rgba(255, 255, 255, 0.03)",
+                  boxShadow: "var(--neu-shadow-in)",
+                }}
+              >
+                <nav className="flex flex-col gap-0.5" onClick={handleNav}>
+                  {adminItems.map((item) => {
+                    const isActive =
+                      pathname === item.url ||
+                      (pathname?.startsWith(item.url + "/") ?? false)
+                    return (
+                      <NavItem
+                        key={item.name}
+                        href={item.url}
+                        icon={item.icon}
+                        label={item.name}
+                        isActive={isActive}
+                      />
+                    )
+                  })}
+                </nav>
+              </div>
+            </NavSection>
+          </>
+        )}
 
-        {/* ── Preview section ── */}
-        <p className="mb-2 mt-5 px-3 font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase">
-          Preview
-        </p>
-        <div
-          className="rounded-2xl p-1.5"
-          style={{
-            background: "var(--neu-surface-lo)",
-            border: "1px solid rgba(255, 255, 255, 0.03)",
-            boxShadow: "var(--neu-shadow-in)",
-          }}
-        >
-          <nav className="flex flex-col gap-0.5" onClick={handleNav}>
-            {/* Active page — Components */}
-            <NavItem
-              href="/dashboard/preview"
-              icon={Eye}
-              label="Components"
-              isActive={pathname === "/dashboard/preview" || (pathname?.startsWith("/dashboard/preview/") ?? false)}
-            />
+        {/* ── Preview section (admin only) ── */}
+        {user?.is_admin && (
+          <>
+            <div className="mt-3" />
+            <NavSection label="Preview" defaultOpen={false}>
+              <div
+                className="rounded-2xl p-1.5"
+                style={{
+                  background: "var(--neu-surface-lo)",
+                  border: "1px solid rgba(255, 255, 255, 0.03)",
+                  boxShadow: "var(--neu-shadow-in)",
+                }}
+              >
+                <nav className="flex flex-col gap-0.5" onClick={handleNav}>
+                  {/* Active page — Components */}
+                  <NavItem
+                    href="/dashboard/preview"
+                    icon={Eye}
+                    label="Components"
+                    isActive={pathname === "/dashboard/preview" || (pathname?.startsWith("/dashboard/preview/") ?? false)}
+                  />
 
-            {/* With icon + badge */}
-            <NavItem href="#" icon={Bell} label="Notifications" isActive={false} badge="12" />
-            <NavItem href="#" icon={Sparkles} label="What's New" isActive={false} badge="New" />
-            <NavItem href="#" icon={Activity} label="Live Metrics" isActive={false} badge="Live" />
+                  {/* With icon + badge */}
+                  <NavItem href="#" icon={Bell} label="Notifications" isActive={false} badge="12" />
+                  <NavItem href="#" icon={Sparkles} label="What's New" isActive={false} badge="New" />
+                  <NavItem href="#" icon={Activity} label="Live Metrics" isActive={false} badge="Live" />
 
-            {/* Submenu with children */}
-            <NavSubmenu icon={Layout} label="Layouts">
-              <NavItem href="#" label="Grid View" isActive={false} />
-              <NavItem href="#" label="List View" isActive={false} />
-              <NavItem href="#" label="Kanban" isActive={false} badge="Beta" />
-            </NavSubmenu>
+                  {/* Submenu with children */}
+                  <NavSubmenu icon={Layout} label="Layouts">
+                    <NavItem href="#" label="Grid View" isActive={false} />
+                    <NavItem href="#" label="List View" isActive={false} />
+                    <NavItem href="#" label="Kanban" isActive={false} badge="Beta" />
+                  </NavSubmenu>
 
-            <NavSubmenu icon={Database} label="Data Sources">
-              <NavItem href="#" icon={Globe2} label="REST API" isActive={false} />
-              <NavItem href="#" icon={Zap} label="WebSocket" isActive={false} />
-              <NavItem href="#" label="GraphQL" isActive={false} disabled />
-            </NavSubmenu>
+                  <NavSubmenu icon={Database} label="Data Sources">
+                    <NavItem href="#" icon={Globe2} label="REST API" isActive={false} />
+                    <NavItem href="#" icon={Zap} label="WebSocket" isActive={false} />
+                    <NavItem href="#" label="GraphQL" isActive={false} disabled />
+                  </NavSubmenu>
 
-            {/* Without icon */}
-            <NavItem href="#" label="Quick Actions" isActive={false} />
-            <NavItem href="#" label="Keyboard Shortcuts" isActive={false} />
+                  {/* Without icon */}
+                  <NavItem href="#" label="Quick Actions" isActive={false} />
+                  <NavItem href="#" label="Keyboard Shortcuts" isActive={false} />
 
-            {/* Disabled items */}
-            <NavItem href="#" icon={Palette} label="Themes" isActive={false} disabled />
-            <NavItem href="#" icon={MessageSquare} label="Live Chat" isActive={false} disabled />
+                  {/* Disabled items */}
+                  <NavItem href="#" icon={Palette} label="Themes" isActive={false} disabled />
+                  <NavItem href="#" icon={MessageSquare} label="Live Chat" isActive={false} disabled />
 
-            {/* Separator + extra items */}
-            <div className="my-1.5 h-px w-full bg-[rgba(255,255,255,0.04)]" />
-            <NavItem href="#" icon={BookOpen} label="Documentation" isActive={false} />
-            <NavItem href="#" icon={FileText} label="Changelog" isActive={false} badge="v2.4" />
-          </nav>
-        </div>
+                  {/* Separator + extra items */}
+                  <div className="my-1.5 h-px w-full bg-[rgba(255,255,255,0.04)]" />
+                  <NavItem href="#" icon={BookOpen} label="Documentation" isActive={false} />
+                  <NavItem href="#" icon={FileText} label="Changelog" isActive={false} badge="v2.4" />
+                </nav>
+              </div>
+            </NavSection>
+          </>
+        )}
 
       </SidebarContent>
     </Sidebar>

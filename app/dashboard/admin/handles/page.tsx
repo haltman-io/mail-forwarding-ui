@@ -5,9 +5,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardUserMenu } from "@/features/dashboard/components/dashboard-user-menu";
-import { BansContent } from "@/features/dashboard/components/bans-content";
+import { HandlesContent } from "@/features/dashboard/components/handles-content";
 
-export default function BansPage() {
+export default function HandlesPage() {
 
   return (
     <>
@@ -17,14 +17,14 @@ export default function BansPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/dashboard" className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
+              <BreadcrumbLink href="/dashboard/admin" className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
                 Administration
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden text-[var(--text-muted)] md:block" />
             <BreadcrumbItem>
               <BreadcrumbPage className="font-mono text-[12px] tracking-[0.06em] text-[var(--text-secondary)]">
-                Bans
+                Handles
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -34,7 +34,7 @@ export default function BansPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col pt-6">
-        <BansContent />
+        <HandlesContent />
       </div>
     </>
   );

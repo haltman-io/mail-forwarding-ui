@@ -410,7 +410,7 @@ function LoginFormInner({
 
   React.useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/dashboard/domains");
+      router.replace("/dashboard/get-started");
     }
   }, [status, router]);
 
@@ -476,7 +476,7 @@ function LoginFormInner({
       try {
         const result = await signIn(trimmedIdentifier, password);
         if (result.ok) {
-          router.replace("/dashboard/domains");
+          router.replace("/dashboard/get-started");
         } else {
           if (isRateLimited(result)) {
             setFormError(describeAuthError(result, "Sign in failed."));

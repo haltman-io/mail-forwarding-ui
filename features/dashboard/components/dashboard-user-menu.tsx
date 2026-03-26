@@ -1,7 +1,9 @@
 "use client";
 
+import * as React from "react";
 import {
   Bell,
+  ChevronRight,
   CreditCard,
   HelpCircle,
   LogOut,
@@ -10,6 +12,7 @@ import {
   Shield,
   User,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import {
   DropdownMenu,
@@ -24,6 +27,7 @@ import {
 import { useAuth } from "@/features/auth/hooks/use-auth";
 
 export function DashboardUserMenu() {
+  const [open, setOpen] = React.useState(false);
   const { user, signOut } = useAuth();
 
   const userName = user?.username ?? user?.email?.split("@")[0] ?? "User";
@@ -36,18 +40,24 @@ export function DashboardUserMenu() {
     .join("") || "U";
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
           className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--focus-ring)]"
         >
-          <span className="hidden text-[13px] font-medium text-[var(--text-primary)] sm:block">
-            {userName}
-          </span>
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(48,209,88,0.10)] text-[10px] font-bold text-[var(--neu-green)] shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_1px_4px_rgba(0,0,0,0.25)]">
             {initials}
           </div>
+          <span className="hidden text-[13px] font-medium text-[var(--text-primary)] sm:block">
+            {userName}
+          </span>
+          <ChevronRight
+            className={cn(
+              "hidden h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] transition-transform duration-200 sm:block",
+              open && "rotate-90",
+            )}
+          />
         </button>
       </DropdownMenuTrigger>
 
