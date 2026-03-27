@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import ThemeProvider from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { DebugToolbarLoader } from "@/components/debug-toolbar-loader";
+import { DomainDisclaimer } from "@/components/domain-disclaimer";
 
 const uiSans = Inter({
   subsets: ["latin"],
@@ -50,6 +51,7 @@ export default function RootLayout({
             swipeDirections={[]}
           />
           {DebugToolbarLoader && <DebugToolbarLoader />}
+          <DomainDisclaimer />
         </ThemeProvider>
       </body>
     </html>
