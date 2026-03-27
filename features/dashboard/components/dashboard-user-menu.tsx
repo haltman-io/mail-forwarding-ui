@@ -2,16 +2,11 @@
 
 import * as React from "react";
 import {
-  Bell,
+  Key,
   ChevronRight,
-  CreditCard,
-  HelpCircle,
   LogOut,
-  Moon,
-  Settings,
-  Shield,
-  User,
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import {
@@ -81,54 +76,18 @@ export function DashboardUserMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuLabel>Account</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User />
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings />
-            Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard />
-            Billing
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Bell />
-            Notifications
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/admin/password" className="w-full cursor-pointer">
+              <Key className="mr-2 h-4 w-4" />
+              Password
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Moon />
-            Appearance
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Shield />
-            Security
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <HelpCircle />
-            Help &amp; Support
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem variant="destructive" onClick={() => void signOut()}>
+        <DropdownMenuItem variant="destructive" onClick={() => void signOut()} className="cursor-pointer">
           <LogOut />
           Sign Out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

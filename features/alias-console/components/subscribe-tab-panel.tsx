@@ -1,6 +1,7 @@
 import type { FormEvent, ReactNode } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Switch } from "@/components/ui/switch";
 import { TabsContent } from "@/components/ui/tabs";
 
+import { PINNED_DOMAINS } from "@/features/alias-console/hooks/use-alias-console-controller";
 import { RequestPreviewPanel } from "@/features/alias-console/components/request-preview-panel";
 import type { MappingSnapshot } from "@/features/alias-console/types/alias-console.types";
 
@@ -44,6 +46,15 @@ type SubscribeTabPanelProps = {
   onCustomAddressChange: (value: string) => void;
   onSubmit: (e: FormEvent) => void;
   onCopySubscribePreview: () => void;
+};
+
+const PINNED_BADGES: Record<string, { text: string; color?: "amber" | "sky" | "orange" | "primary"; className?: string }> = {
+  "reads.phrack.org": { text: "📚 PHRACK MAGAZINE", color: "primary", className: "!bg-black !from-black !to-zinc-900 !border-zinc-800 !text-zinc-300" },
+  "smokes.thc.org": { text: "👑 SINCE 1995", color: "amber" },
+  "free.team-teso.net": { text: "🛜 Blue-Boxed", color: "sky" },
+  "segfault.net": { text: "💨 DISPOSABLE", color: "orange" },
+  "ghetto.eurocompton.net": { text: "⚔️ Oldest IDS Enemy", color: "amber" },
+  "lulz.antisec.net": { text: "💀💀💀💀💀", color: "amber" },
 };
 
 export function SubscribeTabPanel({
@@ -200,21 +211,29 @@ export function SubscribeTabPanel({
                           <CommandEmpty>No domains found.</CommandEmpty>
                           <CommandGroup>
                             {domains.length ? (
-                              domains.map((domainOption) => (
-                                <CommandItem
-                                  key={domainOption}
-                                  value={domainOption}
-                                  onSelect={() => {
-                                    onDomainChange(domainOption);
-                                    onDomainComboboxOpenChange(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={`mr-2 h-4 w-4 ${domain === domainOption ? "text-emerald-300 opacity-100" : "opacity-0"}`}
-                                  />
-                                  <span className="truncate font-sans text-sm">{domainOption}</span>
-                                </CommandItem>
-                              ))
+                              domains.map((domainOption) => {
+                                const badgeInfo = PINNED_BADGES[domainOption as keyof typeof PINNED_BADGES];
+                                return (
+                                  <CommandItem
+                                    key={domainOption}
+                                    value={domainOption}
+                                    onSelect={() => {
+                                      onDomainChange(domainOption);
+                                      onDomainComboboxOpenChange(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={`mr-2 h-4 w-4 ${domain === domainOption ? "text-emerald-300 opacity-100" : "opacity-0"}`}
+                                    />
+                                    <span className="truncate font-sans text-sm flex-1">{domainOption}</span>
+                                    {badgeInfo && (
+                                      <Badge variant="fancy" color={badgeInfo.color || "primary"} className={`ml-2 px-1 text-[9px] uppercase tracking-wider ${badgeInfo.className || ""}`}>
+                                        {badgeInfo.text}
+                                      </Badge>
+                                    )}
+                                  </CommandItem>
+                                );
+                              })
                             ) : (
                               <CommandItem value="no-domains" disabled>
                                 No domains available (API /domains failed)

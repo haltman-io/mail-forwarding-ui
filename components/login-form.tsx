@@ -7,7 +7,6 @@ import {
   EyeOff,
   Loader2,
   Lock,
-  UserPlus,
   ArrowRight,
   ArrowLeft,
   Mail,
@@ -16,7 +15,6 @@ import {
   AlertTriangle,
   Send,
   ShieldCheck,
-  CheckCircle2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,56 +26,6 @@ import {
   useAuth,
 } from "@/features/auth/hooks/use-auth";
 import { describeAuthError, isRateLimited } from "@/lib/auth-client";
-
-/* ────────────────────────────────────────────────────────────
-   Mode switcher pill
-   ──────────────────────────────────────────────────────────── */
-type AuthMode = "signin" | "signup";
-
-function ModeSwitch({
-  mode,
-  onChange,
-}: {
-  mode: AuthMode;
-  onChange: (m: AuthMode) => void;
-}) {
-  return (
-    <div className="neu-tab-track relative flex h-10 w-full rounded-xl p-1">
-      <div
-        className={cn(
-          "neu-tab-pill absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-[10px] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-          mode === "signin" ? "left-1" : "left-[calc(50%+2px)]",
-        )}
-      />
-      <button
-        type="button"
-        onClick={() => onChange("signin")}
-        className={cn(
-          "relative z-10 flex flex-1 items-center justify-center gap-2 rounded-[10px] font-mono text-[12px] tracking-[0.08em] uppercase transition-colors duration-200",
-          mode === "signin"
-            ? "text-[var(--text-primary)]"
-            : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-        )}
-      >
-        <Lock className="h-3 w-3" />
-        Sign In
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange("signup")}
-        className={cn(
-          "relative z-10 flex flex-1 items-center justify-center gap-2 rounded-[10px] font-mono text-[12px] tracking-[0.08em] uppercase transition-colors duration-200",
-          mode === "signup"
-            ? "text-[var(--text-primary)]"
-            : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-        )}
-      >
-        <UserPlus className="h-3 w-3" />
-        Sign Up
-      </button>
-    </div>
-  );
-}
 
 /* ────────────────────────────────────────────────────────────
    Reusable input row
@@ -323,66 +271,6 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Sign-up success view
-   ──────────────────────────────────────────────────────────── */
-function SignUpSuccess({ email, onBack }: { email: string; onBack: () => void }) {
-  return (
-    <>
-      <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
-            <CheckCircle2 className="h-3.5 w-3.5 text-[var(--neu-green)]" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
-              Check your email
-            </h1>
-            <p className="text-[11px] leading-4 text-[var(--text-muted)]">
-              Verify your account to get started
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-5 px-7 py-6">
-        <div className="flex flex-col items-center gap-4 py-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(48,209,88,0.20)] bg-[rgba(48,209,88,0.08)]">
-            <Mail className="h-5 w-5 text-[var(--neu-green)]" />
-          </div>
-          <div className="space-y-1.5 text-center">
-            <p className="text-[14px] font-medium text-[var(--text-primary)]">
-              Verification token sent
-            </p>
-            <p className="text-[12px] leading-[1.6] text-[var(--text-muted)]">
-              We sent a verification token to{" "}
-              <span className="font-mono text-[11px] text-[var(--text-secondary)]">
-                {email}
-              </span>
-              . Paste it on the{" "}
-              <a href="/verify-email" className="text-[var(--neu-green)] underline underline-offset-2">
-                verify email
-              </a>{" "}
-              page to activate your account.
-            </p>
-          </div>
-        </div>
-
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.06)] to-transparent" />
-
-        <Button
-          type="button"
-          onClick={onBack}
-          className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-          Back to Sign In
-        </Button>
-      </div>
-    </>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────
    Main form
    ──────────────────────────────────────────────────────────── */
 function LoginFormInner({
@@ -390,37 +278,22 @@ function LoginFormInner({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const { status, signIn, signUp } = useAuth();
+  const { status, signIn } = useAuth();
 
-  const [mode, setMode] = React.useState<AuthMode>("signin");
   const [showRecovery, setShowRecovery] = React.useState(false);
-  const [signUpEmail, setSignUpEmail] = React.useState<string | null>(null);
   const [identifier, setIdentifier] = React.useState("");
-  const [username, setUsername] = React.useState("");
-  const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [formError, setFormError] = React.useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string | null>>({});
   const [capsLockOn, setCapsLockOn] = React.useState(false);
 
-  const isSignUp = mode === "signup";
-
   React.useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/dashboard/get-started");
+      router.replace("/dashboard/admin/domains");
     }
   }, [status, router]);
-
-  function handleModeChange(m: AuthMode) {
-    setMode(m);
-    setFormError(null);
-    setFieldErrors({});
-    setShowPassword(false);
-    setCapsLockOn(false);
-  }
 
   const syncCapsLockState = React.useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -434,61 +307,31 @@ function LoginFormInner({
 
     const errors: Record<string, string | null> = {};
 
-    if (isSignUp) {
-      const trimmedUsername = username.trim().toLowerCase();
-      const trimmedEmail = email.trim().toLowerCase();
-      if (!trimmedUsername) errors.username = "Username is required.";
-      if (!trimmedEmail) errors.email = "Email is required.";
-      if (!password) errors.password = "Password is required.";
-      else if (password.length < 8) errors.password = "Password must be at least 8 characters.";
-      if (password !== confirmPassword) errors.confirm = "Passwords do not match.";
+    const trimmedIdentifier = identifier.trim().toLowerCase();
+    if (!trimmedIdentifier) errors.identifier = "Email or username is required.";
+    if (!password) errors.password = "Password is required.";
 
-      setUsername(trimmedUsername);
-      setEmail(trimmedEmail);
-      setFieldErrors(errors);
-      setFormError(null);
-      if (Object.values(errors).some(Boolean)) return;
+    setIdentifier(trimmedIdentifier);
+    setFieldErrors(errors);
+    setFormError(null);
+    if (Object.values(errors).some(Boolean)) return;
 
-      setBusy(true);
-      try {
-        const result = await signUp(trimmedEmail, trimmedUsername, password);
-        if (result.ok) {
-          setSignUpEmail(trimmedEmail);
+    setBusy(true);
+    try {
+      const result = await signIn(trimmedIdentifier, password);
+      if (result.ok) {
+        router.replace("/dashboard/admin/domains");
+      } else {
+        if (isRateLimited(result)) {
+          setFormError(describeAuthError(result, "Sign in failed."));
         } else {
-          setFormError(describeAuthError(result, "Sign up failed."));
+          setFormError(describeAuthError(result, "Invalid credentials."));
         }
-      } catch {
-        setFormError("Network error. Please try again.");
-      } finally {
-        setBusy(false);
       }
-    } else {
-      const trimmedIdentifier = identifier.trim().toLowerCase();
-      if (!trimmedIdentifier) errors.identifier = "Email or username is required.";
-      if (!password) errors.password = "Password is required.";
-
-      setIdentifier(trimmedIdentifier);
-      setFieldErrors(errors);
-      setFormError(null);
-      if (Object.values(errors).some(Boolean)) return;
-
-      setBusy(true);
-      try {
-        const result = await signIn(trimmedIdentifier, password);
-        if (result.ok) {
-          router.replace("/dashboard/get-started");
-        } else {
-          if (isRateLimited(result)) {
-            setFormError(describeAuthError(result, "Sign in failed."));
-          } else {
-            setFormError(describeAuthError(result, "Invalid credentials."));
-          }
-        }
-      } catch {
-        setFormError("Network error. Please try again.");
-      } finally {
-        setBusy(false);
-      }
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -524,33 +367,23 @@ function LoginFormInner({
     >
       {showRecovery ? (
         <RecoveryView onBack={() => setShowRecovery(false)} />
-      ) : signUpEmail ? (
-        <SignUpSuccess email={signUpEmail} onBack={() => { setSignUpEmail(null); handleModeChange("signin"); }} />
       ) : (
         <>
           {/* ── Header ── */}
           <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
             <div className="mb-5 flex items-center gap-3">
               <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
-                {isSignUp ? (
-                  <UserPlus className="h-3.5 w-3.5 text-[var(--neu-green)]" />
-                ) : (
-                  <Lock className="h-3.5 w-3.5 text-[var(--neu-green)]" />
-                )}
+                <Lock className="h-3.5 w-3.5 text-[var(--neu-green)]" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
-                  {isSignUp ? "Create Account" : "Welcome back"}
+                  Welcome back
                 </h1>
                 <p className="text-[11px] leading-4 text-[var(--text-muted)]">
-                  {isSignUp
-                    ? "Fill in your details to get started"
-                    : "Enter your credentials to continue"}
+                  Enter your credentials to continue
                 </p>
               </div>
             </div>
-
-            <ModeSwitch mode={mode} onChange={handleModeChange} />
           </div>
 
           {/* ── Dashboard disabled alert ── */}
@@ -578,101 +411,36 @@ function LoginFormInner({
               </div>
             )}
 
-            {/* Identifier (sign-in) or Username (sign-up) */}
-            {isSignUp ? (
-              <AuthField
-                id="username"
-                label="Username"
-                icon={User}
-                error={fieldErrors.username}
-                errorId="err-username"
-              >
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="johndoe"
-                  required
-                  disabled={busy || !DASHBOARD_ENABLED}
-                  autoFocus
-                  autoComplete="username"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  aria-invalid={fieldErrors.username ? "true" : "false"}
-                  aria-describedby={fieldErrors.username ? "err-username" : undefined}
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setFieldErrors((p) => ({ ...p, username: null }));
-                    setFormError(null);
-                  }}
-                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
-                />
-              </AuthField>
-            ) : (
-              <AuthField
+            {/* Identifier (sign-in) */}
+            <AuthField
+              id="identifier"
+              label="Email or Username"
+              icon={User}
+              error={fieldErrors.identifier}
+              errorId="err-identifier"
+            >
+              <Input
                 id="identifier"
-                label="Email or Username"
-                icon={User}
-                error={fieldErrors.identifier}
-                errorId="err-identifier"
-              >
-                <Input
-                  id="identifier"
-                  type="text"
-                  placeholder="you@example.com"
-                  required
-                  disabled={busy || !DASHBOARD_ENABLED}
-                  autoFocus
-                  autoComplete="username"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  aria-invalid={fieldErrors.identifier ? "true" : "false"}
-                  aria-describedby={fieldErrors.identifier ? "err-identifier" : undefined}
-                  value={identifier}
-                  onChange={(e) => {
-                    setIdentifier(e.target.value);
-                    setFieldErrors((p) => ({ ...p, identifier: null }));
-                    setFormError(null);
-                  }}
-                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
-                />
-              </AuthField>
-            )}
-
-            {/* Email — sign up only */}
-            {isSignUp && (
-              <AuthField
-                id="email"
-                label="Email"
-                icon={Mail}
-                error={fieldErrors.email}
-                errorId="err-email"
-              >
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  disabled={busy || !DASHBOARD_ENABLED}
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  inputMode="email"
-                  aria-invalid={fieldErrors.email ? "true" : "false"}
-                  aria-describedby={fieldErrors.email ? "err-email" : undefined}
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setFieldErrors((p) => ({ ...p, email: null }));
-                    setFormError(null);
-                  }}
-                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
-                />
-              </AuthField>
-            )}
+                type="text"
+                placeholder="you@example.com"
+                required
+                disabled={busy || !DASHBOARD_ENABLED}
+                autoFocus
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-invalid={fieldErrors.identifier ? "true" : "false"}
+                aria-describedby={fieldErrors.identifier ? "err-identifier" : undefined}
+                value={identifier}
+                onChange={(e) => {
+                  setIdentifier(e.target.value);
+                  setFieldErrors((p) => ({ ...p, identifier: null }));
+                  setFormError(null);
+                }}
+                className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
+              />
+            </AuthField>
 
             {/* Password */}
             <AuthField
@@ -686,11 +454,11 @@ function LoginFormInner({
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder={isSignUp ? "Min. 8 characters" : "Enter your password"}
+                  placeholder="Enter your password"
                   required
                   disabled={busy || !DASHBOARD_ENABLED}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
-                  enterKeyHint={isSignUp ? "next" : "go"}
+                  autoComplete="current-password"
+                  enterKeyHint="go"
                   aria-invalid={fieldErrors.password ? "true" : "false"}
                   aria-describedby={fieldErrors.password ? "err-password" : undefined}
                   value={password}
@@ -726,47 +494,18 @@ function LoginFormInner({
               )}
             </AuthField>
 
-            {/* Confirm password — sign up only */}
-            {isSignUp && (
-              <AuthField
-                id="confirm-password"
-                label="Confirm Password"
-                icon={KeyRound}
-                error={fieldErrors.confirm}
-                errorId="err-confirm"
-              >
-                <Input
-                  id="confirm-password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Re-enter your password"
-                  required
-                  disabled={busy || !DASHBOARD_ENABLED}
-                  autoComplete="new-password"
-                  enterKeyHint="go"
-                  aria-invalid={fieldErrors.confirm ? "true" : "false"}
-                  aria-describedby={fieldErrors.confirm ? "err-confirm" : undefined}
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    setFieldErrors((p) => ({ ...p, confirm: null }));
-                  }}
-                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
-                />
-              </AuthField>
-            )}
 
-            {/* Forgot password — sign in only */}
-            {!isSignUp && (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowRecovery(true)}
-                  className="font-mono text-[11px] tracking-[0.06em] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 hover:opacity-100"
-                >
-                  Forgot password?
-                </button>
-              </div>
-            )}
+
+            {/* Forgot password */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowRecovery(true)}
+                className="font-mono text-[11px] tracking-[0.06em] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 hover:opacity-100"
+              >
+                Forgot password?
+              </button>
+            </div>
 
             {/* Submit */}
             <Button
@@ -777,35 +516,16 @@ function LoginFormInner({
               {busy ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  {isSignUp ? "Creating account..." : "Signing in..."}
+                  Signing in...
                 </>
               ) : (
                 <>
-                  {isSignUp ? "Create Account" : "Sign In"}
+                  Sign In
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </>
               )}
             </Button>
 
-            {/* Sign-up agreement */}
-            {isSignUp && (
-              <p className="text-center text-[11px] leading-[1.6] text-[var(--text-muted)]">
-                By creating an account you agree to our{" "}
-                <a
-                  href="/terms"
-                  className="text-[var(--text-secondary)] underline decoration-[rgba(255,255,255,0.15)] underline-offset-2 transition-colors duration-200 hover:text-[var(--text-primary)]"
-                >
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href="/privacy"
-                  className="text-[var(--text-secondary)] underline decoration-[rgba(255,255,255,0.15)] underline-offset-2 transition-colors duration-200 hover:text-[var(--text-primary)]"
-                >
-                  Privacy Policy
-                </a>
-              </p>
-            )}
           </form>
 
           {/* ── Footer ── */}

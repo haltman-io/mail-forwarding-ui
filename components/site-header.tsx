@@ -170,6 +170,10 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const hostLabel = host ? host : "haltman.io";
   const BrandIcon = brandIcons[brandIconIndex] ?? brandIcons[0];
 
+  const isAllowedHost = React.useMemo(() => {
+    return host === "mail.thc.org" || host === "forward.haltman.io" || host.startsWith("localhost");
+  }, [host]);
+
   const navItemClass =
     "group ui-focus-ring inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-transparent px-2.5 py-1.5 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)] active:bg-[var(--active-state)]";
   const navIconClass = "text-[var(--text-secondary)] !opacity-100";
@@ -197,16 +201,14 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ${
-          isScrolled ? "pt-3 md:pt-4" : "pt-4 md:pt-6"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ${isScrolled ? "pt-3 md:pt-4" : "pt-4 md:pt-6"
+          }`}
       >
         <div
-          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 md:grid-cols-[1fr_auto_1fr] md:px-6 rounded-2xl transition-all duration-500 ${
-            isScrolled
+          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 md:grid-cols-[1fr_auto_1fr] md:px-6 rounded-2xl transition-all duration-500 ${isScrolled
               ? "bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-[24px] backdrop-saturate-[1.3] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.04)] py-2"
               : "bg-transparent border border-transparent py-0"
-          }`}
+            }`}
           role="banner"
         >
           {/* ── LEFT: Host identity ── */}
@@ -265,6 +267,13 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     open={openDesktopMenu === "docs"}
                     onOpenChange={handleDesktopMenuOpenChange("docs")}
                   />
+                  <Link href="/security" className={navItemClass}>
+                    <ShieldCheck className="h-4 w-4 text-[var(--text-secondary)]" />
+                    VDP
+                    <span className="ml-0.5 rounded bg-[rgba(48,209,88,0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
+                      New
+                    </span>
+                  </Link>
                 </>
               ) : null}
 
@@ -408,16 +417,23 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           Abuse
                           <MobileNavLinkIndicator />
                         </Link>
+                        <Link href="/security" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <Skull className={mobileNavL2IconClassName} />
+                          Security
+                          <MobileNavLinkIndicator />
+                        </Link>
                       </MobileNavSection>
 
                       <MobileNavSeparator />
 
                       {/* ── L1: Admin ── */}
-                      <Link href="/dashboard" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                        <Settings className={mobileNavItemIconClassName} />
-                        Admin
-                        <MobileNavLinkIndicator />
-                      </Link>
+                      {isAllowedHost && (
+                        <Link href="/dashboard" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                          <Settings className={mobileNavItemIconClassName} />
+                          Admin
+                          <MobileNavLinkIndicator />
+                        </Link>
+                      )}
                     </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -427,11 +443,11 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
 
           {/* ── RIGHT: Actions ── */}
           <div className="hidden min-w-0 shrink-0 items-center justify-self-end gap-2 md:flex">
-            {isMobileViewport === false ? (
+            {isMobileViewport === false && isAllowedHost ? (
               <>
                 <Link href="/dashboard" className={actionBtnClass}>
                   <User className="h-3.5 w-3.5 opacity-80" />
-                  Account
+                  Admin
                 </Link>
               </>
             ) : null}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Terminal } from "lucide-react";
+import { AlertTriangle, ShieldCheck } from "lucide-react";
 
 import { LoginForm } from "@/components/login-form";
 
@@ -23,71 +23,40 @@ export default function LoginPage() {
 
       <div className="relative flex min-h-[100svh] flex-col items-center justify-center px-4 py-16 sm:px-6">
 
-        {/* ── Mobile nav — simple links above the card ── */}
-        <div className="mb-6 flex w-full max-w-[400px] flex-col items-center gap-4 sm:hidden">
-          <p className="text-center text-[12px] leading-relaxed text-[var(--text-muted)]">
-            Don&apos;t need an account?{" "}
-            <span className="text-[var(--text-secondary)]">
-              Our console works without one.
-            </span>
+        {/* ── Restricted Area Alert ── */}
+        <div className="mb-20 flex w-full max-w-[400px] items-start gap-3 rounded-xl border border-[rgba(255,69,58,0.30)] bg-[rgba(255,69,58,0.10)] px-4 py-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF453A]" />
+          <p className="text-[13px] font-medium leading-[1.6] text-[#FF453A]">
+            This is a restricted area intended for application administrators.
           </p>
-
-          <div className="flex items-center justify-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] px-4 py-2 text-[13px] font-medium text-[var(--text-secondary)] transition-all duration-200 active:scale-[0.97] active:bg-[rgba(255,255,255,0.06)]"
-            >
-              <Home className="h-3.5 w-3.5" />
-              Homepage
-            </Link>
-            <Link
-              href="/console"
-              className="inline-flex items-center gap-2 rounded-xl border border-[rgba(48,209,88,0.15)] bg-[rgba(48,209,88,0.06)] px-4 py-2 text-[13px] font-medium text-[var(--neu-green)] transition-all duration-200 active:scale-[0.97] active:bg-[rgba(48,209,88,0.10)]"
-            >
-              <Terminal className="h-3.5 w-3.5" />
-              Console
-              <span className="rounded bg-[rgba(48,209,88,0.15)] px-1.5 py-0.5 text-[9px] font-semibold leading-none tracking-wide uppercase">
-                Free
-              </span>
-            </Link>
-          </div>
-
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.10)] to-transparent" />
-        </div>
-
-        {/* ── Desktop nav — simple links above the card (matches mobile style) ── */}
-        <div className="mb-6 hidden w-full max-w-[400px] flex-col items-center gap-4 sm:flex">
-          <p className="text-center text-[12px] leading-relaxed text-[var(--text-muted)]">
-            Don&apos;t need an account?{" "}
-            <span className="text-[var(--text-secondary)]">
-              Our console works without one.
-            </span>
-          </p>
-
-          <div className="flex items-center justify-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] px-4 py-2 text-[13px] font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[rgba(255,255,255,0.14)] hover:bg-[rgba(255,255,255,0.06)] active:scale-[0.97]"
-            >
-              <Home className="h-3.5 w-3.5" />
-              Homepage
-            </Link>
-            <Link
-              href="/console"
-              className="inline-flex items-center gap-2 rounded-xl border border-[rgba(48,209,88,0.15)] bg-[rgba(48,209,88,0.06)] px-4 py-2 text-[13px] font-medium text-[var(--neu-green)] transition-all duration-200 hover:border-[rgba(48,209,88,0.25)] hover:bg-[rgba(48,209,88,0.10)] active:scale-[0.97]"
-            >
-              <Terminal className="h-3.5 w-3.5" />
-              Console
-              <span className="rounded bg-[rgba(48,209,88,0.15)] px-1.5 py-0.5 text-[9px] font-semibold leading-none tracking-wide uppercase">
-                Free
-              </span>
-            </Link>
-          </div>
-
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.10)] to-transparent" />
         </div>
 
         <LoginForm className="w-full max-w-[400px]" />
+
+        {/* ── Hacker Invite Link (Button Style) ── */}
+        <style>{`
+          @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); opacity: 1; }
+          }
+        `}</style>
+        <Link
+          href="/security"
+          className="group mt-20 flex w-full max-w-[400px] items-center gap-2.5 rounded-xl border border-[rgba(48,209,88,0.25)] bg-[rgba(48,209,88,0.03)] px-4 py-3 shadow-[0_0_15px_rgba(48,209,88,0.05)] outline-none transition-all duration-300 hover:bg-[rgba(48,209,88,0.08)] focus-visible:bg-[rgba(48,209,88,0.1)]"
+        >
+          <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--neu-green)]" />
+          <span className="font-mono text-[11px] font-semibold tracking-[0.05em] text-[var(--neu-green)] uppercase">
+            New: Hackers Welcome
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <span
+              className="inline-block font-mono text-[14px] tracking-wider text-white opacity-90 transition-opacity"
+              style={{ animation: 'breathe 0.7s infinite ease-in-out' }}
+            >
+              CLICK ME
+            </span>
+          </div>
+        </Link>
       </div>
     </main>
   );

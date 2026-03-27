@@ -40,7 +40,7 @@ export function useAliasesController() {
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editorBusy, setEditorBusy] = React.useState(false);
   const [formId, setFormId] = React.useState<number | null>(null);
-  
+
   const [formHandle, setFormHandle] = React.useState("");
   const [formDomain, setFormDomain] = React.useState("");
   const [aliasDomains, setAliasDomains] = React.useState<string[]>([]);
@@ -107,23 +107,23 @@ export function useAliasesController() {
     return { handle: parts.slice(0, -1).join("@"), domain: parts[parts.length - 1] };
   }
 
-  function openCreate() { 
-    setFormId(null); 
-    setFormHandle(""); 
+  function openCreate() {
+    setFormId(null);
+    setFormHandle("");
     setFormDomain(aliasDomains[0] || "");
-    setFormGoto(""); 
-    setFormActive(true); 
-    setEditorOpen(true); 
+    setFormGoto("");
+    setFormActive(true);
+    setEditorOpen(true);
   }
-  
-  function openEdit(item: AdminAlias) { 
+
+  function openEdit(item: AdminAlias) {
     const { handle, domain } = getAddressParts(item.address);
-    setFormId(item.id); 
-    setFormHandle(handle); 
+    setFormId(item.id);
+    setFormHandle(handle);
     setFormDomain(domain);
-    setFormGoto(item.goto); 
-    setFormActive(isTrueValue(item.active)); 
-    setEditorOpen(true); 
+    setFormGoto(item.goto);
+    setFormActive(isTrueValue(item.active));
+    setEditorOpen(true);
   }
 
   async function submitEditor(e: React.FormEvent) {
@@ -132,7 +132,7 @@ export function useAliasesController() {
     const domain = formDomain.trim().toLowerCase();
     const address = `${handle}@${domain}`;
     const goto = formGoto.trim().toLowerCase();
-    
+
     if (!handle) { fail("Validation", "Alias handle is required."); return; }
     if (!domain) { fail("Validation", "Alias domain is required."); return; }
     if (!goto) { fail("Validation", "Destination is required."); return; }
@@ -164,7 +164,7 @@ export function useAliasesController() {
   return {
     list, activeFilter, setActiveFilter, search, setSearch,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
-    editorOpen, setEditorOpen, editorBusy, formId, 
+    editorOpen, setEditorOpen, editorBusy, formId,
     formHandle, setFormHandle,
     formDomain, setFormDomain,
     aliasDomains, aliasDomainsLoading,

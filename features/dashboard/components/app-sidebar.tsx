@@ -23,7 +23,6 @@ import {
   Shield,
   Sparkles,
   Users,
-  Rocket,
   Zap,
 } from "lucide-react"
 
@@ -39,10 +38,6 @@ import {
 /* ────────────────────────────────────────────────────────────
    Navigation data
    ──────────────────────────────────────────────────────────── */
-const mainItems = [
-  { name: "Get Started", url: "/dashboard/get-started", icon: Rocket },
-]
-
 const adminItems = [
   { name: "Domains", url: "/dashboard/admin/domains", icon: Globe2 },
   { name: "Aliases", url: "/dashboard/admin/aliases", icon: AtSign },
@@ -119,14 +114,14 @@ function NavItem({
         "relative flex items-center gap-3 rounded-[10px] px-3 py-2 text-[13px] transition-all duration-200",
         isActive
           ? [
-              "bg-[var(--glass-bg)] font-medium text-[var(--text-primary)]",
-              "shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_2px_6px_rgba(0,0,0,0.3)]",
-              "backdrop-blur-[12px]",
-            ]
+            "bg-[var(--glass-bg)] font-medium text-[var(--text-primary)]",
+            "shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_2px_6px_rgba(0,0,0,0.3)]",
+            "backdrop-blur-[12px]",
+          ]
           : [
-              "text-[var(--text-secondary)]",
-              "hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]",
-            ],
+            "text-[var(--text-secondary)]",
+            "hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]",
+          ],
       )}
     >
       {content}
@@ -280,39 +275,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
          Content
          ══════════════════════════════════════════════════════ */}
       <SidebarContent className="p-4 pt-5">
-        {/* ── Main section ── */}
-        <NavSection label="Main">
-          <div
-            className="rounded-2xl p-1.5"
-            style={{
-              background: "var(--neu-surface-lo)",
-              border: "1px solid rgba(255, 255, 255, 0.03)",
-              boxShadow: "var(--neu-shadow-in)",
-            }}
-          >
-            <nav className="flex flex-col gap-0.5" onClick={handleNav}>
-              {mainItems.map((item) => {
-                const isActive =
-                  pathname === item.url ||
-                  (pathname?.startsWith(item.url + "/") ?? false)
-                return (
-                  <NavItem
-                    key={item.name}
-                    href={item.url}
-                    icon={item.icon}
-                    label={item.name}
-                    isActive={isActive}
-                  />
-                )
-              })}
-            </nav>
-          </div>
-        </NavSection>
-
         {/* ── Administration section (admin only) ── */}
         {user?.is_admin && (
           <>
-            <div className="mt-3" />
             <NavSection label="Administration">
               <div
                 className="rounded-2xl p-1.5"

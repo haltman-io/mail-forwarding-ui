@@ -8,6 +8,7 @@ import {
   Info,
   ShieldAlert,
   ShieldCheck,
+  Skull,
 } from "lucide-react";
 
 import {
@@ -83,6 +84,12 @@ export function DocsMenu({
         <Link href="/abuse">
           <ShieldAlert className={navMenuItemIconClassName} />
           Abuse
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild className={navMenuItemClassName}>
+        <Link href="/security">
+          <Skull className={navMenuItemIconClassName} />
+          Security
         </Link>
       </DropdownMenuItem>
     </NavGroupMenu>

@@ -32,6 +32,15 @@ import {
   sanitizeOtpToken,
 } from "@/features/alias-console/utils/alias-console.utils";
 
+export const PINNED_DOMAINS = [
+  "reads.phrack.org",
+  "smokes.thc.org",
+  "free.team-teso.net",
+  "segfault.net",
+  "ghetto.eurocompton.net",
+  "lulz.antisec.net"
+];
+
 function toRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 }
@@ -103,12 +112,14 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
         const list = await loadAvailableDomains(DOMAINS_URL, process.env.NEXT_PUBLIC_DOMAINS ?? "");
         if (cancelled) return;
 
-        setDomains(list);
-        setDomain((current) => current || list[0] || "");
+        const apiDomains = list.filter((dom) => !PINNED_DOMAINS.includes(dom));
+        const combined = [...PINNED_DOMAINS, ...apiDomains];
+        setDomains(combined);
+        setDomain((current) => current || PINNED_DOMAINS[Math.floor(Math.random() * PINNED_DOMAINS.length)] || "");
       } catch {
         if (cancelled) return;
-        setDomains([]);
-        setDomain("");
+        setDomains(PINNED_DOMAINS);
+        setDomain((current) => current || PINNED_DOMAINS[Math.floor(Math.random() * PINNED_DOMAINS.length)] || "");
       }
     })();
 
