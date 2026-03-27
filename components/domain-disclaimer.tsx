@@ -78,7 +78,7 @@ export function DomainDisclaimer() {
               Looking for {hostSpec.appName} from {hostSpec.owner}?
             </h3>
             <p className="font-sans text-[13px] leading-relaxed text-[var(--text-secondary)]">
-              This domain is not owned by {hostSpec.owner} ({hostSpec.appName} owner), but we admire them. We found this domain available for registration and decided to integrate it into our mail forwarder so you can have a cool alias domain for free.
+              This domain is not owned by {hostSpec.owner} ({hostSpec.appName} owner), but we admire them. We found this domain available for registration and decided to integrate it into our mail forwarder so you can have a cool alias domain available for community usage.
             </p>
             <p className="font-sans text-xs text-[var(--text-muted)]">
               This is a non-profit, open-source project created and sustained by the community.
