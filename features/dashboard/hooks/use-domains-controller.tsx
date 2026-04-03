@@ -58,6 +58,9 @@ export function useDomainsController() {
   const [formName, setFormName] = React.useState("");
   const [formActive, setFormActive] = React.useState(true);
 
+  /* search */
+  const [search, setSearch] = React.useState("");
+
   /* delete dialog */
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; name: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
@@ -121,6 +124,43 @@ export function useDomainsController() {
   const refresh = () => void load(0);
   const rangeFrom = domains.total === 0 ? 0 : domains.offset + 1;
   const rangeTo = Math.min(domains.offset + domains.limit, domains.total);
+
+  /* ── derived ── */
+  const filteredItems = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return domains.items;
+    return domains.items.filter((d) => d.name.toLowerCase().includes(q));
+  }, [domains.items, search]);
+
+  const activeCount = domains.items.filter((d) => isTrueValue(d.active)).length;
+  const inactiveCount = domains.items.length - activeCount;
+
+  /* ── quick toggle ── */
+  async function toggleActive(item: AdminDomain) {
+    const newActive = !isTrueValue(item.active);
+    try {
+      const result = await updateDomain(item.id, { name: item.name, active: boolToApi(newActive) });
+
+      if (isUnauthorized(result)) {
+        toastFail("Unauthorized", "Session expired.");
+        return;
+      }
+
+      if (!result.ok) {
+        const err = describeError(result, "Toggle failed.");
+        toastFail(err.isRateLimited ? "Rate limited" : "Error", err.message);
+        return;
+      }
+
+      setDomains((s) => ({
+        ...s,
+        items: s.items.map((d) => (d.id === item.id ? { ...d, active: boolToApi(newActive) } : d)),
+      }));
+      toastOk(newActive ? "Domain activated" : "Domain deactivated", item.name);
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    }
+  }
 
   /* ── editor ── */
   function openCreate() {
@@ -208,10 +248,16 @@ export function useDomainsController() {
 
   return {
     domains,
+    filteredItems,
+    activeCount,
+    inactiveCount,
+    search,
+    setSearch,
     activeFilter,
     setActiveFilter,
     load,
     refresh,
+    toggleActive,
     canPrev,
     canNext,
     goNext,

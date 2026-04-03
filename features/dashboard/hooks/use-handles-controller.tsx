@@ -100,8 +100,35 @@ export function useHandlesController() {
     finally { setDeleteBusy(false); }
   }
 
+  /* ── derived ── */
+  const filteredItems = list.items;
+  const activeCount = list.items.filter((d) => isTrueValue(d.active)).length;
+  const inactiveCount = list.items.length - activeCount;
+
+  /* ── quick toggle ── */
+  async function toggleActive(item: AdminHandle) {
+    const newActive = !isTrueValue(item.active);
+    try {
+      const r = await updateHandle(item.id, {
+        handle: item.handle,
+        address: item.address,
+        active: boolToApi(newActive),
+      });
+      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
+      if (!r.ok) { const e = describeError(r, "Toggle failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
+      setList((s) => ({
+        ...s,
+        items: s.items.map((d) => (d.id === item.id ? { ...d, active: boolToApi(newActive) } : d)),
+      }));
+      ok(newActive ? "Handle activated" : "Handle deactivated", item.handle);
+    } catch (e) {
+      fail("Network error", e instanceof Error ? e.message : "Unknown error");
+    }
+  }
+
   return {
     list, activeFilter, setActiveFilter, search, setSearch,
+    filteredItems, activeCount, inactiveCount, toggleActive,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
     editorOpen, setEditorOpen, editorBusy, formId, formHandle, setFormHandle, formAddress, setFormAddress, formActive, setFormActive,
     openCreate, openEdit, submitEditor,

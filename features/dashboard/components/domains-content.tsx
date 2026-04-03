@@ -4,12 +4,16 @@ import * as React from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  Copy,
   Globe,
   Loader2,
   Pencil,
   Plus,
+  Power,
   RefreshCw,
+  Search,
   Trash2,
+  Zap,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +30,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -89,9 +94,71 @@ export function DomainsContent() {
           }
         />
 
+        {/* ── metric cards ── */}
+        {c.domains.loadedAt && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Total Domains
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                    {c.domains.total}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Globe className="h-4 w-4 text-[var(--neu-green)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Active
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400">
+                    {c.activeCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8">
+                  <Zap className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Inactive
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-secondary)]">
+                    {c.inactiveCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]">
+                  <Power className="h-4 w-4 text-[var(--text-muted)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+          </div>
+        )}
+
         {/* ── toolbar ── */}
         <AdminToolbar>
           <AdminToolbarLeft>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+              <Input
+                placeholder="Search domains..."
+                value={c.search}
+                onChange={(e) => c.setSearch(e.target.value)}
+                className="h-8 w-[180px] pl-8 text-xs"
+              />
+            </div>
             <Select
               value={c.activeFilter}
               onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}
@@ -126,12 +193,10 @@ export function DomainsContent() {
         {/* ── data surface ── */}
         <AdminDataCard>
           {c.domains.loading && c.domains.items.length === 0 ? (
-            /* loading state */
             <div className="flex min-h-[280px] items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : c.domains.items.length === 0 ? (
-            /* empty state */
             <EmptyState
               icon={<Globe className="h-5 w-5" />}
               title="No domains yet"
@@ -147,8 +212,14 @@ export function DomainsContent() {
                 </Button>
               }
             />
+          ) : c.filteredItems.length === 0 ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
+              <Search className="h-5 w-5 text-[var(--text-muted)]" />
+              <p className="text-[13px] text-[var(--text-muted)]">
+                No domains matching &ldquo;{c.search}&rdquo;
+              </p>
+            </div>
           ) : (
-            /* populated state */
             <>
               <Table>
                 <TableHeader>
@@ -162,13 +233,16 @@ export function DomainsContent() {
                     <TableHead className="w-24 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Status
                     </TableHead>
+                    <TableHead className="w-20 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Active
+                    </TableHead>
                     <TableHead className="w-20 pr-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {c.domains.items.map((item) => (
+                  {c.filteredItems.map((item) => (
                     <ContextMenu key={item.id}>
                       <ContextMenuTrigger asChild>
                         <TableRow className="group transition-colors hover:bg-[var(--hover-state)] cursor-context-menu">
@@ -180,12 +254,20 @@ export function DomainsContent() {
                           </TableCell>
                           <TableCell>
                             {c.isTrueValue(item.active) ? (
-                              <Badge variant="regular" color="emerald">
+                              <Badge variant="fancy" color="emerald">
                                 active
                               </Badge>
                             ) : (
-                              <Badge variant="outline">inactive</Badge>
+                              <Badge variant="fancy">inactive</Badge>
                             )}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Switch
+                              checked={c.isTrueValue(item.active)}
+                              onCheckedChange={() => c.toggleActive(item)}
+                              aria-label={`Toggle ${item.name} active`}
+                              className="mx-auto"
+                            />
                           </TableCell>
                           <TableCell className="pr-4 text-right">
                             <div className="flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
@@ -211,12 +293,29 @@ export function DomainsContent() {
                           </TableCell>
                         </TableRow>
                       </ContextMenuTrigger>
-                      <ContextMenuContent className="w-48">
+                      <ContextMenuContent className="w-52">
+                        <ContextMenuItem
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.name);
+                          }}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy domain
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem onClick={() => c.toggleActive(item)}>
+                          <Power className="mr-2 h-4 w-4" />
+                          {c.isTrueValue(item.active) ? "Deactivate" : "Activate"}
+                        </ContextMenuItem>
                         <ContextMenuItem onClick={() => c.openEdit(item)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </ContextMenuItem>
-                        <ContextMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => c.askDelete(item)}>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                          onClick={() => c.askDelete(item)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </ContextMenuItem>

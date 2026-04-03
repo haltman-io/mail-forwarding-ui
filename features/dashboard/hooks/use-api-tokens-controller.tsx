@@ -124,8 +124,21 @@ export function useApiTokensController() {
     finally { setDeleteBusy(false); }
   }
 
+  const filteredItems = list.items;
+
+  const activeCount = list.items.filter(
+    (item) => !item.revoked_at && (!item.expires_at || new Date(item.expires_at) > new Date()),
+  ).length;
+
+  const revokedCount = list.items.filter((item) => !!item.revoked_at).length;
+
+  const expiredCount = list.items.filter(
+    (item) => !item.revoked_at && item.expires_at && new Date(item.expires_at) <= new Date(),
+  ).length;
+
   return {
-    list, statusFilter, setStatusFilter, ownerSearch, setOwnerSearch,
+    list, filteredItems, activeCount, revokedCount, expiredCount,
+    statusFilter, setStatusFilter, ownerSearch, setOwnerSearch,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
     editorOpen, setEditorOpen, editorBusy, formId,
     formOwnerEmail, setFormOwnerEmail, formDays, setFormDays,

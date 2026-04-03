@@ -5,16 +5,19 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Loader2,
   MailWarning,
   Pencil,
   Plus,
+  Power,
   RefreshCw,
   Search,
   Shield,
   ShieldAlert,
   Trash2,
   Users,
+  Zap,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +34,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -93,6 +97,60 @@ export function UsersContent() {
           }
         />
 
+        {/* ── metric cards ── */}
+        {c.list.loadedAt && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Total Users
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                    {c.list.total}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Users className="h-4 w-4 text-[var(--neu-green)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Active
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400">
+                    {c.activeCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8">
+                  <Zap className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Admins
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-sky-400">
+                    {c.adminCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/8">
+                  <Shield className="h-4 w-4 text-sky-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+          </div>
+        )}
+
+        {/* ── toolbar ── */}
         <AdminToolbar>
           <AdminToolbarLeft>
             <div className="relative">
@@ -139,6 +197,13 @@ export function UsersContent() {
             <div className="flex min-h-[280px] items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
+          ) : c.list.items.length === 0 && c.search.trim() ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
+              <Search className="h-5 w-5 text-[var(--text-muted)]" />
+              <p className="text-[13px] text-[var(--text-muted)]">
+                No users matching &ldquo;{c.search}&rdquo;
+              </p>
+            </div>
           ) : c.list.items.length === 0 ? (
             <EmptyState
               icon={<Users className="h-5 w-5" />}
@@ -174,6 +239,9 @@ export function UsersContent() {
                     </TableHead>
                     <TableHead className="w-24 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Status
+                    </TableHead>
+                    <TableHead className="w-20 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Active
                     </TableHead>
                     <TableHead className="w-36 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Last Login
@@ -246,6 +314,15 @@ export function UsersContent() {
                                 </Badge>
                               )}
                             </TableCell>
+                            <TableCell className="text-center">
+                              <Switch
+                                checked={active}
+                                onCheckedChange={() => c.toggleActive(item)}
+                                disabled={isLastAdmin && active}
+                                aria-label={`Toggle ${item.username} active`}
+                                className="mx-auto"
+                              />
+                            </TableCell>
                             <TableCell className="whitespace-nowrap text-[13px] text-muted-foreground">
                               {safeDateLabel(item.last_login_at)}
                             </TableCell>
@@ -274,11 +351,28 @@ export function UsersContent() {
                             </TableCell>
                           </TableRow>
                         </ContextMenuTrigger>
-                        <ContextMenuContent className="w-48">
+                        <ContextMenuContent className="w-52">
+                          <ContextMenuItem
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.email);
+                            }}
+                          >
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy email
+                          </ContextMenuItem>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem
+                            disabled={isLastAdmin && active}
+                            onClick={() => c.toggleActive(item)}
+                          >
+                            <Power className="mr-2 h-4 w-4" />
+                            {active ? "Deactivate" : "Activate"}
+                          </ContextMenuItem>
                           <ContextMenuItem onClick={() => c.openEdit(item)}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </ContextMenuItem>
+                          <ContextMenuSeparator />
                           <ContextMenuItem
                             className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                             disabled={isLastAdmin}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  Ban, ChevronLeft, ChevronRight, Loader2, Pencil, Plus, RefreshCw, Trash2,
+  Ban, ChevronLeft, ChevronRight, Copy, Loader2, Pencil, Plus, Power, RefreshCw, Search, ShieldAlert, Trash2,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -64,8 +65,71 @@ export function BansContent() {
           }
         />
 
+        {/* ── metric cards ── */}
+        {c.list.loadedAt && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Total Bans
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                    {c.list.total}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Ban className="h-4 w-4 text-[var(--neu-green)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Active
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-amber-400">
+                    {c.activeCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/8">
+                  <ShieldAlert className="h-4 w-4 text-amber-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Revoked
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-secondary)]">
+                    {c.inactiveCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]">
+                  <Power className="h-4 w-4 text-[var(--text-muted)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+          </div>
+        )}
+
+        {/* ── toolbar ── */}
         <AdminToolbar>
           <AdminToolbarLeft>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+              <Input
+                placeholder="Search bans..."
+                value={c.search}
+                onChange={(e) => c.setSearch(e.target.value)}
+                className="h-8 w-[180px] pl-8 text-xs"
+              />
+            </div>
             <Select value={c.activeFilter} onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}>
               <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
@@ -84,7 +148,6 @@ export function BansContent() {
                 <SelectItem value="name">Name</SelectItem>
               </SelectContent>
             </Select>
-            <Input placeholder="Search value…" value={c.search} onChange={(e) => c.setSearch(e.target.value)} className="h-8 w-[160px] text-xs" />
           </AdminToolbarLeft>
           <AdminToolbarRight>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={c.refresh} disabled={c.list.loading} title="Refresh">
@@ -98,13 +161,20 @@ export function BansContent() {
             <div className="flex min-h-[280px] items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : c.list.items.length === 0 ? (
+          ) : c.list.items.length === 0 && !c.search.trim() ? (
             <EmptyState
               icon={<Ban className="h-5 w-5" />}
               title="No bans yet"
               description="Add a ban to block an email, domain, IP, or name."
               action={<Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}><Plus className="h-3.5 w-3.5" />Add Ban</Button>}
             />
+          ) : c.list.items.length === 0 ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
+              <Search className="h-5 w-5 text-[var(--text-muted)]" />
+              <p className="text-[13px] text-[var(--text-muted)]">
+                No bans matching &ldquo;{c.search}&rdquo;
+              </p>
+            </div>
           ) : (
             <>
               <Table>
@@ -126,14 +196,14 @@ export function BansContent() {
                         <TableRow className="group transition-colors hover:bg-[var(--hover-state)] cursor-context-menu">
                           <TableCell className="pl-4 font-mono text-xs tabular-nums text-muted-foreground">{item.id}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className="text-[11px]">{BAN_TYPE_LABELS[item.ban_type] ?? item.ban_type}</Badge>
+                            <Badge variant="fancy" color="sky" className="text-[11px]">{BAN_TYPE_LABELS[item.ban_type] ?? item.ban_type}</Badge>
                           </TableCell>
                           <TableCell className="font-mono text-[13px]">{item.ban_value}</TableCell>
                           <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">{item.reason || "—"}</TableCell>
                           <TableCell>
                             {item.revoked_at
-                              ? <Badge variant="outline">revoked</Badge>
-                              : <Badge variant="regular" color="red">active</Badge>}
+                              ? <Badge variant="fancy">revoked</Badge>
+                              : <Badge variant="fancy" color="red">active</Badge>}
                           </TableCell>
                           <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">{safeDateLabel(item.expires_at)}</TableCell>
                           <TableCell className="pr-4 text-right">
@@ -144,12 +214,25 @@ export function BansContent() {
                           </TableCell>
                         </TableRow>
                       </ContextMenuTrigger>
-                      <ContextMenuContent className="w-48">
+                      <ContextMenuContent className="w-52">
+                        <ContextMenuItem
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.ban_value);
+                          }}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy value
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
                         <ContextMenuItem onClick={() => c.openEdit(item)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </ContextMenuItem>
-                        <ContextMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => c.askDelete(item)}>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                          onClick={() => c.askDelete(item)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </ContextMenuItem>

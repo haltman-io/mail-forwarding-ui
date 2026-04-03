@@ -295,11 +295,11 @@ export function PreviewContent() {
                     </TableCell>
                     <TableCell>
                       {u.status === "active" ? (
-                        <Badge variant="regular" color="emerald">active</Badge>
+                        <Badge variant="fancy" color="emerald">active</Badge>
                       ) : u.status === "suspended" ? (
-                        <Badge variant="regular" color="red">suspended</Badge>
+                        <Badge variant="fancy" color="red">suspended</Badge>
                       ) : (
-                        <Badge variant="outline">inactive</Badge>
+                        <Badge variant="fancy">inactive</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-xs text-[var(--text-muted)]">{u.lastSeen}</TableCell>
@@ -381,9 +381,9 @@ export function PreviewContent() {
                 >
                   <span className="font-mono text-[11px] tabular-nums text-[var(--text-muted)]">{log.ts}</span>
                   <span>
-                    {log.level === "info" && <Badge variant="regular" color="sky">info</Badge>}
-                    {log.level === "warn" && <Badge variant="regular" color="amber">warn</Badge>}
-                    {log.level === "error" && <Badge variant="regular" color="red">error</Badge>}
+                    {log.level === "info" && <Badge variant="fancy" color="sky">info</Badge>}
+                    {log.level === "warn" && <Badge variant="fancy" color="amber">warn</Badge>}
+                    {log.level === "error" && <Badge variant="fancy" color="red">error</Badge>}
                   </span>
                   <span className="font-mono text-[11px] text-[var(--text-secondary)]">{log.service}</span>
                   <span className="truncate text-[12px] text-[var(--text-primary)]">{log.message}</span>

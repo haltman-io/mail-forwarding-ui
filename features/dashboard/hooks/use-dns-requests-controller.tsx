@@ -27,6 +27,17 @@ export function useDnsRequestsController() {
   const [list, setList] = React.useState<ListState<AdminDnsRequest>>(mk);
   const [typeFilter, setTypeFilter] = React.useState("all");
   const [statusFilter, setStatusFilter] = React.useState("all");
+  const [search, setSearch] = React.useState("");
+
+  const filteredItems = React.useMemo(() => {
+    if (!search.trim()) return list.items;
+    const q = search.trim().toLowerCase();
+    return list.items.filter((item) => item.target.toLowerCase().includes(q));
+  }, [list.items, search]);
+
+  const verifiedCount = React.useMemo(() => list.items.filter((i) => i.status === "VERIFIED").length, [list.items]);
+  const pendingCount = React.useMemo(() => list.items.filter((i) => i.status === "PENDING").length, [list.items]);
+  const failedCount = React.useMemo(() => list.items.filter((i) => i.status === "FAILED").length, [list.items]);
 
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editorBusy, setEditorBusy] = React.useState(false);
@@ -132,7 +143,9 @@ export function useDnsRequestsController() {
   }
 
   return {
-    list, typeFilter, setTypeFilter, statusFilter, setStatusFilter,
+    list, filteredItems, search, setSearch,
+    verifiedCount, pendingCount, failedCount,
+    typeFilter, setTypeFilter, statusFilter, setStatusFilter,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
     editorOpen, setEditorOpen, editorBusy, formId,
     formTarget, setFormTarget, formType, setFormType,

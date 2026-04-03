@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  ChevronLeft, ChevronRight, Loader2, Mail, Pencil, Plus, RefreshCw, Trash2,
+  ChevronLeft, ChevronRight, Copy, Hash, Loader2, Mail, Pencil, Plus, Power, RefreshCw, Search, Trash2, Zap,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -56,8 +57,71 @@ export function HandlesContent() {
           }
         />
 
+        {/* ── metric cards ── */}
+        {c.list.loadedAt && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Total Handles
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                    {c.list.total}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Hash className="h-4 w-4 text-[var(--neu-green)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Active
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400">
+                    {c.activeCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8">
+                  <Zap className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Inactive
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-secondary)]">
+                    {c.inactiveCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]">
+                  <Power className="h-4 w-4 text-[var(--text-muted)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+          </div>
+        )}
+
+        {/* ── toolbar ── */}
         <AdminToolbar>
           <AdminToolbarLeft>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+              <Input
+                placeholder="Search handles..."
+                value={c.search}
+                onChange={(e) => c.setSearch(e.target.value)}
+                className="h-8 w-[180px] pl-8 text-xs"
+              />
+            </div>
             <Select value={c.activeFilter} onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}>
               <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Filter" /></SelectTrigger>
               <SelectContent>
@@ -66,7 +130,6 @@ export function HandlesContent() {
                 <SelectItem value="0">Inactive only</SelectItem>
               </SelectContent>
             </Select>
-            <Input placeholder="Search handle…" value={c.search} onChange={(e) => c.setSearch(e.target.value)} className="h-8 w-[180px] text-xs" />
           </AdminToolbarLeft>
           <AdminToolbarRight>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={c.refresh} disabled={c.list.loading} title="Refresh">
@@ -75,6 +138,7 @@ export function HandlesContent() {
           </AdminToolbarRight>
         </AdminToolbar>
 
+        {/* ── data surface ── */}
         <AdminDataCard>
           {c.list.loading && c.list.items.length === 0 ? (
             <div className="flex min-h-[280px] items-center justify-center">
@@ -85,47 +149,131 @@ export function HandlesContent() {
               icon={<Mail className="h-5 w-5" />}
               title="No handles yet"
               description="Create your first handle to map a short name to an address."
-              action={<Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}><Plus className="h-3.5 w-3.5" />Add Handle</Button>}
+              action={
+                <Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}>
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Handle
+                </Button>
+              }
             />
+          ) : c.filteredItems.length === 0 ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
+              <Search className="h-5 w-5 text-[var(--text-muted)]" />
+              <p className="text-[13px] text-[var(--text-muted)]">
+                No handles matching &ldquo;{c.search}&rdquo;
+              </p>
+            </div>
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-16 pl-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">ID</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Handle</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Address</TableHead>
-                    <TableHead className="w-24 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</TableHead>
-                    <TableHead className="w-20 pr-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</TableHead>
+                    <TableHead className="w-16 pl-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      ID
+                    </TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Handle
+                    </TableHead>
+                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Address
+                    </TableHead>
+                    <TableHead className="w-24 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Status
+                    </TableHead>
+                    <TableHead className="w-20 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Active
+                    </TableHead>
+                    <TableHead className="w-20 pr-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {c.list.items.map((item) => (
+                  {c.filteredItems.map((item) => (
                     <ContextMenu key={item.id}>
                       <ContextMenuTrigger asChild>
                         <TableRow className="group transition-colors hover:bg-[var(--hover-state)] cursor-context-menu">
-                          <TableCell className="pl-4 font-mono text-xs tabular-nums text-muted-foreground">{item.id}</TableCell>
-                          <TableCell className="font-mono text-[13px]">{item.handle}</TableCell>
-                          <TableCell className="font-mono text-[13px] text-muted-foreground">{item.address}</TableCell>
+                          <TableCell className="pl-4 font-mono text-xs tabular-nums text-muted-foreground">
+                            {item.id}
+                          </TableCell>
+                          <TableCell className="font-mono text-[13px]">
+                            {item.handle}
+                          </TableCell>
+                          <TableCell className="font-mono text-[13px] text-muted-foreground">
+                            {item.address}
+                          </TableCell>
                           <TableCell>
-                            {c.isTrueValue(item.active)
-                              ? <Badge variant="regular" color="emerald">active</Badge>
-                              : <Badge variant="outline">inactive</Badge>}
+                            {c.isTrueValue(item.active) ? (
+                              <Badge variant="fancy" color="emerald">
+                                active
+                              </Badge>
+                            ) : (
+                              <Badge variant="fancy">inactive</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Switch
+                              checked={c.isTrueValue(item.active)}
+                              onCheckedChange={() => c.toggleActive(item)}
+                              aria-label={`Toggle ${item.handle} active`}
+                              className="mx-auto"
+                            />
                           </TableCell>
                           <TableCell className="pr-4 text-right">
                             <div className="flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => c.openEdit(item)} title="Edit"><Pencil className="h-3 w-3" /></Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => c.askDelete(item)} title="Delete"><Trash2 className="h-3 w-3" /></Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => c.openEdit(item)}
+                                title="Edit"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={() => c.askDelete(item)}
+                                title="Delete"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
                       </ContextMenuTrigger>
-                      <ContextMenuContent className="w-48">
+                      <ContextMenuContent className="w-52">
+                        <ContextMenuItem
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.handle);
+                          }}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy handle
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.address);
+                          }}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy address
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem onClick={() => c.toggleActive(item)}>
+                          <Power className="mr-2 h-4 w-4" />
+                          {c.isTrueValue(item.active) ? "Deactivate" : "Activate"}
+                        </ContextMenuItem>
                         <ContextMenuItem onClick={() => c.openEdit(item)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </ContextMenuItem>
-                        <ContextMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => c.askDelete(item)}>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                          onClick={() => c.askDelete(item)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </ContextMenuItem>
@@ -134,11 +282,31 @@ export function HandlesContent() {
                   ))}
                 </TableBody>
               </Table>
+
+              {/* ── pagination ── */}
               <div className="flex items-center justify-between border-t border-[var(--hairline-border)] px-4 py-3">
-                <span className="text-xs tabular-nums text-muted-foreground">{c.rangeFrom}–{c.rangeTo} of {c.list.total}</span>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  {c.rangeFrom}–{c.rangeTo} of {c.list.total}
+                </span>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={c.goPrev} disabled={!c.canPrev || c.list.loading}><ChevronLeft className="h-3.5 w-3.5" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={c.goNext} disabled={!c.canNext || c.list.loading}><ChevronRight className="h-3.5 w-3.5" /></Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={c.goPrev}
+                    disabled={!c.canPrev || c.list.loading}
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={c.goNext}
+                    disabled={!c.canNext || c.list.loading}
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </div>
             </>

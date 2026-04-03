@@ -2,8 +2,12 @@
 
 import * as React from "react";
 import {
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Copy,
+  Globe,
   Loader2,
   Pencil,
   Plus,
@@ -11,6 +15,7 @@ import {
   RefreshCw,
   Search,
   Trash2,
+  XCircle,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +32,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -93,8 +99,87 @@ export function DnsRequestsContent() {
           }
         />
 
+        {/* ── metric cards ── */}
+        {c.list.loadedAt && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Total
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                    {c.list.total}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Globe className="h-4 w-4 text-[var(--neu-green)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Verified
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400">
+                    {c.verifiedCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Pending
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-amber-400">
+                    {c.pendingCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/8">
+                  <Clock className="h-4 w-4 text-amber-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Failed
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-red-400">
+                    {c.failedCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/8">
+                  <XCircle className="h-4 w-4 text-red-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+          </div>
+        )}
+
+        {/* ── toolbar ── */}
         <AdminToolbar>
           <AdminToolbarLeft>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+              <Input
+                placeholder="Search domains..."
+                value={c.search}
+                onChange={(e) => c.setSearch(e.target.value)}
+                className="h-8 w-[180px] pl-8 text-xs"
+              />
+            </div>
             <Select value={c.typeFilter} onValueChange={c.setTypeFilter}>
               <SelectTrigger className="h-8 w-[120px] text-xs">
                 <SelectValue placeholder="Type" />
@@ -154,6 +239,13 @@ export function DnsRequestsContent() {
                 </Button>
               }
             />
+          ) : c.filteredItems.length === 0 ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
+              <Search className="h-5 w-5 text-[var(--text-muted)]" />
+              <p className="text-[13px] text-[var(--text-muted)]">
+                No DNS requests matching &ldquo;{c.search}&rdquo;
+              </p>
+            </div>
           ) : (
             <>
               <Table>
@@ -183,7 +275,7 @@ export function DnsRequestsContent() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {c.list.items.map((item) => (
+                  {c.filteredItems.map((item) => (
                     <ContextMenu key={item.id}>
                       <ContextMenuTrigger asChild>
                         <TableRow className="group cursor-context-menu transition-colors hover:bg-[var(--hover-state)]">
@@ -239,11 +331,21 @@ export function DnsRequestsContent() {
                           </TableCell>
                         </TableRow>
                       </ContextMenuTrigger>
-                      <ContextMenuContent className="w-48">
+                      <ContextMenuContent className="w-52">
+                        <ContextMenuItem
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.target);
+                          }}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy target domain
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
                         <ContextMenuItem onClick={() => c.openEdit(item)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </ContextMenuItem>
+                        <ContextMenuSeparator />
                         <ContextMenuItem
                           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                           onClick={() => c.askDelete(item)}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  ChevronLeft, ChevronRight, Copy, KeyRound, Loader2, Pencil, Plus, RefreshCw, Trash2,
+  ChevronLeft, ChevronRight, Copy, Key, KeyRound, Loader2, Pencil, Plus, Power, RefreshCw, Search, Trash2, Zap,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -53,9 +54,9 @@ function tokenStatus(item: { revoked_at?: string | null; expires_at?: string | n
 }
 
 const STATUS_BADGE: Record<string, React.ReactNode> = {
-  active: <Badge variant="regular" color="emerald">active</Badge>,
-  revoked: <Badge variant="outline">revoked</Badge>,
-  expired: <Badge variant="outline" className="border-amber-400/40 text-amber-500">expired</Badge>,
+  active: <Badge variant="fancy" color="emerald">active</Badge>,
+  revoked: <Badge variant="fancy">revoked</Badge>,
+  expired: <Badge variant="fancy" color="amber">expired</Badge>,
 };
 
 export function ApiTokensContent() {
@@ -85,8 +86,70 @@ export function ApiTokensContent() {
           }
         />
 
+        {/* metric cards */}
+        {c.list.loadedAt && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Total Tokens
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                    {c.list.total}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Key className="h-4 w-4 text-[var(--neu-green)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Active
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-emerald-400">
+                    {c.activeCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8">
+                  <Zap className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+            </AdminDataCard>
+
+            <AdminDataCard className="p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    Revoked
+                  </p>
+                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-secondary)]">
+                    {c.revokedCount}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]">
+                  <Power className="h-4 w-4 text-[var(--text-muted)]" />
+                </div>
+              </div>
+            </AdminDataCard>
+          </div>
+        )}
+
         <AdminToolbar>
           <AdminToolbarLeft>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+              <Input
+                placeholder="Search by owner..."
+                value={c.ownerSearch}
+                onChange={(e) => c.setOwnerSearch(e.target.value)}
+                className="h-8 w-[180px] pl-8 text-xs"
+              />
+            </div>
             <Select value={c.statusFilter} onValueChange={(v) => c.setStatusFilter(v as TokenStatusFilter)}>
               <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
@@ -96,7 +159,6 @@ export function ApiTokensContent() {
                 <SelectItem value="expired">Expired</SelectItem>
               </SelectContent>
             </Select>
-            <Input placeholder="Search owner…" value={c.ownerSearch} onChange={(e) => c.setOwnerSearch(e.target.value)} className="h-8 w-[180px] text-xs" />
           </AdminToolbarLeft>
           <AdminToolbarRight>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={c.refresh} disabled={c.list.loading} title="Refresh">
@@ -132,6 +194,13 @@ export function ApiTokensContent() {
               description="Create a bearer token for programmatic access."
               action={<Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}><Plus className="h-3.5 w-3.5" />Create Token</Button>}
             />
+          ) : c.filteredItems.length === 0 ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
+              <Search className="h-5 w-5 text-[var(--text-muted)]" />
+              <p className="text-[13px] text-[var(--text-muted)]">
+                No tokens matching &ldquo;{c.ownerSearch}&rdquo;
+              </p>
+            </div>
           ) : (
             <>
               <Table>
@@ -146,7 +215,7 @@ export function ApiTokensContent() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {c.list.items.map((item) => {
+                  {c.filteredItems.map((item) => {
                     const s = tokenStatus(item);
                     return (
                       <ContextMenu key={item.id}>
@@ -165,11 +234,23 @@ export function ApiTokensContent() {
                             </TableCell>
                           </TableRow>
                         </ContextMenuTrigger>
-                        <ContextMenuContent className="w-48">
+                        <ContextMenuContent className="w-52">
+                          <ContextMenuItem onClick={() => { navigator.clipboard.writeText(item.owner_email); }}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy owner email
+                          </ContextMenuItem>
+                          <ContextMenuSeparator />
                           <ContextMenuItem onClick={() => c.openEdit(item)}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </ContextMenuItem>
+                          {!item.revoked_at && (
+                            <ContextMenuItem onClick={() => { c.openEdit(item); /* pre-set revoked in edit dialog */ }}>
+                              <Power className="mr-2 h-4 w-4" />
+                              Revoke
+                            </ContextMenuItem>
+                          )}
+                          <ContextMenuSeparator />
                           <ContextMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => c.askDelete(item)}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete

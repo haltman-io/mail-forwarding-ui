@@ -43,15 +43,75 @@ export function useUsersController() {
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; label: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
 
+  /* ── derived ── */
+  const filteredItems = list.items;
+  const activeCount = React.useMemo(() => list.items.reduce((n, u) => n + (isTrueValue(u.is_active) ? 1 : 0), 0), [list.items]);
+  const inactiveCount = list.items.length - activeCount;
+  const adminCount = React.useMemo(() => list.items.reduce((n, u) => n + (u.is_admin === true ? 1 : 0), 0), [list.items]);
+
   /* lockout protection */
   const hasCompleteSnapshot = activeFilter === "all" && list.offset === 0 && list.total <= list.limit;
-  const activeCount = React.useMemo(() => list.items.reduce((n, u) => n + (isTrueValue(u.is_active) ? 1 : 0), 0), [list.items]);
   const isSingleActive = hasCompleteSnapshot && activeCount === 1;
   const isSoleActiveById = React.useCallback((id: number) => {
     if (!isSingleActive) return false;
     const u = list.items.find((i) => i.id === id);
     return Boolean(u && isTrueValue(u.is_active));
   }, [isSingleActive, list.items]);
+
+  /* ── quick toggle ── */
+  async function toggleActive(item: AdminUser) {
+    const currentlyActive = isTrueValue(item.is_active);
+    if (currentlyActive && isSoleActiveById(item.id)) {
+      fail("Lockout protection", "Cannot disable the last active admin user.");
+      return;
+    }
+    const newActive = !currentlyActive;
+
+    // Optimistic update
+    setList((s) => ({
+      ...s,
+      items: s.items.map((u) => (u.id === item.id ? { ...u, is_active: boolToApi(newActive) } : u)),
+    }));
+
+    try {
+      const r = await updateUser(item.id, {
+        username: item.username,
+        email: item.email,
+        is_active: boolToApi(newActive),
+        is_admin: item.is_admin,
+      });
+
+      if (isUnauthorized(r)) {
+        // Revert
+        setList((s) => ({
+          ...s,
+          items: s.items.map((u) => (u.id === item.id ? { ...u, is_active: boolToApi(currentlyActive) } : u)),
+        }));
+        fail("Unauthorized", "Session expired.");
+        return;
+      }
+
+      if (!r.ok) {
+        // Revert
+        setList((s) => ({
+          ...s,
+          items: s.items.map((u) => (u.id === item.id ? { ...u, is_active: boolToApi(currentlyActive) } : u)),
+        }));
+        const err = describeError(r, "Toggle failed.");
+        fail(err.isRateLimited ? "Rate limited" : "Error", err.message);
+        return;
+      }
+
+      ok(newActive ? "User activated" : "User deactivated", item.username || item.email);
+    } catch (e) {
+      // Revert
+      setList((s) => ({
+        ...s,
+        items: s.items.map((u) => (u.id === item.id ? { ...u, is_active: boolToApi(currentlyActive) } : u)),
+      }));
+      fail("Network error", e instanceof Error ? e.message : "Unknown error");
+    }
+  }
 
   const load = React.useCallback(async (offset = 0) => {
     setList((s) => ({ ...s, loading: true, error: null }));
@@ -145,8 +205,10 @@ export function useUsersController() {
   }
 
   return {
-    list, activeFilter, setActiveFilter, search, setSearch,
+    list, filteredItems, activeCount, inactiveCount, adminCount,
+    activeFilter, setActiveFilter, search, setSearch,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
+    toggleActive,
     editorOpen, setEditorOpen, editorBusy, formId,
     formUsername, setFormUsername,
     formEmail, setFormEmail, formPassword, setFormPassword,

@@ -161,9 +161,48 @@ export function useAliasesController() {
     finally { setDeleteBusy(false); }
   }
 
+  /* ── derived ── */
+  const filteredItems = list.items;
+  const activeCount = list.items.filter((a) => isTrueValue(a.active)).length;
+  const inactiveCount = list.items.length - activeCount;
+
+  /* ── quick toggle ── */
+  async function toggleActive(item: AdminAlias) {
+    const newActive = !isTrueValue(item.active);
+    // optimistic update
+    setList((s) => ({
+      ...s,
+      items: s.items.map((a) => (a.id === item.id ? { ...a, active: boolToApi(newActive) } : a)),
+    }));
+    try {
+      const r = await updateAlias(item.id, { address: item.address, goto: item.goto, active: boolToApi(newActive) });
+      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
+      if (!r.ok) {
+        // revert optimistic update
+        setList((s) => ({
+          ...s,
+          items: s.items.map((a) => (a.id === item.id ? { ...a, active: boolToApi(!newActive) } : a)),
+        }));
+        const e = describeError(r, "Toggle failed.");
+        fail(e.isRateLimited ? "Rate limited" : "Error", e.message);
+        return;
+      }
+      ok(newActive ? "Alias activated" : "Alias deactivated", item.address);
+    } catch (e) {
+      // revert optimistic update
+      setList((s) => ({
+        ...s,
+        items: s.items.map((a) => (a.id === item.id ? { ...a, active: boolToApi(!newActive) } : a)),
+      }));
+      fail("Network error", e instanceof Error ? e.message : "Unknown error");
+    }
+  }
+
   return {
-    list, activeFilter, setActiveFilter, search, setSearch,
+    list, filteredItems, activeCount, inactiveCount,
+    activeFilter, setActiveFilter, search, setSearch,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
+    toggleActive,
     editorOpen, setEditorOpen, editorBusy, formId,
     formHandle, setFormHandle,
     formDomain, setFormDomain,

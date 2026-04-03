@@ -120,9 +120,30 @@ export function useBansController() {
     finally { setDeleteBusy(false); }
   }
 
+  const filteredItems = list.items;
+
+  const activeCount = React.useMemo(
+    () => list.items.filter((item) => !item.revoked_at).length,
+    [list.items],
+  );
+  const inactiveCount = React.useMemo(
+    () => list.items.filter((item) => !!item.revoked_at).length,
+    [list.items],
+  );
+
+  const typeCounts = React.useMemo(() => {
+    const counts: Record<string, number> = { email: 0, domain: 0, ip: 0, name: 0 };
+    for (const item of list.items) {
+      const t = item.ban_type;
+      if (t in counts) counts[t]++;
+    }
+    return counts;
+  }, [list.items]);
+
   return {
     list, activeFilter, setActiveFilter, typeFilter, setTypeFilter, search, setSearch,
     refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
+    filteredItems, activeCount, inactiveCount, typeCounts,
     editorOpen, setEditorOpen, editorBusy, formId,
     formType, setFormType, formValue, setFormValue, formReason, setFormReason,
     formExpiresAt, setFormExpiresAt, formRevoked, setFormRevoked, formRevokedReason, setFormRevokedReason,
