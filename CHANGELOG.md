@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.2.0...v1.3.0) (2026-04-03)
+
+
+### Features
+
+* add DomainDisclaimer component to display domain-related information ([e0e82e6](https://github.com/haltman-io/mail-forwarding-ui/commit/e0e82e67e3dfb540d4ef53d11e709d73c283c546))
+* add interactive visual components including LetterGlitch, Noise, and Particles ([07e0666](https://github.com/haltman-io/mail-forwarding-ui/commit/07e0666c867d0f4459696642c8a376370b50609f))
+* add security page and update site header for new navigation links ([0ad327d](https://github.com/haltman-io/mail-forwarding-ui/commit/0ad327dfb4f556e79a3fa1b04cc1870213b76ff3))
+* enhance alias console with improved curl command handling and UI updates ([30c83c0](https://github.com/haltman-io/mail-forwarding-ui/commit/30c83c03b064f6c801fa6078024b261e4e559c40))
+* implement onboarding tour for Alias Console with guided steps ([2ddc958](https://github.com/haltman-io/mail-forwarding-ui/commit/2ddc958ebb5cde848e078e1489fda03353542197))
+
+
+### Bug Fixes
+
+* update disclaimer text for clarity on domain usage ([ecca95c](https://github.com/haltman-io/mail-forwarding-ui/commit/ecca95ccaf5db2815861da187beadbaa1331f428))
+
 ## [1.2.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.1.0...v1.2.0) (2026-03-26)
 
 
