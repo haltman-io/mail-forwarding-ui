@@ -8,6 +8,7 @@ import { badgeClasses } from "@/lib/utils-mail";
 
 import { ConfirmCodeDialog } from "@/features/alias-console/components/confirm-code-dialog";
 import { CurlTabPanel } from "@/features/alias-console/components/curl-tab-panel";
+import { SuccessDialog } from "@/features/alias-console/components/success-dialog";
 import { SubscribeTabPanel } from "@/features/alias-console/components/subscribe-tab-panel";
 import { UnsubscribeTabPanel } from "@/features/alias-console/components/unsubscribe-tab-panel";
 import { useAliasConsoleController } from "@/features/alias-console/hooks/use-alias-console-controller";
@@ -46,6 +47,15 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
 
   return (
     <Card className="alias-console-surface neu-accent-bar relative overflow-hidden -mx-4 rounded-none border-x-0 sm:mx-0 sm:rounded-2xl sm:border-x">
+      <SuccessDialog
+        open={controller.successDialogOpen}
+        onOpenChange={controller.onSuccessDialogOpenChange}
+        intent={controller.lastIntent}
+        mapping={controller.confirmedMapping}
+        copiedId={controller.copiedId}
+        onCopyAlias={controller.copySuccessAlias}
+      />
+
       <ConfirmCodeDialog
         open={controller.confirmDialogOpen}
         closeGuardOpen={controller.confirmCloseOpen}

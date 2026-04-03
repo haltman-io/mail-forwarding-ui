@@ -89,6 +89,7 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
   const [confirmIntent, setConfirmIntent] = React.useState<Intent | null>(null);
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [confirmErrorText, setConfirmErrorText] = React.useState<string | null>(null);
+  const [successDialogOpen, setSuccessDialogOpen] = React.useState(false);
   const confirmCloseBypass = React.useRef(false);
   const autoConfirmAttemptRef = React.useRef<string | null>(null);
 
@@ -431,16 +432,7 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
         if (mapping) setConfirmedMapping(mapping);
         setRequestStateTransient("success");
 
-        const title = created || intent !== "unsubscribe" ? "Alias confirmed" : "Removal confirmed";
-        const description =
-          created || intent !== "unsubscribe"
-            ? mapping?.alias && mapping?.to
-              ? `${mapping.alias} → ${mapping.to}`
-              : address
-                ? `${address} → ${to.trim() || "destination"}`
-                : "Alias confirmed."
-            : "Alias removal confirmed successfully.";
-        toastSuccess(title, description);
+        setTimeout(() => setSuccessDialogOpen(true), 180);
         return;
       }
 
@@ -513,6 +505,11 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     copyWithFeedback("curl-unsubscribe-tab", curlUnsubscribe, "Unsubscribe command");
   }, [canCopyUnsubscribeCurl, copyWithFeedback, curlUnsubscribe]);
 
+  const copySuccessAlias = React.useCallback(() => {
+    if (!confirmedMapping?.alias) return;
+    copyWithFeedback("success-dialog-alias", confirmedMapping.alias, "Alias email");
+  }, [confirmedMapping, copyWithFeedback]);
+
   return {
     activeTab,
     alias,
@@ -526,6 +523,7 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     confirmLoading,
     confirmedMapping,
     copiedId,
+    copySuccessAlias,
     curlSubscribe,
     curlUnsubscribe,
     customAddress,
@@ -537,8 +535,10 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     name,
     requestBusy,
     showConfirmedPanel,
+    lastIntent,
     statusKind,
     statusPillText,
+    successDialogOpen,
     subscribeActionState,
     subscribeAliasReady,
     subscribeAwaiting,
@@ -552,6 +552,7 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     unsubscribeButtonBusy,
     previewAlias,
 
+    onSuccessDialogOpenChange: setSuccessDialogOpen,
     onAliasChange: setAlias,
     onConfirmCodeChange,
     onConfirmCodeSubmit,

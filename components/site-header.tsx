@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import {
   Github,
@@ -111,6 +112,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [openDesktopMenu, setOpenDesktopMenu] = React.useState<string | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   React.useEffect(() => {
     setHost(window.location.host);
@@ -152,6 +154,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
     if (brandIcons.length < 2) return;
 
     setBrandIconIndex(Math.floor(Math.random() * brandIcons.length));
+    setBrandIconSwapKey((current) => current + 1);
 
     const interval = window.setInterval(() => {
       setBrandIconIndex((current) => {
@@ -169,6 +172,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
 
   const hostLabel = host ? host : "haltman.io";
   const BrandIcon = brandIcons[brandIconIndex] ?? brandIcons[0];
+  const reduceHostIconMotion = prefersReducedMotion === true;
 
   const isAllowedHost = React.useMemo(() => {
     return host === "mail.thc.org" || host === "forward.haltman.io" || host.startsWith("localhost");
@@ -218,10 +222,61 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
               className="group inline-flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-200 hover:bg-[var(--hover-state)]"
               aria-label="Home"
             >
-              <span key={brandIconSwapKey} className="relative inline-flex shrink-0">
-                <BrandIcon className="h-[18px] w-[18px] md:h-5 md:w-5 text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100" />
-                <span className="pointer-events-none absolute inset-0 rounded-full opacity-40 blur-[6px] bg-[var(--neu-green)]" />
-              </span>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={brandIconSwapKey}
+                  aria-hidden="true"
+                  className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center"
+                  initial={
+                    reduceHostIconMotion
+                      ? { opacity: 1 }
+                      : { opacity: 0, y: 5, scale: 0.82, rotate: -16 }
+                  }
+                  animate={
+                    reduceHostIconMotion
+                      ? { opacity: 1 }
+                      : { opacity: 1, y: 0, scale: 1, rotate: 0 }
+                  }
+                  exit={
+                    reduceHostIconMotion
+                      ? { opacity: 1 }
+                      : { opacity: 0, y: -4, scale: 0.9, rotate: 12 }
+                  }
+                  transition={{
+                    duration: reduceHostIconMotion ? 0 : 0.42,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  style={{
+                    transformOrigin: "50% 55%",
+                    willChange: reduceHostIconMotion ? "auto" : "transform, opacity",
+                  }}
+                >
+                  <BrandIcon className="relative z-10 h-[18px] w-[18px] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100 md:h-5 md:w-5" />
+                  <motion.span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-full bg-[var(--neu-green)]"
+                    initial={
+                      reduceHostIconMotion
+                        ? { opacity: 0.18, scale: 0.9 }
+                        : { opacity: 0.16, scale: 0.82 }
+                    }
+                    animate={
+                      reduceHostIconMotion
+                        ? { opacity: 0.18, scale: 0.9 }
+                        : { opacity: [0.16, 0.34, 0.16], scale: [0.82, 1.08, 0.82] }
+                    }
+                    transition={{
+                      duration: reduceHostIconMotion ? 0 : 4.8,
+                      ease: [0.22, 1, 0.36, 1],
+                      repeat: reduceHostIconMotion ? 0 : Number.POSITIVE_INFINITY,
+                    }}
+                    style={{
+                      filter: "blur(8px)",
+                      willChange: reduceHostIconMotion ? "auto" : "transform, opacity",
+                    }}
+                  />
+                </motion.span>
+              </AnimatePresence>
               <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] md:text-sm">
                 {hostLabel}
               </span>

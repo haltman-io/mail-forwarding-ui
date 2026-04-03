@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { Separator } from "@/components/ui/separator";
+import { FIREFOX_EXTENSION_URL } from "@/lib/browser-addon-links";
 
 export default function SecurityPage() {
   return (
@@ -117,13 +118,13 @@ export default function SecurityPage() {
                     </a>
                   </li>
                   <li>
-                    <a href="https://addons.mozilla.org/pt-BR/firefox/addon/email-alias-manager/" target="_blank" rel="noreferrer" className="flex items-center gap-2 font-bold text-[var(--text-primary)] transition-colors hover:text-[var(--neu-green)]">
+                    <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer" className="flex items-center gap-2 font-bold text-[var(--text-primary)] transition-colors hover:text-[var(--neu-green)]">
                       <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--neu-green)]" />
                       Browser Extension (Mozilla Firefox)
                     </a>
                     <p className="mt-1.5 pl-3.5 text-xs text-[var(--text-muted)]">Mozilla Firefox add-on.</p>
-                    <a href="https://addons.mozilla.org/pt-BR/firefox/addon/email-alias-manager/" target="_blank" rel="noreferrer" className="mt-1 ml-3.5 block font-mono text-[10px] text-[var(--text-secondary)] opacity-70 transition-opacity hover:opacity-100 hover:underline break-all">
-                      https://addons.mozilla.org/pt-BR/firefox/addon/email-alias-manager/
+                    <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer" className="mt-1 ml-3.5 block font-mono text-[10px] text-[var(--text-secondary)] opacity-70 transition-opacity hover:opacity-100 hover:underline break-all">
+                      {FIREFOX_EXTENSION_URL}
                     </a>
                     <a href="https://github.com/haltman-io/mail-forwarding-addon-mozilla-firefox" target="_blank" rel="noreferrer" className="mt-0.5 ml-3.5 block font-mono text-[10px] text-[var(--neu-green)] opacity-70 transition-opacity hover:opacity-100 hover:underline break-all">
                       [Source]: https://github.com/haltman-io/mail-forwarding-addon-mozilla-firefox

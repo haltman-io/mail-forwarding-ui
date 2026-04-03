@@ -96,6 +96,10 @@
   --neu-green-rgb: 48 209 88;
   --neu-green-soft: rgba(48, 209, 88, 0.10);
   --neu-green-glow: rgba(48, 209, 88, 0.04);
+  --neu-amber: #F59E0B;
+  --neu-amber-rgb: 245 158 11;
+  --neu-amber-soft: rgba(245, 158, 11, 0.10);
+  --neu-amber-glow: rgba(245, 158, 11, 0.04);
 
   --background: var(--background-base);
   --foreground: var(--text-primary);
@@ -181,6 +185,10 @@
   --neu-green-rgb: 48 209 88;
   --neu-green-soft: rgba(48, 209, 88, 0.08);
   --neu-green-glow: rgba(48, 209, 88, 0.04);
+  --neu-amber: #F59E0B;
+  --neu-amber-rgb: 245 158 11;
+  --neu-amber-soft: rgba(245, 158, 11, 0.08);
+  --neu-amber-glow: rgba(245, 158, 11, 0.04);
 
   --background: var(--background-base);
   --foreground: var(--text-primary);
