@@ -405,8 +405,8 @@
   }
 
   @keyframes hero-cta-glow {
-    0%, 100% { box-shadow: 0 0 12px rgb(var(--alias-accent-rgb) / 0.08); }
-    50%      { box-shadow: 0 0 24px rgb(var(--alias-accent-rgb) / 0.18); }
+    0%, 100% { box-shadow: 0 0 16px rgb(var(--alias-accent-rgb) / 0.10); }
+    50%      { box-shadow: 0 0 32px rgb(var(--alias-accent-rgb) / 0.22); }
   }
 
   @keyframes hero-icon-float {
@@ -456,6 +456,7 @@
     transform: scale(0.97);
   }
 
+  /* ── Stat cards ── */
   .hero-stat-card {
     box-shadow: var(--glass-highlight), var(--glass-shadow);
     transition:
@@ -483,12 +484,14 @@
   }
 
   .hero-cta {
-    animation: hero-stagger-in 500ms ease-out 900ms both, hero-cta-glow 3s ease-in-out 1.5s infinite;
+    animation: hero-stagger-in 500ms ease-out 800ms both, hero-cta-glow 3s ease-in-out 1.5s infinite;
     transition: all var(--motion-duration-slow) var(--motion-ease-standard);
   }
 
   .hero-cta:hover {
     transform: scale(1.04);
+    border-color: rgb(var(--alias-accent-rgb) / 0.30);
+    background: rgb(var(--alias-accent-rgb) / 0.14);
   }
 
   .hero-cta:active {

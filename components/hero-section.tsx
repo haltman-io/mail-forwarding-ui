@@ -60,6 +60,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
           <br className="hidden sm:block" />
           <span className="hidden sm:inline">Just aliases.</span>
         </p>
+
       </div>
 
       {/* ── Trust signals ── */}
@@ -153,19 +154,16 @@ export function HeroSection({ stats }: HeroSectionProps) {
       )}
 
       {/* ── CTA ── */}
-      <div className="flex flex-col items-center gap-3 pt-2">
- 
-        <div className="flex items-center justify-center">
-          <Link
-            href="/console"
-            className="hero-cta group inline-flex items-center gap-2 rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.15)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] hover:border-[rgb(var(--alias-accent-rgb)_/_0.25)] hover:bg-[rgb(var(--alias-accent-rgb)_/_0.12)]"
-          >
-            <Terminal className="h-4 w-4 opacity-70" />
-            Create an alias
-            <ArrowRight className="h-3.5 w-3.5 opacity-50 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-        <span className="font-mono text-[10px] tracking-wider text-[var(--text-muted)] uppercase">
+      <div className="flex flex-col items-center gap-4 pt-2">
+        <Link
+          href="/console"
+          className="hero-cta group inline-flex items-center gap-2.5 rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.20)] bg-[rgb(var(--alias-accent-rgb)_/_0.10)] px-8 py-3 font-mono text-sm font-semibold text-[var(--neu-green)] sm:px-10 sm:py-3.5 sm:text-base"
+        >
+          <Terminal className="h-4 w-4 opacity-70 sm:h-[18px] sm:w-[18px]" />
+          Create an alias
+          <ArrowRight className="h-4 w-4 opacity-50 transition-transform duration-300 group-hover:translate-x-1" />
+        </Link>
+        <span className="font-mono text-[10px] tracking-widest text-[var(--text-muted)] uppercase">
           no account required
         </span>
       </div>

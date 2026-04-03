@@ -233,7 +233,7 @@ export function SubscribeTabPanel({
                         aria-expanded={domainComboboxOpen}
                         className="neu-inset w-full min-w-0 justify-between pr-16 font-sans text-sm"
                       >
-                        <span className="truncate">{domain || "Select a domain"}</span>
+                        <span className="truncate">{domain ? `@${domain}` : "Select a domain"}</span>
                         <ChevronsUpDown className={`ml-2 h-4 w-4 shrink-0 opacity-50 ${clickableIconClass}`} />
                       </Button>
                     </PopoverTrigger>
