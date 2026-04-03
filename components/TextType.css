@@ -17,7 +17,7 @@
   color: var(--neu-green, #30d158);
   font-weight: 700;
   text-decoration: underline;
-  text-decoration-color: rgba(48, 209, 88, 0.4);
+  text-decoration-color: rgb(var(--alias-accent-rgb, 48 209 88) / 0.4);
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }

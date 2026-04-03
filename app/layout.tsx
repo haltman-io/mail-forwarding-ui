@@ -1,10 +1,13 @@
 import "./globals.css";
+import "./public-theme.css";
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import ThemeProvider from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { DebugToolbarLoader } from "@/components/debug-toolbar-loader";
 import { DomainDisclaimer } from "@/components/domain-disclaimer";
+import { GlobalNoiseOverlay } from "@/components/global-noise-overlay";
+import { HostBackground } from "@/components/host-background";
 
 const uiSans = Inter({
   subsets: ["latin"],
@@ -39,6 +42,7 @@ export default function RootLayout({
         className={`${uiSans.variable} ${uiMono.variable} min-h-screen bg-background text-foreground font-sans antialiased`}
       >
         <ThemeProvider>
+          <HostBackground />
           {children}
           <a rel="me" href="https://infosec.exchange/@haltman" className="sr-only">
             Mastodon
@@ -52,6 +56,7 @@ export default function RootLayout({
           />
           {DebugToolbarLoader && <DebugToolbarLoader />}
           <DomainDisclaimer />
+          <GlobalNoiseOverlay />
         </ThemeProvider>
       </body>
     </html>

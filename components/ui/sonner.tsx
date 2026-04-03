@@ -22,7 +22,7 @@ function ToastIconShell({
 }) {
   const toneClasses = {
     emerald:
-      "border border-[rgba(48,209,88,0.12)] bg-[rgba(48,209,88,0.08)] shadow-[0_0_12px_rgba(48,209,88,0.06)] text-[var(--neu-green)]",
+      "border border-[rgb(var(--alias-accent-rgb)_/_0.12)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)] shadow-[0_0_12px_rgb(var(--alias-accent-rgb)_/_0.06)] text-[var(--neu-green)]",
     cyan:
       "border border-[rgba(34,211,238,0.14)] bg-[rgba(34,211,238,0.09)] shadow-[0_0_12px_rgba(34,211,238,0.06)] text-cyan-400",
     amber:
@@ -61,7 +61,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           closeButton:
             "z-20 border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-muted)] transition-colors hover:bg-[var(--hover-state)] hover:text-[var(--text-primary)]",
           actionButton:
-            "relative z-10 rounded-full border border-[rgba(48,209,88,0.14)] bg-[rgba(48,209,88,0.08)] px-3 py-2 font-medium text-[var(--neu-green)] transition-colors hover:border-[rgba(48,209,88,0.2)] hover:bg-[rgba(48,209,88,0.11)]",
+            "relative z-10 rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.14)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)] px-3 py-2 font-medium text-[var(--neu-green)] transition-colors hover:border-[rgb(var(--alias-accent-rgb)_/_0.20)] hover:bg-[rgb(var(--alias-accent-rgb)_/_0.11)]",
           cancelButton:
             "relative z-10 rounded-full border border-[var(--glass-border)] bg-[rgba(255,255,255,0.04)] px-3 py-2 font-medium text-[var(--text-muted)] transition-colors hover:bg-[var(--hover-state)]",
         },

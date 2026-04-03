@@ -81,7 +81,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
       {stats && (
         <div className="mx-auto grid max-w-[520px] grid-cols-3 gap-3 sm:gap-4">
           <div className="hero-stat-card group relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 text-center backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
-            <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(48,209,88,1), transparent)" }} />
+            <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
               <div className="mb-1 flex items-center justify-center">
                 <Globe className="h-4 w-4 text-[var(--alias-accent)] opacity-60" />
@@ -96,7 +96,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
           </div>
 
           <div className="hero-stat-card group relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 text-center backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
-            <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.04] transition-opacity duration-500 group-hover:opacity-[0.07]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(48,209,88,1), transparent)" }} />
+            <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.04] transition-opacity duration-500 group-hover:opacity-[0.07]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
               <div className="mb-1 flex items-center justify-center">
                 <Infinity className="h-4 w-4 text-[var(--neu-green)] opacity-60" />
@@ -111,7 +111,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
           </div>
 
           <div className="hero-stat-card group relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 text-center backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
-            <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(48,209,88,1), transparent)" }} />
+            <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
               <div className="mb-1 flex items-center justify-center">
                 <AtSign className="h-4 w-4 text-[var(--alias-accent)] opacity-60" />
@@ -158,7 +158,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
         <div className="flex items-center justify-center">
           <Link
             href="/console"
-            className="group inline-flex items-center gap-2 rounded-full border border-[rgba(48,209,88,0.15)] bg-[rgba(48,209,88,0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] transition-all duration-300 hover:scale-[1.02] hover:border-[rgba(48,209,88,0.25)] hover:bg-[rgba(48,209,88,0.12)] hover:shadow-[0_0_20px_rgba(48,209,88,0.10)]"
+            className="group inline-flex items-center gap-2 rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.15)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] transition-all duration-300 hover:scale-[1.02] hover:border-[rgb(var(--alias-accent-rgb)_/_0.25)] hover:bg-[rgb(var(--alias-accent-rgb)_/_0.12)] hover:shadow-[0_0_20px_rgb(var(--alias-accent-rgb)_/_0.10)]"
           >
             <Terminal className="h-4 w-4 opacity-70" />
             Create an alias

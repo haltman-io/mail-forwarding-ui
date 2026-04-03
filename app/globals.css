@@ -231,13 +231,26 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  body.host-background-active {
+    background-color: #000;
+  }
+
+  .dark body.host-background-active {
+    background-image: none;
+  }
+
+  body.host-background-active::before,
+  body.host-background-active::after {
+    content: none;
+  }
+
   /* ── Layer 1: atmospheric charcoal base ── */
   .dark body {
     background-color: #0c0e13;
     background-image:
       radial-gradient(ellipse 100% 70% at 50% 0%, rgba(20, 28, 40, 0.50), transparent 65%),
-      radial-gradient(ellipse 60% 50% at 15% 45%, rgba(48, 209, 88, 0.025), transparent 55%),
-      radial-gradient(ellipse 55% 45% at 85% 30%, rgba(48, 209, 88, 0.030), transparent 50%);
+      radial-gradient(ellipse 60% 50% at 15% 45%, rgb(var(--alias-accent-rgb) / 0.025), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 85% 30%, rgb(var(--alias-accent-rgb) / 0.03), transparent 50%);
     background-attachment: fixed;
   }
 
@@ -249,8 +262,8 @@
     z-index: -2;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 40% 30% at 25% 30%, rgba(48, 209, 88, 0.04), transparent 65%),
-      radial-gradient(ellipse 35% 28% at 75% 25%, rgba(48, 209, 88, 0.05), transparent 60%);
+      radial-gradient(ellipse 40% 30% at 25% 30%, rgb(var(--alias-accent-rgb) / 0.04), transparent 65%),
+      radial-gradient(ellipse 35% 28% at 75% 25%, rgb(var(--alias-accent-rgb) / 0.05), transparent 60%);
     filter: blur(60px);
     transform: translate3d(0, 0, 0);
     animation: ambient-breathe 20s ease-in-out infinite alternate;
@@ -272,7 +285,7 @@
   }
 
   ::selection {
-    background-color: rgba(48, 209, 88, 0.20);
+    background-color: rgb(var(--alias-accent-rgb) / 0.20);
     color: var(--foreground);
   }
 
@@ -400,7 +413,11 @@
   }
 
   .hero-accent-text {
-    background: linear-gradient(135deg, var(--neu-green) 0%, rgba(48, 209, 88, 0.9) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--neu-green) 0%,
+      color-mix(in srgb, var(--neu-green) 90%, white 10%) 100%
+    );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -550,31 +567,43 @@
 
   /* ── Smoked glass primary button ── */
   .alias-primary.neu-btn-green {
-    background: linear-gradient(180deg, rgba(48, 209, 88, 0.90) 0%, rgba(40, 180, 72, 0.85) 100%) !important;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--alias-accent) 88%, white 12%) 0%,
+      color-mix(in srgb, var(--alias-accent) 76%, black 24%) 100%
+    ) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     color: #fff !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.18),
-      0 2px 8px rgba(var(--neu-green-rgb) / 0.25),
+      0 2px 8px rgb(var(--neu-green-rgb) / 0.25),
       0 1px 3px rgba(0, 0, 0, 0.20) !important;
     transition: all 200ms var(--motion-ease-standard);
   }
 
   .alias-primary.neu-btn-green:hover {
-    background: linear-gradient(180deg, rgba(55, 220, 95, 0.92) 0%, rgba(48, 200, 80, 0.88) 100%) !important;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--alias-accent) 82%, white 18%) 0%,
+      color-mix(in srgb, var(--alias-accent) 84%, black 16%) 100%
+    ) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.22),
-      0 4px 16px rgba(var(--neu-green-rgb) / 0.30),
+      0 4px 16px rgb(var(--neu-green-rgb) / 0.30),
       0 2px 6px rgba(0, 0, 0, 0.25) !important;
     transform: translateY(-1px);
   }
 
   .alias-primary.neu-btn-green:active {
-    background: linear-gradient(180deg, rgba(40, 170, 68, 0.88) 0%, rgba(48, 209, 88, 0.85) 100%) !important;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--alias-accent) 72%, black 28%) 0%,
+      color-mix(in srgb, var(--alias-accent) 84%, black 16%) 100%
+    ) !important;
     box-shadow:
       inset 0 2px 4px rgba(0, 0, 0, 0.20),
-      0 1px 3px rgba(var(--neu-green-rgb) / 0.15) !important;
+      0 1px 3px rgb(var(--neu-green-rgb) / 0.15) !important;
     transform: translateY(0) scale(0.98);
   }
 
@@ -606,11 +635,11 @@
   /* ── Flat accent buttons (fallback) ── */
   .alias-primary {
     border: none;
-    background: rgba(48, 209, 88, 0.80);
+    background: rgb(var(--neu-green-rgb) / 0.80);
     color: #ffffff;
   }
-  .alias-primary:hover { background: rgba(48, 209, 88, 0.90); }
-  .alias-primary:active { background: rgba(48, 209, 88, 0.70); transform: scale(0.98); }
+  .alias-primary:hover { background: rgb(var(--neu-green-rgb) / 0.90); }
+  .alias-primary:active { background: rgb(var(--neu-green-rgb) / 0.70); transform: scale(0.98); }
 
   .alias-destructive {
     border: none;

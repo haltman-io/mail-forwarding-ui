@@ -49,12 +49,12 @@ type SubscribeTabPanelProps = {
 };
 
 const PINNED_BADGES: Record<string, { text: string; color?: "amber" | "sky" | "orange" | "primary"; className?: string }> = {
-  "reads.phrack.org": { text: "📚 PHRACK MAGAZINE", color: "primary", className: "!bg-black !from-black !to-zinc-900 !border-zinc-800 !text-zinc-300" },
-  "smokes.thc.org": { text: "👑 SINCE 1995", color: "amber" },
-  "free.team-teso.net": { text: "🛜 Blue-Boxed", color: "sky" },
-  "segfault.net": { text: "💨 DISPOSABLE", color: "orange" },
-  "ghetto.eurocompton.net": { text: "⚔️ Oldest IDS Enemy", color: "amber" },
-  "lulz.antisec.net": { text: "💀💀💀💀💀", color: "amber" },
+  "reads.phrack.org": { text: "📚 Raised on Phrack", color: "primary", className: "!bg-black !from-black !to-zinc-900 !border-zinc-800 !text-zinc-300" },
+  "smokes.thc.org": { text: "👑 Since '95, Still Breaking ", color: "amber" },
+  "free.team-teso.net": { text: "🛜 Blue Box Kings", color: "sky" },
+  "segfault.net": { text: "💨 Hackers Live Here", color: "orange" },
+  "ghetto.eurocompton.net": { text: "⚔️ Snort IDS hate US ", color: "amber" },
+  "lulz.antisec.net": { text: "💀 Antisec Never Died", color: "primary" },
 };
 
 export function SubscribeTabPanel({

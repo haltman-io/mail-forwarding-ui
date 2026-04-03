@@ -270,7 +270,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                   <Link href="/security" className={navItemClass}>
                     <ShieldCheck className="h-4 w-4 text-[var(--text-secondary)]" />
                     VDP
-                    <span className="ml-0.5 rounded bg-[rgba(48,209,88,0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
+                    <span className="ml-0.5 rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
                       New
                     </span>
                   </Link>

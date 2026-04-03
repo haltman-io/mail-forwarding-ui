@@ -1,0 +1,163 @@
+/*
+  Public theme scope
+  Edit the tokens in this file to restyle only the non-authenticated routes.
+  Login and dashboard do not opt into this scope.
+*/
+
+body.public-theme-active {
+  /* Shared public tokens */
+  --public-font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --public-font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  --public-radius-base: 0.75rem;
+
+  --public-accent-rgb: 48 209 88;
+  --public-accent: #30d158;
+  --public-accent-foreground: #ffffff;
+
+  /* Accent helpers used by public pages/components */
+  --public-accent-03: rgb(var(--public-accent-rgb) / 0.03);
+  --public-accent-04: rgb(var(--public-accent-rgb) / 0.04);
+  --public-accent-05: rgb(var(--public-accent-rgb) / 0.05);
+  --public-accent-06: rgb(var(--public-accent-rgb) / 0.06);
+  --public-accent-08: rgb(var(--public-accent-rgb) / 0.08);
+  --public-accent-10: rgb(var(--public-accent-rgb) / 0.10);
+  --public-accent-12: rgb(var(--public-accent-rgb) / 0.12);
+  --public-accent-14: rgb(var(--public-accent-rgb) / 0.14);
+  --public-accent-15: rgb(var(--public-accent-rgb) / 0.15);
+  --public-accent-18: rgb(var(--public-accent-rgb) / 0.18);
+  --public-accent-20: rgb(var(--public-accent-rgb) / 0.20);
+  --public-accent-24: rgb(var(--public-accent-rgb) / 0.24);
+  --public-accent-25: rgb(var(--public-accent-rgb) / 0.25);
+  --public-accent-30: rgb(var(--public-accent-rgb) / 0.30);
+  --public-accent-40: rgb(var(--public-accent-rgb) / 0.40);
+
+  /* Light-mode public palette */
+  --public-background-base: #f5f5f7;
+  --public-surface-base: #ffffff;
+  --public-surface-base-translucent: rgb(255 255 255 / 0.78);
+  --public-surface-elevated: #ffffff;
+  --public-surface-pressed: #f0f0f2;
+  --public-hairline-border: rgb(0 0 0 / 0.08);
+  --public-ambient-shadow: 0 4px 24px -8px rgb(0 0 0 / 0.08);
+  --public-depth-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  --public-text-primary: rgb(0 0 0 / 0.88);
+  --public-text-secondary: rgb(0 0 0 / 0.55);
+  --public-text-muted: rgb(0 0 0 / 0.35);
+  --public-focus-ring: var(--public-accent-30);
+  --public-hover-state: rgb(0 0 0 / 0.04);
+  --public-active-state: rgb(0 0 0 / 0.08);
+  --public-glass-bg: rgb(255 255 255 / 0.72);
+  --public-glass-border: rgb(0 0 0 / 0.06);
+  --public-glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.9);
+  --public-glass-shadow: 0 8px 32px -8px rgb(0 0 0 / 0.08);
+  --public-glass-blur: 24px;
+  --public-neu-shadow-out: 4px 4px 12px rgb(0 0 0 / 0.08), -4px -4px 12px rgb(255 255 255 / 0.5);
+  --public-neu-shadow-in: inset 2px 2px 5px rgb(0 0 0 / 0.06), inset -2px -2px 5px rgb(255 255 255 / 0.5);
+  --public-neu-surface: #e8e8ea;
+  --public-neu-surface-hi: #f2f2f4;
+  --public-neu-surface-lo: #d8d8da;
+
+  /* Map public tokens onto the existing shared design-system variables */
+  --radius: var(--public-radius-base);
+
+  --alias-accent-rgb: var(--public-accent-rgb);
+  --alias-accent: var(--public-accent);
+  --alias-accent-fg: var(--public-accent-foreground);
+  --alias-accent-soft: var(--public-accent-14);
+
+  --background-base: var(--public-background-base);
+  --surface-base: var(--public-surface-base);
+  --surface-base-translucent: var(--public-surface-base-translucent);
+  --surface-elevated: var(--public-surface-elevated);
+  --surface-pressed: var(--public-surface-pressed);
+  --hairline-border: var(--public-hairline-border);
+  --ambient-shadow: var(--public-ambient-shadow);
+  --depth-shadow: var(--public-depth-shadow);
+  --text-primary: var(--public-text-primary);
+  --text-secondary: var(--public-text-secondary);
+  --text-muted: var(--public-text-muted);
+  --focus-ring: var(--public-focus-ring);
+  --hover-state: var(--public-hover-state);
+  --active-state: var(--public-active-state);
+
+  --glass-bg: var(--public-glass-bg);
+  --glass-border: var(--public-glass-border);
+  --glass-highlight: var(--public-glass-highlight);
+  --glass-shadow: var(--public-glass-shadow);
+  --glass-blur: var(--public-glass-blur);
+
+  --neu-shadow-out: var(--public-neu-shadow-out);
+  --neu-shadow-in: var(--public-neu-shadow-in);
+  --neu-surface: var(--public-neu-surface);
+  --neu-surface-hi: var(--public-neu-surface-hi);
+  --neu-surface-lo: var(--public-neu-surface-lo);
+  --neu-green: var(--public-accent);
+  --neu-green-rgb: var(--public-accent-rgb);
+  --neu-green-soft: var(--public-accent-08);
+  --neu-green-glow: var(--public-accent-04);
+
+  --background: var(--background-base);
+  --foreground: var(--text-primary);
+  --card: var(--surface-base);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--alias-accent);
+  --primary-foreground: var(--alias-accent-fg);
+  --secondary: var(--surface-pressed);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-pressed);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--alias-accent-soft);
+  --accent-foreground: var(--alias-accent);
+  --border: var(--hairline-border);
+  --input: var(--surface-pressed);
+  --ring: var(--focus-ring);
+  --chart-1: var(--public-accent);
+  --sidebar: var(--surface-base);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--hairline-border);
+  --sidebar-ring: var(--focus-ring);
+
+  color: var(--foreground);
+  font-family: var(--public-font-sans);
+}
+
+.dark body.public-theme-active {
+  /* Dark-mode public palette */
+  --public-background-base: #0c0e13;
+  --public-surface-base: rgb(255 255 255 / 0.05);
+  --public-surface-base-translucent: rgb(255 255 255 / 0.045);
+  --public-surface-elevated: rgb(255 255 255 / 0.07);
+  --public-surface-pressed: rgb(255 255 255 / 0.03);
+  --public-hairline-border: rgb(255 255 255 / 0.07);
+  --public-ambient-shadow: 0 4px 24px -8px rgb(0 0 0 / 0.5);
+  --public-depth-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+  --public-text-primary: rgb(255 255 255 / 0.87);
+  --public-text-secondary: rgb(255 255 255 / 0.5);
+  --public-text-muted: rgb(255 255 255 / 0.3);
+  --public-focus-ring: var(--public-accent-20);
+  --public-hover-state: rgb(255 255 255 / 0.05);
+  --public-active-state: rgb(255 255 255 / 0.03);
+  --public-glass-bg: rgb(255 255 255 / 0.055);
+  --public-glass-border: rgb(255 255 255 / 0.08);
+  --public-glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --public-glass-shadow: 0 1px 2px rgb(0 0 0 / 0.20), 0 4px 16px -2px rgb(0 0 0 / 0.30);
+  --public-neu-shadow-out: 0 2px 6px rgb(0 0 0 / 0.25), 0 1px 2px rgb(0 0 0 / 0.15);
+  --public-neu-shadow-in: inset 1px 1px 3px rgb(0 0 0 / 0.25), inset -1px -1px 2px rgb(255 255 255 / 0.02);
+  --public-neu-surface: rgb(255 255 255 / 0.05);
+  --public-neu-surface-hi: rgb(255 255 255 / 0.07);
+  --public-neu-surface-lo: rgb(0 0 0 / 0.12);
+}
+
+body.public-theme-active .font-sans {
+  font-family: var(--public-font-sans);
+}
+
+body.public-theme-active .font-mono {
+  font-family: var(--public-font-mono);
+}

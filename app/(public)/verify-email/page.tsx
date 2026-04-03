@@ -49,14 +49,14 @@ export default function VerifyEmailPage() {
           className="absolute inset-0"
           style={{
             background: `
-              radial-gradient(circle at 50% 14%, rgba(48, 209, 88, 0.10), transparent 28%),
-              radial-gradient(circle at 18% 22%, rgba(48, 209, 88, 0.05), transparent 20%),
+              radial-gradient(circle at 50% 14%, rgb(var(--alias-accent-rgb) / 0.10), transparent 28%),
+              radial-gradient(circle at 18% 22%, rgb(var(--alias-accent-rgb) / 0.05), transparent 20%),
               linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 18%)
             `,
           }}
         />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(48,209,88,0.24)] to-transparent" />
-        <div className="absolute left-1/2 top-20 h-52 w-52 -translate-x-1/2 rounded-full bg-[rgba(48,209,88,0.08)] blur-[120px]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgb(var(--alias-accent-rgb)_/_0.24)] to-transparent" />
+        <div className="absolute left-1/2 top-20 h-52 w-52 -translate-x-1/2 rounded-full bg-[rgb(var(--alias-accent-rgb)_/_0.08)] blur-[120px]" />
       </div>
 
       <div className="relative flex min-h-[100svh] flex-col items-center justify-center px-4 py-16 sm:px-6">
@@ -64,7 +64,7 @@ export default function VerifyEmailPage() {
           {/* Header */}
           <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
             <div className="flex items-center gap-3">
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgb(var(--alias-accent-rgb)_/_0.18)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)]">
                 <MailCheck className="h-3.5 w-3.5 text-[var(--neu-green)]" />
               </div>
               <div className="min-w-0">
@@ -83,7 +83,7 @@ export default function VerifyEmailPage() {
             {verified ? (
               <div className="space-y-5">
                 <div className="flex flex-col items-center gap-4 py-2">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(48,209,88,0.20)] bg-[rgba(48,209,88,0.08)]">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.20)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)]">
                     <CheckCircle2 className="h-5 w-5 text-[var(--neu-green)]" />
                   </div>
                   <div className="space-y-1.5 text-center">
