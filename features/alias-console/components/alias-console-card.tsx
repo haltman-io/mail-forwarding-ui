@@ -60,7 +60,7 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
         onConfirmCodeChange={controller.onConfirmCodeChange}
       />
 
-      <CardHeader className="relative">
+      <CardHeader className="relative" data-tour-step-id="console-welcome">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
             <CardTitle className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Alias Console</CardTitle>
@@ -103,6 +103,7 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
             </TabsTrigger>
             <TabsTrigger
               value="unsubscribe"
+              data-tour-step-id="delete-tab"
               className="group z-10 gap-1.5 border-transparent bg-transparent text-[var(--text-muted)] text-[13px] font-medium after:hidden data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none data-[state=inactive]:hover:bg-transparent data-[state=inactive]:hover:border-transparent data-[state=inactive]:hover:text-[var(--text-secondary)]"
             >
               <MailX className={`h-3.5 w-3.5 ${clickableIconClass}`} />

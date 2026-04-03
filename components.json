@@ -22,6 +22,7 @@
     "@boldkit": "https://boldkit.dev/r/{name}.json",
     "@magicui": "https://magicui.design/r/{name}",
     "@lucide-animated": "https://lucide-animated.com/r/{name}.json",
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@tour": "https://onboarding-tour.vercel.app/r/{name}.json"
   }
 }

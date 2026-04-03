@@ -180,7 +180,7 @@ export function SubscribeTabPanel({
               </div>
             ) : (
               <>
-                <div className="space-y-2 min-w-0">
+                <div className="space-y-2 min-w-0" data-tour-step-id="handle-input">
                   <div className="flex items-center justify-between gap-2 min-h-[28px]">
                     <Label htmlFor="name" className="text-[13px] font-medium text-[var(--text-secondary)]">
                       Handle
@@ -218,7 +218,7 @@ export function SubscribeTabPanel({
                   </div>
                 </div>
 
-                <div className="space-y-2 min-w-0">
+                <div className="space-y-2 min-w-0" data-tour-step-id="domain-input">
                   <div className="flex items-center justify-between gap-2 min-h-[28px]">
                     <Label className="text-[13px] font-medium text-[var(--text-secondary)]">Domain</Label>
                     {customAddressToggle}
@@ -299,7 +299,7 @@ export function SubscribeTabPanel({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2" data-tour-step-id="destination-input">
             <Label htmlFor="to" className="text-[13px] font-medium text-[var(--text-secondary)]">
               Destination email address
             </Label>
@@ -316,7 +316,7 @@ export function SubscribeTabPanel({
             <p className="text-xs text-[var(--text-muted)]">Must be a valid mailbox.</p>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-col gap-2 sm:flex-row" data-tour-step-id="submit-button">
             <Button
               type="submit"
               className="alias-primary neu-btn-green group w-full sm:w-auto"
