@@ -42,6 +42,8 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
     "Delete Alias"
   );
 
+  const goToCurlTab = () => controller.onTabChange("curl");
+
   return (
     <Card className="alias-console-surface neu-accent-bar relative overflow-hidden -mx-4 rounded-none border-x-0 sm:mx-0 sm:rounded-2xl sm:border-x">
       <ConfirmCodeDialog
@@ -130,14 +132,9 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
             confirmedMapping={controller.confirmedMapping}
             subscribeAwaiting={controller.subscribeAwaiting}
             subscribeHasInput={controller.subscribeHasInput}
-            subscribePreviewPulseSource={controller.subscribePreviewPulseSource}
             subscribeAliasReady={controller.subscribeAliasReady}
             previewAlias={controller.previewAlias}
             subscribeTarget={controller.subscribeTarget}
-            curlSubscribe={controller.curlSubscribe}
-            copiedId={controller.copiedId}
-            canCopyPreview={controller.canCopySubscribePreview}
-            codeBlockClass={codeBlockClass}
             clickableIconClass={clickableIconClass}
             onNameChange={controller.onNameChange}
             onDomainChange={controller.onDomainChange}
@@ -146,22 +143,16 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
             onIsCustomAddressChange={controller.onIsCustomAddressChange}
             onCustomAddressChange={controller.onCustomAddressChange}
             onSubmit={controller.onSubscribe}
-            onCopySubscribePreview={controller.copySubscribePreviewCurl}
+            onViewCurl={goToCurlTab}
           />
 
           <UnsubscribeTabPanel
             alias={controller.alias}
             requestBusy={controller.requestBusy}
             unsubscribeButtonContent={unsubscribeButtonContent}
-            copiedId={controller.copiedId}
-            unsubscribePreviewPulseSource={controller.unsubscribePreviewPulseSource}
-            curlUnsubscribe={controller.curlUnsubscribe}
-            canCopyPreview={controller.canCopyUnsubscribePreview}
-            codeBlockClass={codeBlockClass}
-            clickableIconClass={clickableIconClass}
             onAliasChange={controller.onAliasChange}
             onSubmit={controller.onUnsubscribe}
-            onCopyUnsubscribePreview={controller.copyUnsubscribePreviewCurl}
+            onViewCurl={goToCurlTab}
           />
 
           <CurlTabPanel

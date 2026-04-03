@@ -1,5 +1,5 @@
 import type { FormEvent, ReactNode } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Dices } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,11 @@ import { TabsContent } from "@/components/ui/tabs";
 
 import { PINNED_DOMAINS } from "@/features/alias-console/hooks/use-alias-console-controller";
 import { RequestPreviewPanel } from "@/features/alias-console/components/request-preview-panel";
-import type { MappingSnapshot } from "@/features/alias-console/types/alias-console.types";
+import type {
+  MappingSnapshot,
+  PreviewSummaryItem,
+  RequestPreviewState,
+} from "@/features/alias-console/types/alias-console.types";
 
 type SubscribeTabPanelProps = {
   name: string;
@@ -29,14 +33,9 @@ type SubscribeTabPanelProps = {
   confirmedMapping: MappingSnapshot | null;
   subscribeAwaiting: boolean;
   subscribeHasInput: boolean;
-  subscribePreviewPulseSource: string;
   subscribeAliasReady: boolean;
   previewAlias: string;
   subscribeTarget: string;
-  curlSubscribe: string;
-  copiedId: string | null;
-  canCopyPreview: boolean;
-  codeBlockClass: string;
   clickableIconClass: string;
   onNameChange: (value: string) => void;
   onDomainChange: (value: string) => void;
@@ -45,7 +44,7 @@ type SubscribeTabPanelProps = {
   onIsCustomAddressChange: (value: boolean) => void;
   onCustomAddressChange: (value: string) => void;
   onSubmit: (e: FormEvent) => void;
-  onCopySubscribePreview: () => void;
+  onViewCurl: () => void;
 };
 
 const PINNED_BADGES: Record<string, { text: string; color?: "amber" | "sky" | "orange" | "primary"; className?: string }> = {
@@ -72,14 +71,9 @@ export function SubscribeTabPanel({
   confirmedMapping,
   subscribeAwaiting,
   subscribeHasInput,
-  subscribePreviewPulseSource,
   subscribeAliasReady,
   previewAlias,
   subscribeTarget,
-  curlSubscribe,
-  copiedId,
-  canCopyPreview,
-  codeBlockClass,
   clickableIconClass,
   onNameChange,
   onDomainChange,
@@ -88,39 +82,55 @@ export function SubscribeTabPanel({
   onIsCustomAddressChange,
   onCustomAddressChange,
   onSubmit,
-  onCopySubscribePreview,
+  onViewCurl,
 }: SubscribeTabPanelProps) {
-  const previewMessage = showConfirmedPanel
-    ? "Confirmed. Alias is active."
+  const previewState: RequestPreviewState = showConfirmedPanel
+    ? "confirmed"
     : subscribeAwaiting
-      ? "Awaiting confirmation email."
-      : !subscribeHasInput
-        ? "Fill the form to preview your alias."
-        : "Generated in real time from your current values.";
+      ? "awaiting_confirmation"
+      : subscribeHasInput
+        ? "draft"
+        : "empty";
 
-  const previewDetails =
-    showConfirmedPanel && confirmedMapping?.alias ? (
-      <p className="font-mono text-xs text-[var(--text-secondary)]">
-        {confirmedMapping.alias} <span className="text-[var(--text-muted)]">→</span> {confirmedMapping.to || "destination"}
-      </p>
-    ) : subscribeAwaiting ? (
-      <p className="text-xs text-[var(--text-muted)]">Check your inbox to finish creating the alias.</p>
-    ) : subscribeHasInput ? (
-      <ul key={subscribePreviewPulseSource} className="space-y-1 text-sm text-[var(--text-muted)]">
-        <li>
-          Alias:{" "}
-          <span className="font-mono text-[var(--text-secondary)]">
-            {subscribeAliasReady ? previewAlias : "alias@domain.tld"}
-          </span>
-        </li>
-        <li>
-          Destination:{" "}
-          <span className="font-mono text-[var(--text-secondary)]">
-            {subscribeTarget || "Fill destination email to preview"}
-          </span>
-        </li>
-      </ul>
-    ) : null;
+  const aliasPlaceholder = isCustomAddress ? "user@example.com" : "alias@domain.tld";
+  const destinationPlaceholder = "destination@mailbox.tld";
+  const previewSummaryItems: PreviewSummaryItem[] = [
+    {
+      label: "Action",
+      value: isCustomAddress ? "Create custom alias" : "Create alias",
+      tone: "accent",
+    },
+    {
+      label: "Alias",
+      value:
+        showConfirmedPanel && confirmedMapping?.alias
+          ? confirmedMapping.alias
+          : subscribeAliasReady
+            ? previewAlias
+            : aliasPlaceholder,
+      mono: true,
+      tone:
+        showConfirmedPanel && confirmedMapping?.alias
+          ? "accent"
+          : subscribeAliasReady
+            ? "accent"
+            : "muted",
+    },
+    {
+      label: "Destination",
+      value:
+        showConfirmedPanel && confirmedMapping?.to
+          ? confirmedMapping.to
+          : subscribeTarget || destinationPlaceholder,
+      mono: true,
+      tone:
+        showConfirmedPanel && confirmedMapping?.to
+          ? "default"
+          : subscribeTarget
+            ? "default"
+            : "muted",
+    },
+  ];
 
   const customAddressToggle = (
     <Label
@@ -157,7 +167,9 @@ export function SubscribeTabPanel({
                   value={customAddress}
                   onChange={(e) => onCustomAddressChange(e.target.value)}
                   autoCapitalize="none"
-                  spellCheck={false}                  className="neu-inset"                />
+                  spellCheck={false}
+                  className="neu-inset"
+                />
                 <p className="text-xs text-[var(--text-muted)]">
                   NOTE: The domain{" "}
                   <span className="font-mono text-[var(--text-secondary)]">{customAddressDomain || "…"}</span> must
@@ -175,15 +187,35 @@ export function SubscribeTabPanel({
                     </Label>
                   </div>
 
-                  <Input
-                    id="name"
-                    placeholder="extencil"
-                    value={name}
-                    onChange={(e) => onNameChange(e.target.value)}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    className="neu-inset"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="name"
+                      placeholder="extencil"
+                      value={name}
+                      onChange={(e) => onNameChange(e.target.value)}
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      className="neu-inset pr-9"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                      onClick={() => {
+                        const adj = ["cool","fast","dark","red","wild","neo","hex","old","raw","mad","dry","sly","dim","hot","icy","odd","shy","wry","apt","big"];
+                        const noun = ["fox","owl","cat","elk","ant","ray","ram","jay","bat","yak","eel","gnu","koi","emu","pug","cod","asp","orb","bit","ion"];
+                        const a = adj[Math.floor(Math.random() * adj.length)];
+                        const n = noun[Math.floor(Math.random() * noun.length)];
+                        const d = Math.floor(Math.random() * 900 + 100);
+                        onNameChange(`${a}${n}${d}`);
+                      }}
+                      aria-label="Generate random handle"
+                      title="Generate random handle"
+                    >
+                      <Dices className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2 min-w-0">
@@ -191,6 +223,7 @@ export function SubscribeTabPanel({
                     <Label className="text-[13px] font-medium text-[var(--text-secondary)]">Domain</Label>
                     {customAddressToggle}
                   </div>
+                  <div className="relative">
                   <Popover open={domainComboboxOpen} onOpenChange={onDomainComboboxOpenChange}>
                     <PopoverTrigger asChild>
                       <Button
@@ -198,7 +231,7 @@ export function SubscribeTabPanel({
                         variant="outline"
                         role="combobox"
                         aria-expanded={domainComboboxOpen}
-                        className="neu-inset w-full min-w-0 justify-between font-sans text-sm"
+                        className="neu-inset w-full min-w-0 justify-between pr-16 font-sans text-sm"
                       >
                         <span className="truncate">{domain || "Select a domain"}</span>
                         <ChevronsUpDown className={`ml-2 h-4 w-4 shrink-0 opacity-50 ${clickableIconClass}`} />
@@ -244,6 +277,23 @@ export function SubscribeTabPanel({
                       </Command>
                     </PopoverContent>
                   </Popover>
+                  <button
+                    type="button"
+                    className="absolute right-8 top-1/2 -translate-y-1/2 p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors duration-150 disabled:opacity-40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (domains.length) {
+                        const random = domains[Math.floor(Math.random() * domains.length)];
+                        onDomainChange(random);
+                      }
+                    }}
+                    disabled={!domains.length}
+                    aria-label="Pick random domain"
+                    title="Pick random domain"
+                  >
+                    <Dices className="h-3.5 w-3.5" />
+                  </button>
+                  </div>
                 </div>
               </>
             )}
@@ -277,18 +327,13 @@ export function SubscribeTabPanel({
           </div>
         </form>
 
-        <div className="hidden space-y-3 lg:col-span-2 lg:block">
+        <div className="hidden space-y-3 lg:col-span-2 lg:block lg:self-start">
           <RequestPreviewPanel
-            message={previewMessage}
-            details={previewDetails}
-            curlCommand={curlSubscribe}
-            codeBlockClass={codeBlockClass}
-            clickableIconClass={clickableIconClass}
-            copied={copiedId === "preview-subscribe-curl"}
-            onCopy={onCopySubscribePreview}
-            copyDisabled={!canCopyPreview}
-            pulseKey={subscribePreviewPulseSource}
-            pulseActive={subscribeHasInput}
+            intent="subscribe"
+            state={previewState}
+            summaryItems={previewSummaryItems}
+            onViewCurl={onViewCurl}
+            viewCurlLabel="View cURL command"
           />
         </div>
       </div>

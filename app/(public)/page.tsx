@@ -16,7 +16,7 @@ export default function Page() {
         <section className="mx-auto max-w-[840px] space-y-6 sm:space-y-8">
           <HeroSection stats={stats} />
 
-          <footer className="mt-12 flex justify-center pb-8 sm:mt-16 sm:pb-12">
+          <footer className="hero-footer mt-12 flex justify-center pb-8 sm:mt-16 sm:pb-12">
             <div
               className="relative inline-flex items-center gap-3 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_4px_16px_-4px_rgba(0,0,0,0.30)] backdrop-blur-[24px] backdrop-saturate-[1.3]"
             >

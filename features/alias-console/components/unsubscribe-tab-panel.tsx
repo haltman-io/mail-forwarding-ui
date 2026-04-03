@@ -5,43 +5,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { RequestPreviewPanel } from "@/features/alias-console/components/request-preview-panel";
+import type {
+  PreviewSummaryItem,
+  RequestPreviewState,
+} from "@/features/alias-console/types/alias-console.types";
 
 type UnsubscribeTabPanelProps = {
   alias: string;
   requestBusy: boolean;
   unsubscribeButtonContent: ReactNode;
-  copiedId: string | null;
-  unsubscribePreviewPulseSource: string;
-  curlUnsubscribe: string;
-  canCopyPreview: boolean;
-  codeBlockClass: string;
-  clickableIconClass: string;
   onAliasChange: (value: string) => void;
   onSubmit: (e: FormEvent) => void;
-  onCopyUnsubscribePreview: () => void;
+  onViewCurl: () => void;
 };
 
 export function UnsubscribeTabPanel({
   alias,
   requestBusy,
   unsubscribeButtonContent,
-  copiedId,
-  unsubscribePreviewPulseSource,
-  curlUnsubscribe,
-  canCopyPreview,
-  codeBlockClass,
-  clickableIconClass,
   onAliasChange,
   onSubmit,
-  onCopyUnsubscribePreview,
+  onViewCurl,
 }: UnsubscribeTabPanelProps) {
-  const previewMessage = alias.trim()
-    ? "Review before removing the alias."
-    : "Fill the form to preview your alias.";
-
-  const previewDetails = alias.trim() ? (
-    <p className="font-mono text-xs text-[var(--text-secondary)]">Alias: {alias.trim()}</p>
-  ) : null;
+  const trimmedAlias = alias.trim();
+  const previewState: RequestPreviewState = trimmedAlias ? "draft" : "empty";
+  const previewSummaryItems: PreviewSummaryItem[] = [
+    {
+      label: "Action",
+      value: "Delete alias",
+      tone: "danger",
+    },
+    {
+      label: "Alias",
+      value: trimmedAlias || "alias@domain.tld",
+      mono: true,
+      tone: trimmedAlias ? "danger" : "muted",
+    },
+  ];
 
   return (
     <TabsContent value="unsubscribe" className="mt-6">
@@ -70,18 +70,13 @@ export function UnsubscribeTabPanel({
           </div>
         </form>
 
-        <div className="hidden space-y-3 lg:col-span-2 lg:block">
+        <div className="hidden space-y-3 lg:col-span-2 lg:block lg:self-start">
           <RequestPreviewPanel
-            message={previewMessage}
-            details={previewDetails}
-            curlCommand={curlUnsubscribe}
-            codeBlockClass={codeBlockClass}
-            clickableIconClass={clickableIconClass}
-            copied={copiedId === "preview-unsubscribe-curl"}
-            onCopy={onCopyUnsubscribePreview}
-            copyDisabled={!canCopyPreview}
-            pulseKey={unsubscribePreviewPulseSource}
-            pulseActive={Boolean(alias.trim())}
+            intent="unsubscribe"
+            state={previewState}
+            summaryItems={previewSummaryItems}
+            onViewCurl={onViewCurl}
+            viewCurlLabel="View cURL command"
           />
         </div>
       </div>

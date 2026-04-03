@@ -4,6 +4,15 @@ export type RequestState = "idle" | "loading" | "awaiting_confirmation" | "succe
 export type ApiStatus = "idle" | "connected" | "error";
 export type Intent = "subscribe" | "unsubscribe";
 export type AliasConsoleTab = Intent | "curl";
+export type RequestPreviewState = "empty" | "draft" | "awaiting_confirmation" | "confirmed";
+export type PreviewSummaryTone = "default" | "accent" | "danger" | "muted";
+
+export type PreviewSummaryItem = {
+  label: string;
+  value: string;
+  mono?: boolean;
+  tone?: PreviewSummaryTone;
+};
 
 export type MappingSnapshot = {
   alias: string;

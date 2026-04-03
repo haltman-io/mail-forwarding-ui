@@ -29,31 +29,44 @@ export function parseCustomAddress(value: string): ParsedCustomAddress {
   return { local: trimmed.slice(0, atIndex), domain: trimmed.slice(atIndex + 1) };
 }
 
+function curlBaseUrl(host: string, path: string) {
+  return `https://${host}${path}`;
+}
+
+function formatCurlLines(url: string, params: Record<string, string>) {
+  const lines = [`curl -G '${url}'`];
+  const entries = Object.entries(params);
+  for (const [key, value] of entries) {
+    lines.push(`  --data-urlencode '${key}=${value}'`);
+  }
+  return lines.join(" \\\n");
+}
+
 export function buildSubscribeCurl(args: {
   to: string;
   isCustomAddress: boolean;
   customAddress: string;
   name: string;
   domain: string;
+  host: string;
 }) {
   const target = args.to.trim() || "{your_mail}";
+  const url = curlBaseUrl(args.host, "/api/forward/subscribe");
 
   if (args.isCustomAddress) {
     const address = clampLower(args.customAddress.trim()) || "{alias_email}";
-    const params = new URLSearchParams({ address, to: target });
-    return `curl '${API_HOST}/api/forward/subscribe?${params.toString()}'`;
+    return formatCurlLines(url, { address, to: target });
   }
 
   const handle = clampLower(args.name) || "{alias_handle}";
   const aliasDomain = clampLower(args.domain) || "{alias_domain}";
-  const params = new URLSearchParams({ name: handle, domain: aliasDomain, to: target });
-  return `curl '${API_HOST}/api/forward/subscribe?${params.toString()}'`;
+  return formatCurlLines(url, { name: handle, domain: aliasDomain, to: target });
 }
 
-export function buildUnsubscribeCurl(alias: string) {
+export function buildUnsubscribeCurl(alias: string, host: string) {
   const normalizedAlias = clampLower(alias) || "{alias_email}";
-  const params = new URLSearchParams({ alias: normalizedAlias });
-  return `curl '${API_HOST}/api/forward/unsubscribe?${params.toString()}'`;
+  const url = curlBaseUrl(host, "/api/forward/unsubscribe");
+  return formatCurlLines(url, { alias: normalizedAlias });
 }
 
 export function getStatusPillText(requestState: RequestState) {

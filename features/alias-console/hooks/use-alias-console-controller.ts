@@ -69,6 +69,11 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
   const [customAddress, setCustomAddress] = React.useState("");
 
   const [alias, setAlias] = React.useState("");
+  const [host, setHost] = React.useState("localhost");
+
+  React.useEffect(() => {
+    setHost(window.location.host);
+  }, []);
 
   const [activeTab, setActiveTab] = React.useState<AliasConsoleTab>("subscribe");
   const [requestState, setRequestState] = React.useState<RequestState>("idle");
@@ -145,11 +150,11 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
   );
 
   const curlSubscribe = React.useMemo(
-    () => buildSubscribeCurl({ to, isCustomAddress, customAddress: customAddressValue, name, domain }),
-    [to, isCustomAddress, customAddressValue, name, domain]
+    () => buildSubscribeCurl({ to, isCustomAddress, customAddress: customAddressValue, name, domain, host }),
+    [to, isCustomAddress, customAddressValue, name, domain, host]
   );
 
-  const curlUnsubscribe = React.useMemo(() => buildUnsubscribeCurl(alias), [alias]);
+  const curlUnsubscribe = React.useMemo(() => buildUnsubscribeCurl(alias, host), [alias, host]);
 
   const setRequestStateNow = React.useCallback((state: RequestState) => {
     if (requestResetTimer.current) clearTimeout(requestResetTimer.current);
@@ -503,28 +508,16 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     copyWithFeedback("curl-subscribe-tab", curlSubscribe, "Subscribe command");
   }, [canCopySubscribeCurl, copyWithFeedback, curlSubscribe]);
 
-  const copySubscribePreviewCurl = React.useCallback(() => {
-    if (!canCopySubscribePreview) return;
-    copyWithFeedback("preview-subscribe-curl", curlSubscribe, "Create command", 2000);
-  }, [canCopySubscribePreview, copyWithFeedback, curlSubscribe]);
-
   const copyUnsubscribeCurl = React.useCallback(() => {
     if (!canCopyUnsubscribeCurl) return;
     copyWithFeedback("curl-unsubscribe-tab", curlUnsubscribe, "Unsubscribe command");
   }, [canCopyUnsubscribeCurl, copyWithFeedback, curlUnsubscribe]);
 
-  const copyUnsubscribePreviewCurl = React.useCallback(() => {
-    if (!canCopyUnsubscribePreview) return;
-    copyWithFeedback("preview-unsubscribe-curl", curlUnsubscribe, "Delete command", 2000);
-  }, [canCopyUnsubscribePreview, copyWithFeedback, curlUnsubscribe]);
-
   return {
     activeTab,
     alias,
     apiStatus,
-    canCopySubscribePreview,
     canCopySubscribeCurl,
-    canCopyUnsubscribePreview,
     canCopyUnsubscribeCurl,
     confirmCloseOpen,
     confirmCode,
@@ -577,8 +570,6 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
     goToSubscribeTab,
     goToUnsubscribeTab,
     copySubscribeCurl,
-    copySubscribePreviewCurl,
     copyUnsubscribeCurl,
-    copyUnsubscribePreviewCurl,
   };
 }

@@ -84,7 +84,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
             <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
               <div className="mb-1 flex items-center justify-center">
-                <Globe className="h-4 w-4 text-[var(--alias-accent)] opacity-60" />
+                <Globe className="hero-stat-icon h-4 w-4 text-[var(--alias-accent)] opacity-60" />
               </div>
               <p className="font-mono text-xl font-bold leading-none tracking-tight text-[var(--text-primary)] sm:text-2xl">
                 {stats.domains}
@@ -99,7 +99,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
             <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.04] transition-opacity duration-500 group-hover:opacity-[0.07]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
               <div className="mb-1 flex items-center justify-center">
-                <Infinity className="h-4 w-4 text-[var(--neu-green)] opacity-60" />
+                <Infinity className="hero-stat-icon h-4 w-4 text-[var(--neu-green)] opacity-60" />
               </div>
               <p className="font-mono text-xl font-bold leading-none tracking-tight text-[var(--text-primary)] sm:text-2xl">
                 &infin;
@@ -114,7 +114,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
             <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
               <div className="mb-1 flex items-center justify-center">
-                <AtSign className="h-4 w-4 text-[var(--alias-accent)] opacity-60" />
+                <AtSign className="hero-stat-icon h-4 w-4 text-[var(--alias-accent)] opacity-60" />
               </div>
               <p className="font-mono text-xl font-bold leading-none tracking-tight text-[var(--text-primary)] sm:text-2xl">
                 $0
@@ -158,7 +158,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
         <div className="flex items-center justify-center">
           <Link
             href="/console"
-            className="group inline-flex items-center gap-2 rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.15)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] transition-all duration-300 hover:scale-[1.02] hover:border-[rgb(var(--alias-accent-rgb)_/_0.25)] hover:bg-[rgb(var(--alias-accent-rgb)_/_0.12)] hover:shadow-[0_0_20px_rgb(var(--alias-accent-rgb)_/_0.10)]"
+            className="hero-cta group inline-flex items-center gap-2 rounded-full border border-[rgb(var(--alias-accent-rgb)_/_0.15)] bg-[rgb(var(--alias-accent-rgb)_/_0.08)] px-6 py-2.5 font-mono text-sm font-medium text-[var(--neu-green)] hover:border-[rgb(var(--alias-accent-rgb)_/_0.25)] hover:bg-[rgb(var(--alias-accent-rgb)_/_0.12)]"
           >
             <Terminal className="h-4 w-4 opacity-70" />
             Create an alias
