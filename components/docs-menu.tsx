@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  ArrowUpRight,
   BookOpen,
   CircleHelp,
   Github,
@@ -50,12 +51,14 @@ export function DocsMenu({
         <Link href={DOCUMENTATION_URL} target="_blank" rel="noreferrer">
           <BookOpen className={navMenuItemIconClassName} />
           Documentation
+          <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60" />
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href={SOURCE_CODE_URL} target="_blank" rel="noreferrer">
           <Github className={navMenuItemIconClassName} />
           Source Code
+          <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60" />
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Code2, Zap } from "lucide-react";
+import { ArrowUpRight, Code2, Zap } from "lucide-react";
 
 import { ApiTokenDialog } from "@/components/api-token-dialog";
 import {
@@ -50,6 +50,7 @@ export function ApiMenu({
         <Link href={API_REFERENCE_URL} target="_blank" rel="noreferrer">
           <Zap className={navMenuItemIconClassName} />
           API Reference
+          <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60" />
         </Link>
       </DropdownMenuItem>
     </NavGroupMenu>

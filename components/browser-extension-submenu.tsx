@@ -1,6 +1,6 @@
 "use client";
 
-import { Chromium, Flame } from "lucide-react";
+import { ArrowUpRight, Chromium, Flame } from "lucide-react";
 
 import {
   CHROME_EXTENSION_URL,
@@ -39,12 +39,14 @@ export function BrowserExtensionSubmenu({
             <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer">
               <Flame className={navMenuItemIconClassName} />
               Firefox Extension
+              <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60" />
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className={navMenuItemClassName}>
             <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer">
               <Chromium className={navMenuItemIconClassName} />
               Chrome Extension
+              <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60" />
             </a>
           </DropdownMenuItem>
         </DropdownMenuSubContent>

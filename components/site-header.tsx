@@ -38,6 +38,7 @@ import { ApiTokenDialog } from "@/components/api-token-dialog";
 import { DnsSetupMenu } from "@/components/dns-setup-menu";
 import {
   MobileNavSection,
+  MobileNavExternalIndicator,
   MobileNavLinkIndicator,
   MobileNavSeparator,
   mobileNavItemClassName,
@@ -380,7 +381,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           >
                             <Flame className={mobileNavL3IconClassName} />
                             Firefox Extension
-                            <MobileNavLinkIndicator />
+                            <MobileNavExternalIndicator />
                           </Link>
                           <Link
                             href={CHROME_EXTENSION_URL}
@@ -391,7 +392,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           >
                             <Chromium className={mobileNavL3IconClassName} />
                             Chrome Extension
-                            <MobileNavLinkIndicator />
+                            <MobileNavExternalIndicator />
                           </Link>
                         </MobileNavSection>
                       </MobileNavSection>
@@ -415,7 +416,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                         >
                           <Zap className={mobileNavL2IconClassName} />
                           API Reference
-                          <MobileNavLinkIndicator />
+                          <MobileNavExternalIndicator />
                         </Link>
                       </MobileNavSection>
 
@@ -432,7 +433,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                         >
                           <BookOpen className={mobileNavL2IconClassName} />
                           Documentation
-                          <MobileNavLinkIndicator />
+                          <MobileNavExternalIndicator />
                         </Link>
                         <Link
                           href={SOURCE_CODE_URL}
@@ -443,7 +444,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                         >
                           <Github className={mobileNavL2IconClassName} />
                           Source Code
-                          <MobileNavLinkIndicator />
+                          <MobileNavExternalIndicator />
                         </Link>
                         <button
                           type="button"

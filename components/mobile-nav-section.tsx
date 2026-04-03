@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 
 import {
   Collapsible,
@@ -48,6 +48,10 @@ const indicatorClassName = "ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)
 
 export function MobileNavLinkIndicator() {
   return <ChevronRight className={indicatorClassName} />;
+}
+
+export function MobileNavExternalIndicator() {
+  return <ArrowUpRight className={indicatorClassName} />;
 }
 
 /* ── separator ── */
