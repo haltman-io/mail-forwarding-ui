@@ -231,19 +231,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  body.host-background-active {
-    background-color: #000;
-  }
-
-  .dark body.host-background-active {
-    background-image: none;
-  }
-
-  body.host-background-active::before,
-  body.host-background-active::after {
-    content: none;
-  }
-
   /* ── Layer 1: atmospheric charcoal base ── */
   .dark body {
     background-color: #0c0e13;

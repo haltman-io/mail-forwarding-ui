@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { DebugToolbarLoader } from "@/components/debug-toolbar-loader";
 import { DomainDisclaimer } from "@/components/domain-disclaimer";
 import { GlobalNoiseOverlay } from "@/components/global-noise-overlay";
-import { HostBackground } from "@/components/host-background";
+
 
 const uiSans = Inter({
   subsets: ["latin"],
@@ -42,7 +42,6 @@ export default function RootLayout({
         className={`${uiSans.variable} ${uiMono.variable} min-h-screen bg-background text-foreground font-sans antialiased`}
       >
         <ThemeProvider>
-          <HostBackground />
           {children}
           <a rel="me" href="https://infosec.exchange/@haltman" className="sr-only">
             Mastodon
