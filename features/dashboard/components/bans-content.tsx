@@ -287,6 +287,12 @@ export function BansContent() {
               <Label htmlFor="ban-expires">Expires at (optional)</Label>
               <Input id="ban-expires" type="datetime-local" value={c.formExpiresAt} onChange={(e) => c.setFormExpiresAt(e.target.value)} disabled={c.editorBusy} />
             </div>
+            {c.formId === null && c.formType !== "ip" && (
+              <div className="flex items-center gap-3 rounded-lg border px-4 py-3">
+                <Switch checked={c.formDisableAliases} onCheckedChange={c.setFormDisableAliases} disabled={c.editorBusy} id="ban-disable-aliases" />
+                <Label htmlFor="ban-disable-aliases" className="cursor-pointer text-sm">Disable matching active aliases</Label>
+              </div>
+            )}
             {c.formId !== null && (
               <>
                 <div className="flex items-center gap-3 rounded-lg border px-4 py-3">

@@ -42,6 +42,7 @@ export function useBansController() {
   const [formExpiresAt, setFormExpiresAt] = React.useState("");
   const [formRevoked, setFormRevoked] = React.useState(false);
   const [formRevokedReason, setFormRevokedReason] = React.useState("");
+  const [formDisableAliases, setFormDisableAliases] = React.useState(false);
 
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; label: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
@@ -73,13 +74,13 @@ export function useBansController() {
   const rangeTo = Math.min(list.offset + list.limit, list.total);
 
   function openCreate() {
-    setFormId(null); setFormType("email"); setFormValue(""); setFormReason(""); setFormExpiresAt(""); setFormRevoked(false); setFormRevokedReason("");
+    setFormId(null); setFormType("email"); setFormValue(""); setFormReason(""); setFormExpiresAt(""); setFormRevoked(false); setFormRevokedReason(""); setFormDisableAliases(false);
     setEditorOpen(true);
   }
   function openEdit(item: AdminBan) {
     setFormId(item.id); setFormType((item.ban_type as BanType) || "email"); setFormValue(item.ban_value);
     setFormReason(item.reason ?? ""); setFormExpiresAt(isoToDateTimeLocal(item.expires_at));
-    setFormRevoked(Boolean(item.revoked_at)); setFormRevokedReason(item.revoked_reason ?? "");
+    setFormRevoked(Boolean(item.revoked_at)); setFormRevokedReason(item.revoked_reason ?? ""); setFormDisableAliases(false);
     setEditorOpen(true);
   }
 
@@ -99,10 +100,14 @@ export function useBansController() {
         body.revoked = formRevoked ? 1 : 0;
         if (formRevokedReason.trim()) body.revoked_reason = formRevokedReason.trim();
       }
+      if (!isEdit && formDisableAliases && formType !== "ip") {
+        body.disable_matching_aliases = true;
+      }
       const r = isEdit ? await updateBan(formId, body) : await createBan(body);
       if (isUnauthorized(r)) { fail("Unauthorized"); return; }
       if (!r.ok) { const err = describeError(r, isEdit ? "Update failed." : "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
-      setEditorOpen(false); ok(isEdit ? "Ban updated" : "Ban created", `${formType}:${value}`); await load(isEdit ? list.offset : 0);
+      const desc = r.data?.message ?? `${formType}:${value}`;
+      setEditorOpen(false); ok(isEdit ? "Ban updated" : "Ban created", desc); await load(isEdit ? list.offset : 0);
     } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
     finally { setEditorBusy(false); }
   }
@@ -147,6 +152,7 @@ export function useBansController() {
     editorOpen, setEditorOpen, editorBusy, formId,
     formType, setFormType, formValue, setFormValue, formReason, setFormReason,
     formExpiresAt, setFormExpiresAt, formRevoked, setFormRevoked, formRevokedReason, setFormRevokedReason,
+    formDisableAliases, setFormDisableAliases,
     openCreate, openEdit, submitEditor,
     deleteTarget, setDeleteTarget, deleteBusy, askDelete, confirmDelete,
   };

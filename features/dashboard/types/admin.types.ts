@@ -24,6 +24,8 @@ export type CreateUpdateResponse<T> = {
   token_type?: string;
   error?: string;
   reason?: string;
+  disabled_aliases?: number;
+  message?: string;
 };
 
 export type RequestResult<T> = {
