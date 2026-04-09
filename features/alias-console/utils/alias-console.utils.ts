@@ -8,6 +8,27 @@ import type {
   StatusKind,
 } from "@/features/alias-console/types/alias-console.types";
 
+const RE_SAFE_DOMAIN =
+  /^(?=.{1,253}$)(?!.*\.\.)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
+
+const RE_IPV4 = /^\d+\.\d+\.\d+\.\d+$/;
+
+export function parseUrlDomainParam(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const raw = new URLSearchParams(window.location.search).get("domain");
+  if (!raw) return null;
+
+  const value = raw.trim().toLowerCase();
+  if (!value) return null;
+
+  if (value.includes(":")) return null;
+  if (RE_IPV4.test(value)) return null;
+  if (!RE_SAFE_DOMAIN.test(value)) return null;
+
+  return value;
+}
+
 export const clickableIconClass =
   "opacity-70 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none";
 

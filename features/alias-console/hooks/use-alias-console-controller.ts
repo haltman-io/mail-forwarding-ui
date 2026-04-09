@@ -29,6 +29,7 @@ import {
   getStatusKind,
   getStatusPillText,
   parseCustomAddress,
+  parseUrlDomainParam,
   sanitizeOtpToken,
 } from "@/features/alias-console/utils/alias-console.utils";
 
@@ -112,6 +113,10 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
 
   React.useEffect(() => {
     let cancelled = false;
+    const urlDomain = parseUrlDomainParam();
+
+    const pickDefault = () =>
+      PINNED_DOMAINS[Math.floor(Math.random() * PINNED_DOMAINS.length)] || "";
 
     (async () => {
       try {
@@ -121,11 +126,15 @@ export function useAliasConsoleController({ apiStatus: apiStatusProp, onApiStatu
         const apiDomains = list.filter((dom) => !PINNED_DOMAINS.includes(dom));
         const combined = [...PINNED_DOMAINS, ...apiDomains];
         setDomains(combined);
-        setDomain((current) => current || PINNED_DOMAINS[Math.floor(Math.random() * PINNED_DOMAINS.length)] || "");
+
+        const urlDomainAvailable = urlDomain != null && combined.includes(urlDomain);
+        setDomain((current) => current || (urlDomainAvailable ? urlDomain : pickDefault()));
       } catch {
         if (cancelled) return;
         setDomains(PINNED_DOMAINS);
-        setDomain((current) => current || PINNED_DOMAINS[Math.floor(Math.random() * PINNED_DOMAINS.length)] || "");
+
+        const urlDomainPinned = urlDomain != null && PINNED_DOMAINS.includes(urlDomain);
+        setDomain((current) => current || (urlDomainPinned ? urlDomain : pickDefault()));
       }
     })();
 
