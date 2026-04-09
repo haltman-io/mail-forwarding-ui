@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { API_HOST } from "@/lib/api-host";
 
-export type Stats = { domains: number; aliases: number };
+export type Stats = { domains: number; aliases: number; forwarded: number };
 
 export function useStats() {
   const [stats, setStats] = useState<Stats | null>(null);
