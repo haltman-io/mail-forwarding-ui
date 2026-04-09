@@ -17,7 +17,7 @@ const consoleTour: Tour[] = [
     steps: [
       {
         id: "console-welcome",
-        title: "Welcome to the Alias Console",
+        title: "Welcome to the Forward Console",
         content:
           "This is an email forwarding server that creates email forwards so you never have to give out your real address. No logs, no tracking, fully open-source and auditable. Let's walk you through it.",
         side: "bottom",

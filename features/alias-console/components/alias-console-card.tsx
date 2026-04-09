@@ -73,7 +73,7 @@ export function AliasConsoleCard(props: SubscribeCardProps = {}) {
       <CardHeader className="relative" data-tour-step-id="console-welcome">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
-            <CardTitle className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Alias Console</CardTitle>
+            <CardTitle className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Forward Console</CardTitle>
           </div>
 
           <div className="flex items-center gap-2">
