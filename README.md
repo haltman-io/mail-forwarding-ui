@@ -41,7 +41,7 @@ The goal is simple: make alias forwarding feel credible, modern, and fast withou
 
 - Public alias console with create, delete, and cURL workflows.
 - Email confirmation flow for activating new aliases.
-- Domain picker with optional fallback domains and custom address mode.
+- Domain picker with optional fallback domains, custom address mode, and URL-based domain preselection.
 - API token flow for programmatic alias automation.
 - DNS setup helper for onboarding domains cleanly.
 - Browser add-on entry points for companion extension workflows.
@@ -171,6 +171,30 @@ NEXT_PUBLIC_DEBUG_UI=false
 - `NEXT_PUBLIC_DOMAINS`: A fallback list used when the backend cannot return available domains.
 - `NEXT_PUBLIC_DEBUG_UI`: Development-only UI debugging aid.
 
+## URL Parameters
+
+The console page accepts optional query parameters for deep-linking into specific states.
+
+### Domain Preselection
+
+Use the `domain` parameter to preselect a domain in the alias console:
+
+```
+https://mail.thc.org/console/?domain=smokes.thc.org
+```
+
+This is useful for sharing direct links that guide users to a specific domain without manual selection.
+
+The parameter goes through strict validation before being applied:
+
+- Normalized to lowercase.
+- Must match a safe DNS domain format (letters, digits, hyphens, dots only).
+- Must have a valid TLD (2-63 letters, no digits).
+- Must not be an IPv4 address or contain IPv6 indicators.
+- Must not exceed 253 characters or contain label violations (`..`, leading/trailing hyphens).
+
+After validation, the domain is only selected if it exists in the list returned by the API. If the parameter is missing, empty, invalid, or not present in the API response, the console falls back to its default behavior (random pinned domain).
+
 ## Customization
 
 Mail Forwarding UI is easy to adapt without tearing through the whole app.
@@ -221,40 +245,10 @@ If you're building privacy-respecting mail infrastructure, improving alias workf
 
 ## Credits
 
-<center>
-<table>
-  <tr>
-    <td align="center" width="33%">
-      <a href="https://github.com/haltman-io">
-        <img src="https://github.com/haltman-io.png?size=160" width="112" height="112" alt="Haltman.IO profile picture" /><br />
-        <strong>Haltman.IO</strong>
-      </a>
-      <br />
-      Brazilian hacking crew
-    </td>
-    <td align="center" width="33%">
-      <a href="https://github.com/hackerschoice">
-        <img src="https://github.com/hackerschoice.png?size=160" width="112" height="112" alt="The Hacker's Choice profile picture" /><br />
-        <strong>The Hacker's Choice</strong>
-      </a>
-      <br />
-      Legendary hacking crew
-    </td>
+This project exists thanks to the work of the following people and groups.
 
-  </tr>
-</table>
-
-<table>
-  <tr>
-    <td align="center" width="33%">
-      <a href="https://github.com/Lou-Cipher">
-        <img src="https://github.com/Lou-Cipher.png?size=160" width="112" height="112" alt="Lou-Cipher profile picture" /><br />
-        <strong>Lou-Cipher</strong>
-      </a>
-      <br />
-      THC member, creator of the project
-    </td>
-
-  </tr>
-</table>
-</center>
+| | Name | Role |
+| --- | --- | --- |
+| <a href="https://github.com/Lou-Cipher"><img src="https://github.com/Lou-Cipher.png?size=80" width="40" height="40" alt="Lou-Cipher" /></a> | **[Lou-Cipher](https://github.com/Lou-Cipher)** | Original creator (2022), member of The Hacker's Choice |
+| <a href="https://github.com/hackerschoice"><img src="https://github.com/hackerschoice.png?size=80" width="40" height="40" alt="The Hacker's Choice" /></a> | **[The Hacker's Choice](https://github.com/hackerschoice)** | Hacking group behind the original project |
+| <a href="https://github.com/haltman-io"><img src="https://github.com/haltman-io.png?size=80" width="40" height="40" alt="Haltman.IO" /></a> | **[Haltman.IO](https://github.com/haltman-io)** | Current maintainer, development and infrastructure |
