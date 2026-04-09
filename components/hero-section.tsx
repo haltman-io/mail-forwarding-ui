@@ -54,7 +54,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
         />
 
         <p className="mx-auto max-w-[540px] text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-base">
-          A free email alias service.&nbsp;
+          A free email forwarding server.&nbsp;
           <br className="hidden sm:block" />
           No corporate bullshit. No VC money. No data harvesting.
           <br className="hidden sm:block" />

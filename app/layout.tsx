@@ -21,7 +21,7 @@ const uiMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Free Mail Forwarding",
-  description: "Privacy-first alias forwarding",
+  description: "Privacy-first email forwarding",
   alternates: {
     canonical: "https://forward.haltman.io",
   },

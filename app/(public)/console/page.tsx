@@ -19,7 +19,7 @@ const consoleTour: Tour[] = [
         id: "console-welcome",
         title: "Welcome to the Alias Console",
         content:
-          "This is a privacy tool that creates email aliases so you never have to give out your real address. No logs, no tracking, fully open-source and auditable. Let's walk you through it.",
+          "This is an email forwarding server that creates email forwards so you never have to give out your real address. No logs, no tracking, fully open-source and auditable. Let's walk you through it.",
         side: "bottom",
         align: "start",
       },
