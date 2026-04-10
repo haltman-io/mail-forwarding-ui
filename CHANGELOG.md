@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.3.0...v1.4.0) (2026-04-10)
+
+
+### Features
+
+* add external link indicators to various components for better UX ([03cd9ee](https://github.com/haltman-io/mail-forwarding-ui/commit/03cd9eeb636d23eb123dba4683614a84c846d57a))
+* add success dialog for alias creation and removal, enhance Firefox extension link handling ([ef0e0bb](https://github.com/haltman-io/mail-forwarding-ui/commit/ef0e0bbd7294988d984eab522c61d2a14c01228c))
+* **alias-console:** add URL domain parsing utility and integrate into alias console controller ([d3d007a](https://github.com/haltman-io/mail-forwarding-ui/commit/d3d007a2d1bc64c52473bf20529a38ff1f051e22))
+* **bans:** add option to disable matching active aliases in ban creation and editing ([fef6051](https://github.com/haltman-io/mail-forwarding-ui/commit/fef605147ef7012e5a3b828b4d7e8a7a7fac822f))
+* **dashboard:** enhance user and handle management with metrics and improved UI ([a868004](https://github.com/haltman-io/mail-forwarding-ui/commit/a868004cb8a16036e40d2443646020eebc18eb2e))
+* enhance hero section and subscribe tab panel UI for improved user experience ([4a82a19](https://github.com/haltman-io/mail-forwarding-ui/commit/4a82a1942bdc62595db45a06b5f2ef99cf30d948))
+* **handle-console:** add handle management components and hooks ([a413ff1](https://github.com/haltman-io/mail-forwarding-ui/commit/a413ff194cb8abfefb39ad666ebb163217558ac8))
+* **readme:** update domain picker description and add URL parameters section for deep-linking ([ecbd134](https://github.com/haltman-io/mail-forwarding-ui/commit/ecbd13465ac80df4fb1778a6cff8e09788a27ef0))
+* **stats:** add forwarded emails to stats tracking and update Stats type ([eb4cb25](https://github.com/haltman-io/mail-forwarding-ui/commit/eb4cb25abda2950e5728344623822099f3f3f4ac))
+* update terminology from "Alias Console" to "Forward Console" for clarity ([2b106b4](https://github.com/haltman-io/mail-forwarding-ui/commit/2b106b4d8f9a16b1840c7bf73f1a7300e116bcf3))
+* update terminology from "alias" to "email forwarding" for clarity ([a3d9419](https://github.com/haltman-io/mail-forwarding-ui/commit/a3d941999b9acad343d9de3301348f5f22123a17))
+
 ## [1.3.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.2.0...v1.3.0) (2026-04-03)
 
 
