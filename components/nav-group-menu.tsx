@@ -14,6 +14,7 @@ type NavGroupMenuProps = {
   label: string;
   children: React.ReactNode;
   icon?: LucideIcon;
+  badge?: React.ReactNode;
   triggerClassName?: string;
   triggerIconClassName?: string;
   contentClassName?: string;
@@ -32,6 +33,7 @@ export function NavGroupMenu({
   label,
   children,
   icon: Icon,
+  badge,
   triggerClassName,
   triggerIconClassName,
   contentClassName,
@@ -60,6 +62,7 @@ export function NavGroupMenu({
             />
           ) : null}
           {label}
+          {badge}
           <ChevronDown
             className={cn(
               "ml-0.5 h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180",

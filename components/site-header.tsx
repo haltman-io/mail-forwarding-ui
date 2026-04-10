@@ -31,6 +31,7 @@ import {
   Settings,
   User
 } from "lucide-react";
+import { ConsoleMenu } from "@/components/console-menu";
 import { SetupMenu } from "@/components/setup-menu";
 import { ApiMenu } from "@/components/api-menu";
 import { DocsMenu } from "@/components/docs-menu";
@@ -296,10 +297,12 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
             >
               {isMobileViewport === false ? (
                 <>
-                  <Link href="/console" className={navItemClass}>
-                    <Terminal className="h-4 w-4 text-[var(--text-secondary)]" />
-                    Console
-                  </Link>
+                  <ConsoleMenu
+                    triggerClassName={navItemClass}
+                    triggerIconClassName={navIconClass}
+                    open={openDesktopMenu === "console"}
+                    onOpenChange={handleDesktopMenuOpenChange("console")}
+                  />
                   <SetupMenu
                     triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
@@ -352,12 +355,21 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     className="max-h-[80vh] w-[min(92vw,320px)] overflow-y-auto p-2"
                   >
                     <div className="space-y-0.5">
-                      {/* ── L1: Console ── */}
-                      <Link href="/console" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                        <Terminal className={mobileNavItemIconClassName} />
-                        Console
-                        <MobileNavLinkIndicator />
-                      </Link>
+                      {/* ── L1: Console (expandable) ── */}
+                      <MobileNavSection label="Console">
+                        <Link href="/console" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <Terminal className={mobileNavL2IconClassName} />
+                          Alias
+                          <MobileNavLinkIndicator />
+                        </Link>
+                        <Link href="/handle" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <Fingerprint className={mobileNavL2IconClassName} />
+                          Handle
+                          <span className="ml-auto rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
+                            New
+                          </span>
+                        </Link>
+                      </MobileNavSection>
 
                       <MobileNavSeparator />
 
