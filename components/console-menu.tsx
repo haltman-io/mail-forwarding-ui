@@ -17,12 +17,6 @@ type ConsoleMenuProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-const newBadge = (
-  <span className="ml-auto rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
-    New
-  </span>
-);
-
 export function ConsoleMenu({
   triggerClassName,
   triggerIconClassName,
@@ -33,7 +27,6 @@ export function ConsoleMenu({
     <NavGroupMenu
       label="Console"
       icon={Terminal}
-      badge={newBadge}
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
       open={open}
@@ -49,7 +42,6 @@ export function ConsoleMenu({
         <Link href="/handle">
           <Fingerprint className={navMenuItemIconClassName} />
           Handle
-          {newBadge}
         </Link>
       </DropdownMenuItem>
     </NavGroupMenu>

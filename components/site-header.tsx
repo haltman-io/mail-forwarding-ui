@@ -12,6 +12,7 @@ import {
   Zap,
   ShieldCheck,
   ShieldAlert,
+  Trophy,
   Chromium,
   Flame,
   HatGlasses,
@@ -76,6 +77,8 @@ import {
 
 const clickableIconClass =
   "opacity-70 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none";
+const newBadgeClassName =
+  "ml-0.5 rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase";
 
 const brandIcons = [
   HatGlasses,
@@ -329,7 +332,11 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                   <Link href="/security" className={navItemClass}>
                     <ShieldCheck className="h-4 w-4 text-[var(--text-secondary)]" />
                     VDP
-                    <span className="ml-0.5 rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
+                  </Link>
+                  <Link href="/hall-of-fame" className={navItemClass}>
+                    <Trophy className="h-4 w-4 text-[var(--text-secondary)]" />
+                    HoF
+                    <span className={newBadgeClassName}>
                       New
                     </span>
                   </Link>
@@ -365,9 +372,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                         <Link href="/handle" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
                           <Fingerprint className={mobileNavL2IconClassName} />
                           Handle
-                          <span className="ml-auto rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
-                            New
-                          </span>
+                          <MobileNavLinkIndicator />
                         </Link>
                       </MobileNavSection>
 
@@ -491,6 +496,16 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           <MobileNavLinkIndicator />
                         </Link>
                       </MobileNavSection>
+
+                      <MobileNavSeparator />
+
+                      <Link href="/hall-of-fame" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                        <Trophy className={mobileNavItemIconClassName} />
+                        HoF
+                        <span className="ml-auto rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
+                          New
+                        </span>
+                      </Link>
 
                       <MobileNavSeparator />
 

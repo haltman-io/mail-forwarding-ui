@@ -171,7 +171,13 @@ Component/URL: (E.g. /api/v1/auth or mail-forwarding-api)
                 </pre>
               </div>
 
-              <p className="mt-4">Confirmed vulnerabilities will be generously rewarded, and your alias will be immortalized in our Hall of Fame! We strongly value hackers who communicate responsibly.</p>
+              <p className="mt-4">
+                Confirmed vulnerabilities will be generously rewarded, and your alias will be immortalized in our{" "}
+                <Link href="/hall-of-fame" className="text-[var(--neu-green)] underline underline-offset-4 transition-colors hover:text-[var(--text-primary)]">
+                  Hall of Fame
+                </Link>
+                ! We strongly value hackers who communicate responsibly.
+              </p>
             </div>
           </section>
 
