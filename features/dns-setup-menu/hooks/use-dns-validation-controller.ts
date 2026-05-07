@@ -16,6 +16,7 @@ import {
 import {
   formatCopyValue,
   formatTimeLabel,
+  getDnsMissingRecords,
   getNextCheckAt,
   getOverallStatus,
   getStatusKind,
@@ -26,12 +27,13 @@ import type { DnsValidationDialogProps } from "@/features/dns-setup-menu/types/d
 
 type UseDnsValidationControllerArgs = Pick<
   DnsValidationDialogProps,
-  "open" | "onOpenChange" | "closeGuard"
+  "open" | "onOpenChange" | "requestType" | "closeGuard"
 >;
 
 export function useDnsValidationController({
   open,
   onOpenChange,
+  requestType,
   closeGuard,
 }: UseDnsValidationControllerArgs) {
   const [target, setTarget] = React.useState("");
@@ -107,6 +109,21 @@ export function useDnsValidationController({
   }, [open, stopPolling]);
 
   React.useEffect(() => {
+    if (!open) return;
+    stopPolling();
+    setRequestResponse(null);
+    setCheckResponse(null);
+    setErrorText(null);
+    setIsSubmitting(false);
+    setShowPollingIndicator(false);
+    pollTargetRef.current = "";
+    if (pollingIndicatorTimerRef.current) {
+      clearTimeout(pollingIndicatorTimerRef.current);
+      pollingIndicatorTimerRef.current = null;
+    }
+  }, [open, requestType, stopPolling]);
+
+  React.useEffect(() => {
     return () => {
       stopPolling();
       if (pollingIndicatorTimerRef.current) {
@@ -118,7 +135,7 @@ export function useDnsValidationController({
 
   const scheduleNext = React.useCallback(
     (data: CheckDnsResponse) => {
-      const nextCheckAt = getNextCheckAt(data);
+      const nextCheckAt = getNextCheckAt(data, requestType);
       let delay = FALLBACK_POLL_INTERVAL_MS;
 
       if (nextCheckAt) {
@@ -134,7 +151,7 @@ export function useDnsValidationController({
         pollFnRef.current();
       }, delay);
     },
-    []
+    [requestType]
   );
 
   const scheduleNextAfterError = React.useCallback((errorCount: number) => {
@@ -222,7 +239,7 @@ export function useDnsValidationController({
         pollTargetRef.current = data.normalized_target;
       }
 
-      if (shouldStopPolling(data)) {
+      if (shouldStopPolling(data, requestType)) {
         setIsPolling(false);
         return;
       }
@@ -248,7 +265,7 @@ export function useDnsValidationController({
     } finally {
       if (openRef.current) setIsPolling(false);
     }
-  }, [resetPollErrors, scheduleNext, scheduleNextAfterError]);
+  }, [requestType, resetPollErrors, scheduleNext, scheduleNextAfterError]);
 
   React.useEffect(() => {
     pollFnRef.current = () => {
@@ -278,7 +295,7 @@ export function useDnsValidationController({
       abortRef.current = controller;
 
       try {
-        const response = await requestDnsValidation(normalized, controller.signal);
+        const response = await requestDnsValidation(normalized, requestType, controller.signal);
 
         if (!openRef.current) return;
 
@@ -311,7 +328,7 @@ export function useDnsValidationController({
               description: "Resuming status polling for this domain.",
             });
 
-            if (!shouldStopPolling(resumed)) {
+            if (!shouldStopPolling(resumed, requestType)) {
               scheduleNext(resumed);
             }
             return;
@@ -331,12 +348,12 @@ export function useDnsValidationController({
         if (openRef.current) setIsSubmitting(false);
       }
     },
-    [pollCheck, resetPollErrors, scheduleNext, stopPolling, target]
+    [pollCheck, requestType, resetPollErrors, scheduleNext, stopPolling, target]
   );
 
-  const status = getOverallStatus(checkResponse, requestResponse);
+  const status = getOverallStatus(checkResponse, requestResponse, requestType);
   const statusKind = getStatusKind(status);
-  const nextCheckLabel = formatTimeLabel(getNextCheckAt(checkResponse));
+  const nextCheckLabel = formatTimeLabel(getNextCheckAt(checkResponse, requestType));
 
   React.useEffect(() => {
     if (isPolling) {
@@ -357,10 +374,9 @@ export function useDnsValidationController({
     }, 2000);
   }, [isPolling, showPollingIndicator]);
 
-  const emailMissing = checkResponse?.email?.missing ?? [];
-  const prioritizedEmailMissing = React.useMemo(
-    () => prioritizePendingRecords(emailMissing),
-    [emailMissing]
+  const prioritizedMissingRecords = React.useMemo(
+    () => prioritizePendingRecords(getDnsMissingRecords(checkResponse, requestType)),
+    [checkResponse, requestType]
   );
 
   const showResults = Boolean(requestResponse || checkResponse);
@@ -392,7 +408,7 @@ export function useDnsValidationController({
     status,
     statusKind,
     nextCheckLabel,
-    prioritizedEmailMissing,
+    prioritizedMissingRecords,
     showResults,
     submitDisabled,
     defaultRecordName,

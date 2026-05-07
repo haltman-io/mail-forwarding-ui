@@ -2,13 +2,34 @@ import { API_HOST } from "@/lib/api-host";
 
 export type DnsStatus = "PENDING" | "ACTIVE" | "EXPIRED" | "FAILED";
 export type DnsOverallStatus = DnsStatus | "MIXED";
+export type DnsRequestType = "UI" | "EMAIL";
 
 export type DnsRequestResponse = {
   id: number;
   target: string;
-  type: "UI" | "EMAIL";
+  type: DnsRequestType;
   status: DnsStatus;
   expires_at: string;
+};
+
+type DnsCheckBase<TMissing> = {
+  status: DnsStatus;
+  id: number;
+  created_at?: string;
+  expires_at?: string;
+  last_checked_at?: string;
+  next_check_at?: string;
+  missing?: TMissing[];
+};
+
+type TxtMissingRecord<TKey extends string> = {
+  key: TKey;
+  type: string;
+  name: string;
+  expected: string;
+  found: string[];
+  ok: boolean;
+  found_truncated: boolean;
 };
 
 export type EmailMissing =
@@ -21,34 +42,13 @@ export type EmailMissing =
       ok: boolean;
       found_truncated: boolean;
     }
-  | {
-      key: "SPF";
-      type: string;
-      name: string;
-      expected: string;
-      found: string[];
-      ok: boolean;
-      found_truncated: boolean;
-    }
-  | {
-      key: "DMARC";
-      type: string;
-      name: string;
-      expected: string;
-      found: string[];
-      ok: boolean;
-      found_truncated: boolean;
-    };
+  | TxtMissingRecord<"SPF" | "DMARC" | "DKIM">;
 
-export type EmailCheck = {
-  status: DnsStatus;
-  id: number;
-  created_at?: string;
-  expires_at?: string;
-  last_checked_at?: string;
-  next_check_at?: string;
-  missing?: EmailMissing[];
-};
+export type UiMissing = TxtMissingRecord<"CNAME" | "A">;
+export type DnsMissingRecord = EmailMissing | UiMissing;
+
+export type EmailCheck = DnsCheckBase<EmailMissing>;
+export type UiCheck = DnsCheckBase<UiMissing>;
 
 export type CheckDnsSummary = {
   has_ui: boolean;
@@ -63,8 +63,8 @@ export type CheckDnsResponse = {
   target: string;
   normalized_target: string;
   summary: CheckDnsSummary;
-  ui?: unknown;
-  email: EmailCheck | null;
+  ui?: UiCheck | null;
+  email?: EmailCheck | null;
 };
 
 export type DnsValidationError = Error & { status?: number; payload?: unknown };
@@ -115,6 +115,15 @@ async function fetchJson<T>(url: string, options: FetchJsonOptions): Promise<T> 
 
 export function requestEmail(target: string, signal?: AbortSignal) {
   return fetchJson<DnsRequestResponse>(`${API_HOST}/api/request/email`, {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({ target }),
+    signal,
+  });
+}
+
+export function requestUi(target: string, signal?: AbortSignal) {
+  return fetchJson<DnsRequestResponse>(`${API_HOST}/api/request/ui`, {
     method: "POST",
     headers: JSON_HEADERS,
     body: JSON.stringify({ target }),

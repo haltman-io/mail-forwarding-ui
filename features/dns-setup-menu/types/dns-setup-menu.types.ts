@@ -1,4 +1,5 @@
 import type * as React from "react";
+import type { DnsRequestType } from "@/lib/dns-validation";
 
 export type StatusKind = "ok" | "bad" | "idle";
 
@@ -22,6 +23,8 @@ export type RecordTone = "ok" | "bad";
 export type DnsValidationDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  requestType: DnsRequestType;
+  onRequestTypeChange: (type: DnsRequestType) => void;
   title: string;
   description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;

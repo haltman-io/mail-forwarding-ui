@@ -1,9 +1,10 @@
 import type {
   CheckDnsResponse,
+  DnsMissingRecord,
   DnsOverallStatus,
+  DnsRequestType,
   DnsRequestResponse,
   DnsStatus,
-  EmailMissing,
 } from "@/lib/dns-validation";
 import type {
   FoundEntry,
@@ -41,7 +42,7 @@ function normalizeTxtValue(value: string) {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-export function getEmailFoundEntries(item: EmailMissing): FoundEntry[] {
+export function getDnsFoundEntries(item: DnsMissingRecord): FoundEntry[] {
   if (item.key === "MX") {
     const expectedHost = normalizeDnsName(item.expected.host);
     const expectedPriority = item.expected.priority;
@@ -105,21 +106,48 @@ export function getFoundEntryToneClass(recordTone: RecordTone) {
 export function getOverallStatus(
   data: CheckDnsResponse | null,
   request: DnsRequestResponse | null,
+  type: DnsRequestType,
 ) {
-  const typeStatus = data?.email?.status;
+  const typeStatus = getDnsTypeCheck(data, type)?.status;
   return typeStatus ?? request?.status ?? data?.summary?.overall_status ?? null;
 }
 
-export function getNextCheckAt(data: CheckDnsResponse | null) {
+type DnsTypeCheckView = {
+  status: DnsStatus;
+  next_check_at?: string;
+  missing?: DnsMissingRecord[];
+};
+
+export function getDnsTypeCheck(
+  data: CheckDnsResponse | null,
+  type: DnsRequestType
+): DnsTypeCheckView | null {
   if (!data) return null;
-  const typeNext = data.email?.next_check_at;
+  const check = type === "UI" ? data.ui ?? null : data.email ?? null;
+  return check as DnsTypeCheckView | null;
+}
+
+export function getDnsMissingRecords(
+  data: CheckDnsResponse | null,
+  type: DnsRequestType
+): DnsMissingRecord[] {
+  return getDnsTypeCheck(data, type)?.missing ?? [];
+}
+
+export function getNextCheckAt(data: CheckDnsResponse | null, type: DnsRequestType) {
+  if (!data) return null;
+  const typeNext = getDnsTypeCheck(data, type)?.next_check_at;
   return typeNext ?? data.summary?.next_check_at_min ?? null;
 }
 
-export function shouldStopPolling(data: CheckDnsResponse | null) {
+export function shouldStopPolling(data: CheckDnsResponse | null, type: DnsRequestType) {
   if (!data) return false;
+  const typeStatus = getDnsTypeCheck(data, type)?.status;
+  if (typeStatus === "ACTIVE" || typeStatus === "EXPIRED" || typeStatus === "FAILED") {
+    return true;
+  }
+
   const overall = data.summary?.overall_status ?? null;
   if (overall === "ACTIVE" || overall === "EXPIRED" || overall === "FAILED") return true;
-  const typeStatus = data.email?.status;
-  return typeStatus === "ACTIVE" || typeStatus === "EXPIRED";
+  return false;
 }

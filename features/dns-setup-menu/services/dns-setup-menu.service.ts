@@ -1,7 +1,9 @@
 import {
   checkDns,
   requestEmail,
+  requestUi,
   type CheckDnsResponse,
+  type DnsRequestType,
   type DnsRequestResponse,
 } from "@/lib/dns-validation";
 
@@ -87,8 +89,14 @@ function shouldRetryRequestError(error: unknown) {
   return false;
 }
 
-export async function requestDnsValidation(target: string, signal?: AbortSignal): Promise<DnsRequestResponse> {
-  return withRetry(() => requestEmail(target, signal), {
+export async function requestDnsValidation(
+  target: string,
+  type: DnsRequestType,
+  signal?: AbortSignal
+): Promise<DnsRequestResponse> {
+  const request = type === "UI" ? requestUi : requestEmail;
+
+  return withRetry(() => request(target, signal), {
     retries: REQUEST_RETRY_COUNT,
     baseDelayMs: REQUEST_RETRY_BASE_DELAY_MS,
     maxDelayMs: REQUEST_RETRY_MAX_DELAY_MS,
