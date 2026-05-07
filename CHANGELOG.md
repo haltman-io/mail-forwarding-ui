@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.4.0...v1.5.0) (2026-04-20)
+
+
+### Features
+
+* add Hall of Fame page with markdown content ([0311f2f](https://github.com/haltman-io/mail-forwarding-ui/commit/0311f2fd693d62e045227ca5395a3aa405874f85))
+
 ## [1.4.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.3.0...v1.4.0) (2026-04-10)
 
 
