@@ -8,6 +8,7 @@ interface NoiseProps {
   patternScaleY?: number;
   patternRefreshInterval?: number;
   patternAlpha?: number;
+  animated?: boolean;
 }
 
 const Noise: React.FC<NoiseProps> = ({
@@ -16,6 +17,7 @@ const Noise: React.FC<NoiseProps> = ({
   patternScaleY = 1,
   patternRefreshInterval = 2,
   patternAlpha = 15,
+  animated = true,
 }) => {
   const grainRef = useRef<HTMLCanvasElement | null>(null);
   const canvasSize = useMemo(() => Math.max(1, Math.floor(patternSize)), [patternSize]);
@@ -34,7 +36,8 @@ const Noise: React.FC<NoiseProps> = ({
     }
 
     let frame = 0;
-    let animationId: number;
+    let animationId: number | undefined;
+    const shouldAnimate = animated && patternRefreshInterval > 0;
 
     const resize = () => {
       if (!canvas) {
@@ -69,13 +72,19 @@ const Noise: React.FC<NoiseProps> = ({
 
     window.addEventListener("resize", resize);
     resize();
-    loop();
+    drawGrain();
+
+    if (shouldAnimate) {
+      loop();
+    }
 
     return () => {
       window.removeEventListener("resize", resize);
-      window.cancelAnimationFrame(animationId);
+      if (animationId !== undefined) {
+        window.cancelAnimationFrame(animationId);
+      }
     };
-  }, [canvasSize, patternRefreshInterval, patternAlpha]);
+  }, [animated, canvasSize, patternRefreshInterval, patternAlpha]);
 
   return (
     <canvas

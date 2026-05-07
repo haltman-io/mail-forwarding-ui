@@ -315,6 +315,18 @@
   100% { transform: translate3d(1%, -0.5%, 0) scale(1.01); }
 }
 
+@supports (-moz-appearance: none) {
+  .dark body {
+    background-attachment: scroll;
+  }
+
+  .dark body::before {
+    animation: none;
+    filter: blur(48px);
+    transform: none;
+  }
+}
+
 /* ──────────────────────────────────────────────────────────────
    Utility classes
    ────────────────────────────────────────────────────────────── */

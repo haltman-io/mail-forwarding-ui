@@ -1,12 +1,19 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Sparkles } from "lucide-react";
 import Noise from "@/components/Noise";
 import LetterGlitch from "@/components/LetterGlitch";
 
 const STORAGE_KEY = "effects-enabled";
 const STORAGE_EVENT = "effects-enabled-change";
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+type RuntimeEffects = {
+  mounted: boolean;
+  isFirefox: boolean;
+  prefersReducedMotion: boolean;
+};
 
 function subscribe(onStoreChange: () => void) {
   const handleChange = (event: Event) => {
@@ -27,15 +34,49 @@ function subscribe(onStoreChange: () => void) {
 }
 
 function getSnapshot() {
-  return window.localStorage.getItem(STORAGE_KEY) !== "false";
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== "false";
+  } catch {
+    return true;
+  }
 }
 
 function getServerSnapshot() {
   return true;
 }
 
+function getRuntimeEffects(): RuntimeEffects {
+  return {
+    mounted: true,
+    isFirefox: navigator.userAgent.includes("Firefox/"),
+    prefersReducedMotion: window.matchMedia(REDUCED_MOTION_QUERY).matches,
+  };
+}
+
 export function GlobalNoiseOverlay() {
   const enabled = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [runtimeEffects, setRuntimeEffects] = useState<RuntimeEffects>({
+    mounted: false,
+    isFirefox: false,
+    prefersReducedMotion: false,
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+    const updateRuntimeEffects = () => {
+      setRuntimeEffects(getRuntimeEffects());
+    };
+
+    updateRuntimeEffects();
+    mediaQuery.addEventListener("change", updateRuntimeEffects);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateRuntimeEffects);
+    };
+  }, []);
+
+  const showEffects = runtimeEffects.mounted && enabled;
+  const animateEffects = showEffects && !runtimeEffects.isFirefox && !runtimeEffects.prefersReducedMotion;
   const mobileLabel = enabled ? "Disable effects" : "Enable effects";
   const desktopLabel = enabled ? "Disable all effects" : "Enable all effects";
 
@@ -46,19 +87,23 @@ export function GlobalNoiseOverlay() {
 
   return (
     <>
-      {enabled && (
+      {showEffects && (
         <>
           <div
             aria-hidden="true"
             className="pointer-events-none fixed inset-0 z-[-3] flex items-center justify-center overflow-hidden bg-black"
           >
-            <LetterGlitch
-              glitchColors={["#2b4539", "#125032", "#031806"]}
-              glitchSpeed={50}
-              centerVignette
-              outerVignette
-              smooth
-            />
+            {animateEffects ? (
+              <LetterGlitch
+                glitchColors={["#2b4539", "#125032", "#031806"]}
+                glitchSpeed={50}
+                centerVignette
+                outerVignette
+                smooth
+              />
+            ) : (
+              <div className="h-full w-full bg-[radial-gradient(circle_at_50%_50%,rgba(5,24,12,0.72)_0%,rgba(5,24,12,0.18)_48%,rgba(0,0,0,1)_100%)]" />
+            )}
           </div>
 
           <div
@@ -70,7 +115,8 @@ export function GlobalNoiseOverlay() {
               patternScaleX={1}
               patternScaleY={1}
               patternRefreshInterval={2}
-              patternAlpha={10}
+              patternAlpha={animateEffects ? 10 : 6}
+              animated={animateEffects}
             />
           </div>
         </>
