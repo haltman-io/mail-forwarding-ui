@@ -35,7 +35,8 @@ export function HeroSection({ stats }: HeroSectionProps) {
       <div className="space-y-4 text-center">
         <TextType
           as="h1"
-          className="hero-headline mx-auto block min-h-[3.45em] w-full max-w-[18ch] font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:min-h-[2.35em] sm:max-w-[22ch] sm:text-4xl md:text-5xl"
+          translate="no"
+          className="notranslate hero-headline mx-auto block min-h-[3.45em] w-full max-w-[18ch] font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:min-h-[2.35em] sm:max-w-[22ch] sm:text-4xl md:text-5xl"
           text={[
             "Your *identity* is not their *product*.",
             "Your *email* is not their *telemetry*.",
