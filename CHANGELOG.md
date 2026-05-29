@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.6.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.5.0...v1.6.0) (2026-05-29)
+
+
+### Features
+
+* enhance DNS setup menu with UI and email request types, improve validation handling ([8d45f91](https://github.com/haltman-io/mail-forwarding-ui/commit/8d45f917801a27e9822a814e1fc10e66f8cee038))
+* enhance global noise overlay with runtime effects detection and animation control ([9d4f5ad](https://github.com/haltman-io/mail-forwarding-ui/commit/9d4f5aded58f34c5ef5977a993e473be41068df0))
+
+
+### Bug Fixes
+
+* add translate attribute to TextType component in HeroSection ([fc12585](https://github.com/haltman-io/mail-forwarding-ui/commit/fc1258573b50af73d6b320cd0d49d69db367bec9))
+
 ## [1.5.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.4.0...v1.5.0) (2026-04-20)
 
 
