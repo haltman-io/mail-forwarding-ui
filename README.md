@@ -66,7 +66,7 @@ The result is a UI tuned for privacy-conscious users, hackers, developers, and o
 | Styling | Tailwind CSS 4 | Responsive layout, design tokens, glass surfaces |
 | Primitives | Radix UI patterns | Accessible dialogs, menus, tabs, tables, popovers |
 | Feedback | Sonner | Inline status and toast messaging |
-| Motion | Motion + GSAP | Interaction polish where it adds clarity |
+| Interaction | CSS transitions + Radix state classes | Lightweight feedback without a global effects layer |
 | Icons | Lucide React | Consistent iconography across product surfaces |
 | Delivery | Static export | `next build` produces deployable output in `out/` |
 
@@ -201,7 +201,7 @@ Mail Forwarding UI is easy to adapt without tearing through the whole app.
 
 - Update landing-page messaging, trust chips, and manifesto content in `components/hero-section.tsx`.
 - Adjust top-level navigation and external links in `components/site-header.tsx`.
-- Tune colors, glass effects, spacing, and typography tokens in `app/globals.css`.
+- Tune colors, glass surfaces, spacing, and typography tokens in `app/globals.css`.
 - Extend public alias workflows in `features/alias-console/`.
 - Add or reshape operator tools in `features/dashboard/`.
 - Point the UI to a different backend through `.env.local` and `lib/api-host.ts`.

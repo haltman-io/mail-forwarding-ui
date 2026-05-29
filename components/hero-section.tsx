@@ -13,7 +13,6 @@ import {
   ArrowRight
 } from "lucide-react";
 import type { Stats } from "@/hooks/use-stats";
-import TextType from "@/components/TextType";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /* ── Trust signal items ── */
@@ -33,26 +32,19 @@ export function HeroSection({ stats }: HeroSectionProps) {
     <section className="hero-section relative space-y-8 sm:space-y-10">
       {/* ── Headline ── */}
       <div className="space-y-4 text-center">
-        <TextType
-          as="h1"
+        <h1
           translate="no"
-          className="notranslate hero-headline mx-auto block min-h-[3.45em] w-full max-w-[18ch] font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:min-h-[2.35em] sm:max-w-[22ch] sm:text-4xl md:text-5xl"
-          text={[
-            "Your *identity* is not their *product*.",
-            "Your *email* is not their *telemetry*.",
-            "Built for *curiosity*. Not for *compliance*.",
-            "Because *privacy* should not need approval.",
-          ]}
-          highlightClassName="text-type__highlight"
-          typingSpeed={75}
-          pauseDuration={1500}
-          deletingSpeed={50}
-          cursorCharacter="█"
-          cursorBlinkDuration={0.5}
-          showCursor={true}
-          variableSpeed={{ min: 60, max: 120 }}
-          loop={true}
-        />
+          className="notranslate hero-headline mx-auto block w-full max-w-[18ch] font-mono text-3xl font-bold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:max-w-[22ch] sm:text-4xl md:text-5xl"
+        >
+          Your{" "}
+          <span className="text-[var(--neu-green)] underline decoration-[rgb(var(--alias-accent-rgb)_/_0.4)] decoration-2 underline-offset-4">
+            identity
+          </span>{" "}
+          is not their{" "}
+          <span className="text-[var(--neu-green)] underline decoration-[rgb(var(--alias-accent-rgb)_/_0.4)] decoration-2 underline-offset-4">
+            product
+          </span>.
+        </h1>
 
         <p className="mx-auto max-w-[540px] text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-base">
           A free email forwarding server.&nbsp;

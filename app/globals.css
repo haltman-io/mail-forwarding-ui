@@ -48,8 +48,7 @@
 
 /* ──────────────────────────────────────────────────────────────
    Dark Frosted Glass Design System
-   — film grain · smoked glass · atmospheric vignette
-   — soft-depth glassmorphism with noise overlay
+   — smoked glass · restrained depth · atmospheric vignette
    ────────────────────────────────────────────────────────────── */
 
 :root {
@@ -249,7 +248,7 @@
     background-attachment: fixed;
   }
 
-  /* ── Layer 2: slow ambient light (life, not decoration) ── */
+  /* ── Layer 2: static ambient light ── */
   .dark body::before {
     content: "";
     position: fixed;
@@ -261,7 +260,6 @@
       radial-gradient(ellipse 35% 28% at 75% 25%, rgb(var(--alias-accent-rgb) / 0.05), transparent 60%);
     filter: blur(60px);
     transform: translate3d(0, 0, 0);
-    animation: ambient-breathe 20s ease-in-out infinite alternate;
   }
 
   /* ── Layer 3: vignette (soft, natural) ── */
@@ -309,19 +307,12 @@
   }
 }
 
-@keyframes ambient-breathe {
-  0%   { transform: translate3d(-1%, -0.5%, 0) scale(1); }
-  50%  { transform: translate3d(0.5%, 1%, 0) scale(1.03); }
-  100% { transform: translate3d(1%, -0.5%, 0) scale(1.01); }
-}
-
 @supports (-moz-appearance: none) {
   .dark body {
     background-attachment: scroll;
   }
 
   .dark body::before {
-    animation: none;
     filter: blur(48px);
     transform: none;
   }
@@ -402,30 +393,6 @@
   }
 
   /* ── Hero section ── */
-  .hero-section {
-    animation: hero-fade-in 600ms ease-out both;
-  }
-
-  @keyframes hero-fade-in {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes hero-stagger-in {
-    from { opacity: 0; transform: translateY(10px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  @keyframes hero-cta-glow {
-    0%, 100% { box-shadow: 0 0 16px rgb(var(--alias-accent-rgb) / 0.10); }
-    50%      { box-shadow: 0 0 32px rgb(var(--alias-accent-rgb) / 0.22); }
-  }
-
-  @keyframes hero-icon-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-2px); }
-  }
-
   .hero-headline {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   }
@@ -448,13 +415,7 @@
   .hero-trust-chip {
     box-shadow: var(--glass-highlight), var(--glass-shadow);
     transition: all var(--motion-duration-base) var(--motion-ease-standard);
-    animation: hero-stagger-in 500ms ease-out both;
   }
-
-  .hero-trust-chip:nth-child(1) { animation-delay: 400ms; }
-  .hero-trust-chip:nth-child(2) { animation-delay: 480ms; }
-  .hero-trust-chip:nth-child(3) { animation-delay: 560ms; }
-  .hero-trust-chip:nth-child(4) { animation-delay: 640ms; }
 
   .hero-trust-chip:hover {
     background: var(--hover-state);
@@ -475,12 +436,7 @@
       box-shadow var(--motion-duration-slow) var(--motion-ease-standard),
       transform var(--motion-duration-slow) var(--motion-ease-standard),
       border-color var(--motion-duration-slow) var(--motion-ease-standard);
-    animation: hero-stagger-in 500ms ease-out both;
   }
-
-  .hero-stat-card:nth-child(1) { animation-delay: 600ms; }
-  .hero-stat-card:nth-child(2) { animation-delay: 700ms; }
-  .hero-stat-card:nth-child(3) { animation-delay: 800ms; }
 
   .hero-stat-card:hover {
     transform: translateY(-3px) scale(1.02);
@@ -491,12 +447,7 @@
       0 0 16px rgb(var(--alias-accent-rgb) / 0.06);
   }
 
-  .hero-stat-card:hover .hero-stat-icon {
-    animation: hero-icon-float 1.5s ease-in-out infinite;
-  }
-
   .hero-cta {
-    animation: hero-stagger-in 500ms ease-out 800ms both, hero-cta-glow 3s ease-in-out 1.5s infinite;
     transition: all var(--motion-duration-slow) var(--motion-ease-standard);
   }
 
@@ -508,10 +459,6 @@
 
   .hero-cta:active {
     transform: scale(0.97);
-  }
-
-  .hero-footer {
-    animation: hero-stagger-in 500ms ease-out 1000ms both;
   }
 
   .hero-domain-showcase {
@@ -725,13 +672,7 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(var(--neu-green-rgb) / 0.25), transparent);
     border-radius: 0 0 2px 2px;
-    opacity: 0.6;
-    animation: accent-pulse 4s ease-in-out infinite;
-  }
-
-  @keyframes accent-pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
+    opacity: 0.45;
   }
 
   /* ── Status badge ── */
@@ -861,6 +802,5 @@
     .alias-console-surface:hover,
     .ui-console-chip { transition: none !important; transform: none !important; }
     .alias-preview-pulse { animation: none !important; }
-    .neu-accent-bar::before { animation: none !important; }
   }
 }

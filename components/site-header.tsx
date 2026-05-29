@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import {
   Github,
@@ -16,18 +15,9 @@ import {
   Chromium,
   Flame,
   HatGlasses,
-  Brain,
-  CircleCheck,
   CircleHelp,
-  Cat,
-  Earth,
   Fingerprint,
-  Drama,
-  Wifi,
   Skull,
-  Radar,
-  Eye,
-  AtSign,
   Terminal,
   Settings,
   User
@@ -80,28 +70,6 @@ const clickableIconClass =
 const newBadgeClassName =
   "ml-0.5 rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase";
 
-const brandIcons = [
-  HatGlasses,
-  HatGlasses,
-  HatGlasses,
-  HatGlasses,
-  HatGlasses,
-  HatGlasses,
-  Zap,
-  Brain,
-  CircleCheck,
-  Cat,
-  Earth,
-  Fingerprint,
-  Drama,
-  Wifi,
-  Skull,
-  ShieldCheck,
-  Radar,
-  Eye,
-  AtSign,
-] as const;
-
 type ApiStatus = "idle" | "connected" | "error";
 
 type SiteHeaderProps = {
@@ -111,13 +79,10 @@ type SiteHeaderProps = {
 export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [host, setHost] = React.useState("");
   const [aboutOpen, setAboutOpen] = React.useState(false);
-  const [brandIconIndex, setBrandIconIndex] = React.useState(0);
-  const [brandIconSwapKey, setBrandIconSwapKey] = React.useState(0);
   const [isMobileViewport, setIsMobileViewport] = React.useState<boolean | null>(null);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [openDesktopMenu, setOpenDesktopMenu] = React.useState<string | null>(null);
-  const prefersReducedMotion = useReducedMotion();
 
   React.useEffect(() => {
     setHost(window.location.host);
@@ -155,29 +120,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
     }
   }, [isMobileViewport]);
 
-  React.useEffect(() => {
-    if (brandIcons.length < 2) return;
-
-    setBrandIconIndex(Math.floor(Math.random() * brandIcons.length));
-    setBrandIconSwapKey((current) => current + 1);
-
-    const interval = window.setInterval(() => {
-      setBrandIconIndex((current) => {
-        let next = current;
-        while (next === current) {
-          next = Math.floor(Math.random() * brandIcons.length);
-        }
-        return next;
-      });
-      setBrandIconSwapKey((current) => current + 1);
-    }, 5000);
-
-    return () => window.clearInterval(interval);
-  }, []);
-
   const hostLabel = host ? host : "haltman.io";
-  const BrandIcon = brandIcons[brandIconIndex] ?? brandIcons[0];
-  const reduceHostIconMotion = prefersReducedMotion === true;
 
   const isAllowedHost = React.useMemo(() => {
     return host === "mail.thc.org" || host === "forward.haltman.io" || host.startsWith("localhost");
@@ -227,61 +170,12 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
               className="group inline-flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-200 hover:bg-[var(--hover-state)]"
               aria-label="Home"
             >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={brandIconSwapKey}
-                  aria-hidden="true"
-                  className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center"
-                  initial={
-                    reduceHostIconMotion
-                      ? { opacity: 1 }
-                      : { opacity: 0, y: 5, scale: 0.82, rotate: -16 }
-                  }
-                  animate={
-                    reduceHostIconMotion
-                      ? { opacity: 1 }
-                      : { opacity: 1, y: 0, scale: 1, rotate: 0 }
-                  }
-                  exit={
-                    reduceHostIconMotion
-                      ? { opacity: 1 }
-                      : { opacity: 0, y: -4, scale: 0.9, rotate: 12 }
-                  }
-                  transition={{
-                    duration: reduceHostIconMotion ? 0 : 0.42,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  style={{
-                    transformOrigin: "50% 55%",
-                    willChange: reduceHostIconMotion ? "auto" : "transform, opacity",
-                  }}
-                >
-                  <BrandIcon className="relative z-10 h-[18px] w-[18px] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100 md:h-5 md:w-5" />
-                  <motion.span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 rounded-full bg-[var(--neu-green)]"
-                    initial={
-                      reduceHostIconMotion
-                        ? { opacity: 0.18, scale: 0.9 }
-                        : { opacity: 0.16, scale: 0.82 }
-                    }
-                    animate={
-                      reduceHostIconMotion
-                        ? { opacity: 0.18, scale: 0.9 }
-                        : { opacity: [0.16, 0.34, 0.16], scale: [0.82, 1.08, 0.82] }
-                    }
-                    transition={{
-                      duration: reduceHostIconMotion ? 0 : 4.8,
-                      ease: [0.22, 1, 0.36, 1],
-                      repeat: reduceHostIconMotion ? 0 : Number.POSITIVE_INFINITY,
-                    }}
-                    style={{
-                      filter: "blur(8px)",
-                      willChange: reduceHostIconMotion ? "auto" : "transform, opacity",
-                    }}
-                  />
-                </motion.span>
-              </AnimatePresence>
+              <span
+                aria-hidden="true"
+                className="inline-flex h-5 w-5 shrink-0 items-center justify-center"
+              >
+                <HatGlasses className="h-[18px] w-[18px] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100 md:h-5 md:w-5" />
+              </span>
               <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] md:text-sm">
                 {hostLabel}
               </span>
@@ -575,14 +469,6 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                 <ExternalLink className={`h-3.5 w-3.5 text-[var(--text-muted)] ${clickableIconClass}`} />
               </Link>
             </div>
-
-            <Separator className="bg-[color:var(--hairline-border)]" />
-
-            <p className="m-0 font-sans text-[11px] leading-[1.6] text-[color:var(--text-muted)]">
-              POWERED BY{" "}
-              <strong className="font-semibold text-[color:var(--text-secondary)]">HALTMAN.IO</strong> &amp;{" "}
-              <strong className="font-semibold text-[color:var(--text-secondary)]">THE HACKER&apos;S CHOICE</strong>
-            </p>
           </div>
         </DialogContent>
       </Dialog>

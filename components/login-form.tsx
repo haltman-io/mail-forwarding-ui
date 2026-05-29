@@ -527,32 +527,6 @@ function LoginFormInner({
             </Button>
 
           </form>
-
-          {/* ── Footer ── */}
-          <div className="border-t border-[rgba(255,255,255,0.06)] px-7 py-4">
-            <div className="flex items-center justify-between">
-              <a
-                href="/privacy"
-                className="font-mono text-[10px] tracking-[0.08em] text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-secondary)]"
-              >
-                Privacy Policy
-              </a>
-              <div className="h-3 w-px bg-[rgba(255,255,255,0.08)]" />
-              <a
-                href="/terms"
-                className="font-mono text-[10px] tracking-[0.08em] text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-secondary)]"
-              >
-                Terms of Service
-              </a>
-              <div className="h-3 w-px bg-[rgba(255,255,255,0.08)]" />
-              <a
-                href="/support"
-                className="font-mono text-[10px] tracking-[0.08em] text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-secondary)]"
-              >
-                Need help?
-              </a>
-            </div>
-          </div>
         </>
       )}
     </div>
