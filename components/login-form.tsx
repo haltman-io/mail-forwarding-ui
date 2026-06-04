@@ -271,6 +271,34 @@ function RecoveryView({ onBack }: { onBack: () => void }) {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Sign-in message panel
+   ──────────────────────────────────────────────────────────── */
+function LoginMessageColumn() {
+  return (
+    <aside className="relative overflow-hidden border-b border-[rgba(255,255,255,0.06)] px-7 py-7 md:border-r md:border-b-0 md:px-8 md:py-8">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[calc(var(--radius)+8px)] bg-[radial-gradient(circle_at_12%_12%,rgba(48,209,88,0.12),transparent_34%),linear-gradient(145deg,rgba(48,209,88,0.05),transparent_46%)]"
+      />
+      <div className="relative flex h-full min-h-[220px] flex-col justify-end gap-10">
+        <div className="space-y-4">
+          <p className="font-mono text-[11px] tracking-[0.18em] text-[var(--text-muted)] uppercase">
+            Admin notice
+          </p>
+          <h2 className="max-w-[15rem] text-[28px] font-semibold leading-[1.05] tracking-tight text-[var(--text-primary)] text-balance">
+            Area for{" "}
+            <span className="text-[var(--neu-green)]">MailCops</span>
+          </h2>
+          <p className="max-w-[18rem] text-[13px] leading-[1.7] text-[var(--text-secondary)] text-pretty">
+            MailCops are like SysCops from segfault.net, but dedicated to forwarding management. Regular users do not need access to this area.
+          </p>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    Main form
    ──────────────────────────────────────────────────────────── */
 function LoginFormInner({
@@ -368,166 +396,167 @@ function LoginFormInner({
       {showRecovery ? (
         <RecoveryView onBack={() => setShowRecovery(false)} />
       ) : (
-        <>
-          {/* ── Header ── */}
-          <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
-                <Lock className="h-3.5 w-3.5 text-[var(--neu-green)]" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
-                  Welcome back
-                </h1>
-                <p className="text-[11px] leading-4 text-[var(--text-muted)]">
-                  Enter your credentials to continue
-                </p>
+        <div className="grid md:grid-cols-[0.95fr_1.05fr]">
+          <LoginMessageColumn />
+
+          <section className="min-w-0">
+            {/* ── Header ── */}
+            <div className="border-b border-[rgba(255,255,255,0.06)] px-7 pt-6 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                  <Lock className="h-3.5 w-3.5 text-[var(--neu-green)]" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+                    Welcome back
+                  </h1>
+                  <p className="text-[11px] leading-4 text-[var(--text-muted)]">
+                    Enter your credentials to continue
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* ── Dashboard disabled alert ── */}
-          {!DASHBOARD_ENABLED && (
-            <div className="mx-7 mt-5 flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.30)] bg-[rgba(255,69,58,0.10)] px-4 py-3">
-              <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF453A]" />
-              <p className="text-[13px] font-medium leading-5 text-[#FF453A]">
-                Dashboard is disabled in this environment.
-              </p>
-            </div>
-          )}
-
-          {/* ── Body ── */}
-          <form onSubmit={onSubmit} className={cn("space-y-4 px-7 py-6", !DASHBOARD_ENABLED && "pointer-events-none opacity-50")} noValidate>
-            {formError && (
-              <div
-                role="alert"
-                aria-live="polite"
-                className="flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.20)] bg-[rgba(255,69,58,0.06)] px-4 py-3"
-              >
-                <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF453A] shadow-[0_0_6px_rgba(255,69,58,0.5)]" />
-                <p className="text-[13px] leading-5 text-[rgba(255,208,204,0.90)]">
-                  {formError}
+            {/* ── Dashboard disabled alert ── */}
+            {!DASHBOARD_ENABLED && (
+              <div className="mx-7 mt-5 flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.30)] bg-[rgba(255,69,58,0.10)] px-4 py-3">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF453A]" />
+                <p className="text-[13px] font-medium leading-5 text-[#FF453A]">
+                  Dashboard is disabled in this environment.
                 </p>
               </div>
             )}
 
-            {/* Identifier (sign-in) */}
-            <AuthField
-              id="identifier"
-              label="Email or Username"
-              icon={User}
-              error={fieldErrors.identifier}
-              errorId="err-identifier"
-            >
-              <Input
-                id="identifier"
-                type="text"
-                placeholder="you@example.com"
-                required
-                disabled={busy || !DASHBOARD_ENABLED}
-                autoFocus
-                autoComplete="username"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                aria-invalid={fieldErrors.identifier ? "true" : "false"}
-                aria-describedby={fieldErrors.identifier ? "err-identifier" : undefined}
-                value={identifier}
-                onChange={(e) => {
-                  setIdentifier(e.target.value);
-                  setFieldErrors((p) => ({ ...p, identifier: null }));
-                  setFormError(null);
-                }}
-                className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
-              />
-            </AuthField>
+            {/* ── Body ── */}
+            <form onSubmit={onSubmit} className={cn("space-y-4 px-7 py-6", !DASHBOARD_ENABLED && "pointer-events-none opacity-50")} noValidate>
+              {formError && (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="flex items-center gap-2.5 rounded-xl border border-[rgba(255,69,58,0.20)] bg-[rgba(255,69,58,0.06)] px-4 py-3"
+                >
+                  <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF453A] shadow-[0_0_6px_rgba(255,69,58,0.5)]" />
+                  <p className="text-[13px] leading-5 text-[rgba(255,208,204,0.90)]">
+                    {formError}
+                  </p>
+                </div>
+              )}
 
-            {/* Password */}
-            <AuthField
-              id="password"
-              label="Password"
-              icon={KeyRound}
-              error={fieldErrors.password}
-              errorId="err-password"
-            >
-              <div className="relative">
+              {/* Identifier (sign-in) */}
+              <AuthField
+                id="identifier"
+                label="Email or Username"
+                icon={User}
+                error={fieldErrors.identifier}
+                errorId="err-identifier"
+              >
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  id="identifier"
+                  type="text"
+                  placeholder="you@example.com"
                   required
                   disabled={busy || !DASHBOARD_ENABLED}
-                  autoComplete="current-password"
-                  enterKeyHint="go"
-                  aria-invalid={fieldErrors.password ? "true" : "false"}
-                  aria-describedby={fieldErrors.password ? "err-password" : undefined}
-                  value={password}
+                  autoFocus
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  aria-invalid={fieldErrors.identifier ? "true" : "false"}
+                  aria-describedby={fieldErrors.identifier ? "err-identifier" : undefined}
+                  value={identifier}
                   onChange={(e) => {
-                    setPassword(e.target.value);
-                    setFieldErrors((p) => ({ ...p, password: null }));
+                    setIdentifier(e.target.value);
+                    setFieldErrors((p) => ({ ...p, identifier: null }));
                     setFormError(null);
                   }}
-                  onKeyDown={syncCapsLockState}
-                  onKeyUp={syncCapsLockState}
-                  onBlur={() => setCapsLockOn(false)}
-                  className="neu-inset h-11 rounded-xl px-4 pr-11 font-mono text-sm"
+                  className="neu-inset h-11 rounded-xl px-4 font-mono text-sm"
                 />
+              </AuthField>
+
+              {/* Password */}
+              <AuthField
+                id="password"
+                label="Password"
+                icon={KeyRound}
+                error={fieldErrors.password}
+                errorId="err-password"
+              >
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    required
+                    disabled={busy || !DASHBOARD_ENABLED}
+                    autoComplete="current-password"
+                    enterKeyHint="go"
+                    aria-invalid={fieldErrors.password ? "true" : "false"}
+                    aria-describedby={fieldErrors.password ? "err-password" : undefined}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setFieldErrors((p) => ({ ...p, password: null }));
+                      setFormError(null);
+                    }}
+                    onKeyDown={syncCapsLockState}
+                    onKeyUp={syncCapsLockState}
+                    onBlur={() => setCapsLockOn(false)}
+                    className="neu-inset h-11 rounded-xl px-4 pr-11 font-mono text-sm"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    disabled={busy || !DASHBOARD_ENABLED}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="ui-focus-ring absolute top-1/2 right-2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-[var(--text-primary)] disabled:pointer-events-none disabled:opacity-40"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                </div>
+                {capsLockOn && !fieldErrors.password && (
+                  <p className="text-[12px] leading-5 text-[var(--text-secondary)]">
+                    Caps Lock is on
+                  </p>
+                )}
+              </AuthField>
+
+              {/* Forgot password */}
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  disabled={busy || !DASHBOARD_ENABLED}
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="ui-focus-ring absolute top-1/2 right-2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-[var(--text-primary)] disabled:pointer-events-none disabled:opacity-40"
+                  onClick={() => setShowRecovery(true)}
+                  className="font-mono text-[11px] tracking-[0.06em] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 hover:opacity-100"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-3.5 w-3.5" />
-                  ) : (
-                    <Eye className="h-3.5 w-3.5" />
-                  )}
+                  Forgot password?
                 </button>
               </div>
-              {capsLockOn && !fieldErrors.password && (
-                <p className="text-[12px] leading-5 text-[var(--text-secondary)]">
-                  Caps Lock is on
-                </p>
-              )}
-            </AuthField>
 
-
-
-            {/* Forgot password */}
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowRecovery(true)}
-                className="font-mono text-[11px] tracking-[0.06em] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 hover:opacity-100"
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={busy || !DASHBOARD_ENABLED}
+                className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
               >
-                Forgot password?
-              </button>
-            </div>
-
-            {/* Submit */}
-            <Button
-              type="submit"
-              disabled={busy || !DASHBOARD_ENABLED}
-              className="alias-primary neu-btn-green group h-11 w-full rounded-xl font-mono text-sm font-semibold tracking-[0.02em]"
-            >
-              {busy ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-                </>
-              )}
-            </Button>
-
-          </form>
-        </>
+                {busy ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </section>
+        </div>
       )}
     </div>
   );
