@@ -855,7 +855,7 @@ export function ApiTokenDialog({
                 <DialogDescription>
                   Create, list, renew, and remove API keys for alias automation.{" "}
                   <a
-                    href="/api/docs"
+                    href="/docs"
                     target="_blank"
                     rel="noreferrer"
                     className="underline underline-offset-4"
