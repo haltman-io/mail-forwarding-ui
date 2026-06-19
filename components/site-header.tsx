@@ -314,7 +314,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                       <MobileNavSection label="API">
                         <ApiTokenDialog
                           onApiStatusChange={onApiStatusChange}
-                          triggerLabel="Create API Token"
+                          triggerLabel="API Keys"
                           triggerClassName={mobileNavL2ClassName}
                           triggerIconClassName={mobileNavL2IconClassName}
                         />

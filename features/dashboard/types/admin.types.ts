@@ -56,6 +56,9 @@ export type AdminDomain = {
   id: number;
   name: string;
   active: number | boolean;
+  active_mx?: number | boolean;
+  active_ui?: number | boolean;
+  visible?: number | boolean;
 };
 
 export type AdminAlias = {

@@ -42,7 +42,7 @@ export function ApiMenu({
     >
       <ApiTokenDialog
         onApiStatusChange={onApiStatusChange}
-        triggerLabel="Create API Token"
+        triggerLabel="API Keys"
         triggerClassName={navMenuDialogTriggerClassName}
         triggerIconClassName={navMenuDialogIconClassName}
       />

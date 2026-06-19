@@ -5,6 +5,8 @@ import type {
   CreateUpdateResponse,
   ListResponse,
   AdminDomain,
+  BoolFilter,
+  DomainWritePayload,
 } from "@/features/dashboard/types/domains.types";
 
 async function parseBody<T>(res: Response): Promise<T | null> {
@@ -158,13 +160,14 @@ export function describeError(
 /* ── domain CRUD ── */
 
 export async function fetchDomains(
-  params: { limit: number; offset: number; active?: string },
+  params: { limit: number; offset: number; active?: BoolFilter; visible?: BoolFilter },
 ) {
   const qs = new URLSearchParams({
     limit: String(params.limit),
     offset: String(params.offset),
   });
   if (params.active && params.active !== "all") qs.set("active", params.active);
+  if (params.visible && params.visible !== "all") qs.set("visible", params.visible);
 
   return adminRequest<ListResponse<AdminDomain>>({
     path: `/api/admin/domains?${qs.toString()}`,
@@ -172,7 +175,7 @@ export async function fetchDomains(
 }
 
 export async function createDomain(
-  body: { name: string; active: number },
+  body: { name: string; active: number; visible?: number },
 ) {
   return adminRequest<CreateUpdateResponse<AdminDomain>>({
     path: "/api/admin/domains",
@@ -183,7 +186,7 @@ export async function createDomain(
 
 export async function updateDomain(
   id: number,
-  body: { name: string; active: number },
+  body: DomainWritePayload,
 ) {
   return adminRequest<CreateUpdateResponse<AdminDomain>>({
     path: `/api/admin/domains/${id}`,
@@ -196,5 +199,19 @@ export async function deleteDomain(id: number) {
   return adminRequest<CreateUpdateResponse<unknown>>({
     path: `/api/admin/domains/${id}`,
     method: "DELETE",
+  });
+}
+
+export async function recheckAllDomainsDns() {
+  return adminRequest<unknown>({
+    path: "/api/admin/domains/recheckdns/all",
+    method: "POST",
+  });
+}
+
+export async function recheckDomainDns(id: number) {
+  return adminRequest<unknown>({
+    path: `/api/admin/domains/${id}/recheckdns`,
+    method: "POST",
   });
 }

@@ -7,20 +7,27 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import type {
   AdminDomain,
   BoolFilter,
+  DomainWritePayload,
   ListState,
-  ListResponse,
-  CreateUpdateResponse,
 } from "@/features/dashboard/types/domains.types";
 import {
   fetchDomains,
   createDomain,
   updateDomain,
   deleteDomain,
+  recheckAllDomainsDns,
+  recheckDomainDns,
   isUnauthorized,
   describeError,
 } from "@/features/dashboard/services/domains.service";
 
 const DEFAULT_LIMIT = 10;
+
+type DomainFormSnapshot = {
+  name: string;
+  active: boolean;
+  visible: boolean;
+};
 
 function createListState(): ListState<AdminDomain> {
   return { items: [], total: 0, limit: DEFAULT_LIMIT, offset: 0, loading: false, loadedAt: null, error: null };
@@ -40,6 +47,20 @@ function boolToApi(v: boolean) {
   return v ? 1 : 0;
 }
 
+function readVisibleValue(item: AdminDomain) {
+  return item.visible === undefined || item.visible === null ? true : isTrueValue(item.visible);
+}
+
+function formatErrorBody(data: unknown) {
+  if (data == null) return null;
+  if (typeof data === "string") return data;
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return null;
+  }
+}
+
 function toastOk(title: string, description?: string) {
   toast.success(title, { description, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> });
 }
@@ -50,6 +71,7 @@ function toastFail(title: string, description?: string) {
 export function useDomainsController() {
   const [domains, setDomains] = React.useState<ListState<AdminDomain>>(createListState);
   const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
+  const [visibleFilter, setVisibleFilter] = React.useState<BoolFilter>("all");
 
   /* editor dialog */
   const [editorOpen, setEditorOpen] = React.useState(false);
@@ -57,6 +79,8 @@ export function useDomainsController() {
   const [formId, setFormId] = React.useState<number | null>(null);
   const [formName, setFormName] = React.useState("");
   const [formActive, setFormActive] = React.useState(true);
+  const [formVisible, setFormVisible] = React.useState(true);
+  const [formInitial, setFormInitial] = React.useState<DomainFormSnapshot | null>(null);
 
   /* search */
   const [search, setSearch] = React.useState("");
@@ -64,6 +88,10 @@ export function useDomainsController() {
   /* delete dialog */
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; name: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
+
+  /* DNS recheck */
+  const [recheckingAll, setRecheckingAll] = React.useState(false);
+  const [recheckingIds, setRecheckingIds] = React.useState<Set<number>>(() => new Set());
 
   /* ── load ── */
   const load = React.useCallback(
@@ -75,6 +103,7 @@ export function useDomainsController() {
           limit: DEFAULT_LIMIT,
           offset,
           active: activeFilter,
+          visible: visibleFilter,
         });
 
         if (isUnauthorized(result)) {
@@ -108,7 +137,7 @@ export function useDomainsController() {
         toastFail("Network error", msg);
       }
     },
-    [activeFilter],
+    [activeFilter, visibleFilter],
   );
 
   /* auto-load on filter change */
@@ -134,12 +163,15 @@ export function useDomainsController() {
 
   const activeCount = domains.items.filter((d) => isTrueValue(d.active)).length;
   const inactiveCount = domains.items.length - activeCount;
+  const emailDnsCount = domains.items.filter((d) => isTrueValue(d.active_mx)).length;
+  const uiDnsCount = domains.items.filter((d) => isTrueValue(d.active_ui)).length;
+  const visibleCount = domains.items.filter((d) => readVisibleValue(d)).length;
 
   /* ── quick toggle ── */
   async function toggleActive(item: AdminDomain) {
     const newActive = !isTrueValue(item.active);
     try {
-      const result = await updateDomain(item.id, { name: item.name, active: boolToApi(newActive) });
+      const result = await updateDomain(item.id, { active: boolToApi(newActive) });
 
       if (isUnauthorized(result)) {
         toastFail("Unauthorized", "Session expired.");
@@ -152,11 +184,43 @@ export function useDomainsController() {
         return;
       }
 
+      const updated = result.data?.item;
       setDomains((s) => ({
         ...s,
-        items: s.items.map((d) => (d.id === item.id ? { ...d, active: boolToApi(newActive) } : d)),
+        items: s.items.map((d) =>
+          d.id === item.id ? updated ?? { ...d, active: boolToApi(newActive) } : d,
+        ),
       }));
       toastOk(newActive ? "Domain activated" : "Domain deactivated", item.name);
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    }
+  }
+
+  async function toggleVisible(item: AdminDomain) {
+    const newVisible = !readVisibleValue(item);
+    try {
+      const result = await updateDomain(item.id, { visible: boolToApi(newVisible) });
+
+      if (isUnauthorized(result)) {
+        toastFail("Unauthorized", "Session expired.");
+        return;
+      }
+
+      if (!result.ok) {
+        const err = describeError(result, "Visibility update failed.");
+        toastFail(err.isRateLimited ? "Rate limited" : "Error", err.message);
+        return;
+      }
+
+      const updated = result.data?.item;
+      setDomains((s) => ({
+        ...s,
+        items: s.items.map((d) =>
+          d.id === item.id ? updated ?? { ...d, visible: boolToApi(newVisible) } : d,
+        ),
+      }));
+      toastOk(newVisible ? "Domain visible" : "Domain hidden", item.name);
     } catch (e) {
       toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
     }
@@ -167,13 +231,22 @@ export function useDomainsController() {
     setFormId(null);
     setFormName("");
     setFormActive(true);
+    setFormVisible(true);
+    setFormInitial(null);
     setEditorOpen(true);
   }
 
   function openEdit(item: AdminDomain) {
+    const snapshot = {
+      name: item.name,
+      active: isTrueValue(item.active),
+      visible: readVisibleValue(item),
+    };
     setFormId(item.id);
-    setFormName(item.name);
-    setFormActive(isTrueValue(item.active));
+    setFormName(snapshot.name);
+    setFormActive(snapshot.active);
+    setFormVisible(snapshot.visible);
+    setFormInitial(snapshot);
     setEditorOpen(true);
   }
 
@@ -188,10 +261,30 @@ export function useDomainsController() {
     setEditorBusy(true);
     try {
       const isEdit = formId !== null;
-      const body = { name, active: boolToApi(formActive) };
+      const body: DomainWritePayload = isEdit ? {} : {
+        name,
+        active: boolToApi(formActive),
+        visible: boolToApi(formVisible),
+      };
+
+      if (isEdit) {
+        if (!formInitial || name !== formInitial.name) body.name = name;
+        if (!formInitial || formActive !== formInitial.active) body.active = boolToApi(formActive);
+        if (!formInitial || formVisible !== formInitial.visible) body.visible = boolToApi(formVisible);
+
+        if (Object.keys(body).length === 0) {
+          setEditorOpen(false);
+          return;
+        }
+      }
+
       const result = isEdit
         ? await updateDomain(formId, body)
-        : await createDomain(body);
+        : await createDomain({
+            name,
+            active: boolToApi(formActive),
+            visible: boolToApi(formVisible),
+          });
 
       if (isUnauthorized(result)) {
         toastFail("Unauthorized", "Session expired.");
@@ -246,18 +339,93 @@ export function useDomainsController() {
     }
   }
 
+  function setDomainRechecking(id: number, busy: boolean) {
+    setRecheckingIds((current) => {
+      const next = new Set(current);
+      if (busy) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  const isRecheckingDomain = React.useCallback(
+    (id: number) => recheckingIds.has(id),
+    [recheckingIds],
+  );
+
+  async function recheckAllDns() {
+    if (recheckingAll) return;
+    setRecheckingAll(true);
+    try {
+      const result = await recheckAllDomainsDns();
+
+      if (isUnauthorized(result)) {
+        toastFail("Unauthorized", "Session expired.");
+        return;
+      }
+
+      if (!result.ok) {
+        const err = describeError(result, "DNS recheck failed.");
+        toastFail(err.isRateLimited ? "Rate limited" : "DNS recheck failed", formatErrorBody(result.data) ?? err.message);
+        return;
+      }
+
+      toastOk("DNS recheck requested", "All domains are being rechecked.");
+      await load(domains.offset);
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setRecheckingAll(false);
+    }
+  }
+
+  async function recheckDomain(item: AdminDomain) {
+    if (isRecheckingDomain(item.id)) return;
+    setDomainRechecking(item.id, true);
+    try {
+      const result = await recheckDomainDns(item.id);
+
+      if (isUnauthorized(result)) {
+        toastFail("Unauthorized", "Session expired.");
+        return;
+      }
+
+      if (!result.ok) {
+        const err = describeError(result, "DNS recheck failed.");
+        toastFail(err.isRateLimited ? "Rate limited" : "DNS recheck failed", formatErrorBody(result.data) ?? err.message);
+        return;
+      }
+
+      toastOk("DNS recheck requested", item.name);
+      await load(domains.offset);
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setDomainRechecking(item.id, false);
+    }
+  }
+
   return {
     domains,
     filteredItems,
     activeCount,
     inactiveCount,
+    emailDnsCount,
+    uiDnsCount,
+    visibleCount,
     search,
     setSearch,
     activeFilter,
     setActiveFilter,
+    visibleFilter,
+    setVisibleFilter,
     load,
     refresh,
     toggleActive,
+    toggleVisible,
     canPrev,
     canNext,
     goNext,
@@ -272,6 +440,8 @@ export function useDomainsController() {
     setFormName,
     formActive,
     setFormActive,
+    formVisible,
+    setFormVisible,
     openCreate,
     openEdit,
     submitEditor,
@@ -281,5 +451,11 @@ export function useDomainsController() {
     askDelete,
     confirmDelete,
     isTrueValue,
+    readVisibleValue,
+    recheckingAll,
+    recheckAllDns,
+    recheckingIds,
+    isRecheckingDomain,
+    recheckDomain,
   };
 }

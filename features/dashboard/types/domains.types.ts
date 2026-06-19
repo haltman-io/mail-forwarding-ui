@@ -1,10 +1,21 @@
+export type ApiBoolean = number | boolean;
+
 export type AdminDomain = {
   id: number;
   name: string;
-  active: number | boolean;
+  active: ApiBoolean;
+  active_mx?: ApiBoolean;
+  active_ui?: ApiBoolean;
+  visible?: ApiBoolean;
 };
 
 export type BoolFilter = "all" | "1" | "0";
+
+export type DomainWritePayload = {
+  name?: string;
+  active?: number;
+  visible?: number;
+};
 
 export type Pagination = {
   total: number;
@@ -26,6 +37,7 @@ export type CreateUpdateResponse<T> = {
   item?: T;
   error?: string;
   reason?: string;
+  message?: string;
 };
 
 export type RequestResult<T> = {
