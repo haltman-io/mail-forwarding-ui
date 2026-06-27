@@ -79,7 +79,7 @@ const FAQ_ITEMS = [
           {" "}
           <span className="font-mono text-[var(--neu-green)]">ghetto.eurocompton.net</span>
           {" "}
-          and 21 more. They are not disposable registrar filler.
+          and more. They are not disposable registrar filler.
         </p>
         <p>
           There is no VC money, no advisory board, and no growth dashboard

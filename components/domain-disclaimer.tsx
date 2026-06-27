@@ -19,6 +19,11 @@ const DISCLAIMER_CONTENT: Record<string, { appName: string; owner: string; url: 
     owner: "Fortra",
     url: "https://www.cobaltstrike.com/",
   },
+  "localhost": {
+    appName: "Impacket",
+    owner: "Fortra",
+    url: "https://github.com/fortra/impacket",
+  },
   "johntheripper.org": {
     appName: "John the Ripper",
     owner: "Openwall",
@@ -78,7 +83,7 @@ export function DomainDisclaimer() {
               Looking for {hostSpec.appName} from {hostSpec.owner}?
             </h3>
             <p className="font-sans text-[13px] leading-relaxed text-[var(--text-secondary)]">
-              This domain is not owned by {hostSpec.owner} ({hostSpec.appName} owner), but we admire them. We found this domain available for registration and decided to integrate it into our mail forwarder so you can have a cool alias domain available for community usage.
+              This domain is not owned by {hostSpec.owner} ({hostSpec.appName} owner), but we admire them. We found this domain available for registration and decided to integrate it into our mail forwarder, so anyone can have a cool alias domain available at no-cost.
             </p>
             <p className="font-sans text-xs text-[var(--text-muted)]">
               This is a non-profit, open-source project created and sustained by the community.
