@@ -19,7 +19,7 @@ const DISCLAIMER_CONTENT: Record<string, { appName: string; owner: string; url: 
     owner: "Fortra",
     url: "https://www.cobaltstrike.com/",
   },
-  "localhost": {
+  "impacket.net": {
     appName: "Impacket",
     owner: "Fortra",
     url: "https://github.com/fortra/impacket",
