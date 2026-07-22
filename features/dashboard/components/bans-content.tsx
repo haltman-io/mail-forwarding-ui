@@ -1,44 +1,59 @@
 "use client";
 
 import * as React from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
-  Ban, ChevronLeft, ChevronRight, Copy, Loader2, Pencil, Plus, Power, RefreshCw, Search, ShieldAlert, Trash2,
+  Ban,
+  Copy,
+  Loader2,
+  Pencil,
+  Plus,
+  Power,
+  ShieldAlert,
+  Trash2,
 } from "lucide-react";
 
+import { safeDateLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
 
 import { AdminPageLayout } from "@/features/dashboard/components/admin-page-layout";
 import { AdminPageHeader } from "@/features/dashboard/components/admin-page-header";
-import { AdminToolbar, AdminToolbarLeft, AdminToolbarRight } from "@/features/dashboard/components/admin-toolbar";
-import { AdminDataCard } from "@/features/dashboard/components/admin-data-card";
-import { EmptyState } from "@/features/dashboard/components/empty-state";
+import { AdminMetricCards } from "@/features/dashboard/components/admin-metric-cards";
+import { AdminFilterToolbar } from "@/features/dashboard/components/admin-filter-toolbar";
+import { AdminDataTable } from "@/features/dashboard/components/admin-data-table";
+import { AdminRowActions } from "@/features/dashboard/components/admin-row-actions";
 import { useBansController } from "@/features/dashboard/hooks/use-bans-controller";
-import type { BoolFilter, BanType } from "@/features/dashboard/types/admin.types";
-import { safeDateLabel } from "@/lib/utils";
+import type { AdminBan, BanType, BoolFilter } from "@/features/dashboard/types/admin.types";
+import { copyText } from "@/features/dashboard/lib/admin-utils";
 
 const BAN_TYPE_LABELS: Record<string, string> = {
   email: "Email",
@@ -50,9 +65,114 @@ const BAN_TYPE_LABELS: Record<string, string> = {
 export function BansContent() {
   const c = useBansController();
 
+  const columns = React.useMemo<ColumnDef<AdminBan>[]>(
+    () => [
+      {
+        accessorKey: "id",
+        header: "ID",
+        cell: ({ row }) => (
+          <span className="pl-1 font-mono text-xs tabular-nums text-muted-foreground">
+            {row.original.id}
+          </span>
+        ),
+        size: 64,
+      },
+      {
+        accessorKey: "ban_type",
+        header: "Type",
+        cell: ({ row }) => (
+          <Badge variant="fancy" color="sky" className="text-[11px]">
+            {BAN_TYPE_LABELS[row.original.ban_type] ?? row.original.ban_type}
+          </Badge>
+        ),
+        size: 100,
+      },
+      {
+        accessorKey: "ban_value",
+        header: "Value",
+        cell: ({ row }) => (
+          <span className="font-mono text-[13px]">{row.original.ban_value}</span>
+        ),
+      },
+      {
+        accessorKey: "reason",
+        header: "Reason",
+        cell: ({ row }) => (
+          <span className="max-w-[220px] truncate text-xs text-muted-foreground">
+            {row.original.reason || "—"}
+          </span>
+        ),
+      },
+      {
+        id: "status",
+        accessorFn: (row) => (row.revoked_at ? 0 : 1),
+        header: "Status",
+        cell: ({ row }) =>
+          row.original.revoked_at ? (
+            <Badge variant="fancy">revoked</Badge>
+          ) : (
+            <Badge variant="fancy" color="red">
+              active
+            </Badge>
+          ),
+        size: 100,
+      },
+      {
+        accessorKey: "expires_at",
+        header: "Expires",
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap text-[13px] text-muted-foreground">
+            {safeDateLabel(row.original.expires_at)}
+          </span>
+        ),
+        size: 140,
+      },
+      {
+        id: "actions",
+        enableSorting: false,
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="flex justify-end pr-1">
+              <AdminRowActions
+                label={`Actions for ban ${item.id}`}
+                items={[
+                  {
+                    key: "copy",
+                    label: "Copy value",
+                    icon: <Copy className="mr-2 h-4 w-4" />,
+                    onSelect: () => copyText(item.ban_value, "Value copied"),
+                  },
+                  {
+                    key: "edit",
+                    label: "Edit",
+                    icon: <Pencil className="mr-2 h-4 w-4" />,
+                    onSelect: () => c.openEdit(item),
+                    separatorBefore: true,
+                  },
+                  {
+                    key: "delete",
+                    label: "Delete",
+                    icon: <Trash2 className="mr-2 h-4 w-4" />,
+                    onSelect: () => c.askDelete(item),
+                    destructive: true,
+                    separatorBefore: true,
+                  },
+                ]}
+              />
+            </div>
+          );
+        },
+        size: 56,
+      },
+    ],
+    [c],
+  );
+
   return (
     <AdminPageLayout>
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <AdminPageHeader
           icon={<Ban className="h-4 w-4" />}
           title="Bans"
@@ -65,208 +185,133 @@ export function BansContent() {
           }
         />
 
-        {/* ── metric cards ── */}
-        {c.list.loadedAt && (
-          <div className="grid gap-4 sm:grid-cols-3">
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    Total Bans
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
-                    {c.list.total}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
-                  <Ban className="h-4 w-4 text-[var(--neu-green)]" />
-                </div>
-              </div>
-            </AdminDataCard>
+        {c.list.loadedAt ? (
+          <AdminMetricCards
+            items={[
+              {
+                key: "total",
+                label: "Total Bans",
+                value: c.list.total,
+                hint: "Matching current filters",
+                icon: <Ban className="h-4 w-4 text-[var(--neu-green)]" />,
+              },
+              {
+                key: "active",
+                label: "Active (page)",
+                value: c.pageActiveCount,
+                hint: "On this page only",
+                valueClassName: "text-2xl font-semibold tracking-tight text-amber-400",
+                icon: <ShieldAlert className="h-4 w-4 text-amber-400" />,
+                iconWrapClassName:
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/8",
+              },
+              {
+                key: "revoked",
+                label: "Revoked (page)",
+                value: c.pageRevokedCount,
+                hint: "On this page only",
+                valueClassName:
+                  "text-2xl font-semibold tracking-tight text-[var(--text-secondary)]",
+                icon: <Power className="h-4 w-4 text-[var(--text-muted)]" />,
+                iconWrapClassName:
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]",
+              },
+            ]}
+          />
+        ) : null}
 
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    Active
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-amber-400">
-                    {c.activeCount}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/8">
-                  <ShieldAlert className="h-4 w-4 text-amber-400" />
-                </div>
-              </div>
-            </AdminDataCard>
-
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    Revoked
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-secondary)]">
-                    {c.inactiveCount}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]">
-                  <Power className="h-4 w-4 text-[var(--text-muted)]" />
-                </div>
-              </div>
-            </AdminDataCard>
-          </div>
-        )}
-
-        {/* ── toolbar ── */}
-        <AdminToolbar>
-          <AdminToolbarLeft>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
-              <Input
-                placeholder="Search bans..."
-                value={c.search}
-                onChange={(e) => c.setSearch(e.target.value)}
-                className="h-8 w-[180px] pl-8 text-xs"
-              />
-            </div>
-            <Select value={c.activeFilter} onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}>
-              <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="1">Active only</SelectItem>
-                <SelectItem value="0">Inactive only</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={c.typeFilter} onValueChange={(v) => c.setTypeFilter(v as "all" | BanType)}>
-              <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="Type" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                <SelectItem value="email">Email</SelectItem>
-                <SelectItem value="domain">Domain</SelectItem>
-                <SelectItem value="ip">IP</SelectItem>
-                <SelectItem value="name">Name</SelectItem>
-              </SelectContent>
-            </Select>
-          </AdminToolbarLeft>
-          <AdminToolbarRight>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={c.refresh} disabled={c.list.loading} title="Refresh">
-              <RefreshCw className={`h-3.5 w-3.5 ${c.list.loading ? "animate-spin" : ""}`} />
-            </Button>
-          </AdminToolbarRight>
-        </AdminToolbar>
-
-        <AdminDataCard>
-          {c.list.loading && c.list.items.length === 0 ? (
-            <div className="flex min-h-[280px] items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : c.list.items.length === 0 && !c.search.trim() ? (
-            <EmptyState
-              icon={<Ban className="h-5 w-5" />}
-              title="No bans yet"
-              description="Add a ban to block an email, domain, IP, or name."
-              action={<Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}><Plus className="h-3.5 w-3.5" />Add Ban</Button>}
-            />
-          ) : c.list.items.length === 0 ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
-              <Search className="h-5 w-5 text-[var(--text-muted)]" />
-              <p className="text-[13px] text-[var(--text-muted)]">
-                No bans matching &ldquo;{c.search}&rdquo;
-              </p>
-            </div>
-          ) : (
+        <AdminFilterToolbar
+          query={c.search}
+          onQueryChange={c.setSearch}
+          filters={
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-16 pl-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">ID</TableHead>
-                    <TableHead className="w-24 text-xs font-medium uppercase tracking-wider text-muted-foreground">Type</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Value</TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Reason</TableHead>
-                    <TableHead className="w-24 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</TableHead>
-                    <TableHead className="w-32 text-xs font-medium uppercase tracking-wider text-muted-foreground">Expires</TableHead>
-                    <TableHead className="w-20 pr-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {c.list.items.map((item) => (
-                    <ContextMenu key={item.id}>
-                      <ContextMenuTrigger asChild>
-                        <TableRow className="group transition-colors hover:bg-[var(--hover-state)] cursor-context-menu">
-                          <TableCell className="pl-4 font-mono text-xs tabular-nums text-muted-foreground">{item.id}</TableCell>
-                          <TableCell>
-                            <Badge variant="fancy" color="sky" className="text-[11px]">{BAN_TYPE_LABELS[item.ban_type] ?? item.ban_type}</Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-[13px]">{item.ban_value}</TableCell>
-                          <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">{item.reason || "—"}</TableCell>
-                          <TableCell>
-                            {item.revoked_at
-                              ? <Badge variant="fancy">revoked</Badge>
-                              : <Badge variant="fancy" color="red">active</Badge>}
-                          </TableCell>
-                          <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">{safeDateLabel(item.expires_at)}</TableCell>
-                          <TableCell className="pr-4 text-right">
-                            <div className="flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => c.openEdit(item)} title="Edit"><Pencil className="h-3 w-3" /></Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => c.askDelete(item)} title="Delete"><Trash2 className="h-3 w-3" /></Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      </ContextMenuTrigger>
-                      <ContextMenuContent className="w-52">
-                        <ContextMenuItem
-                          onClick={() => {
-                            navigator.clipboard.writeText(item.ban_value);
-                          }}
-                        >
-                          <Copy className="mr-2 h-4 w-4" />
-                          Copy value
-                        </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem onClick={() => c.openEdit(item)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                          onClick={() => c.askDelete(item)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenu>
-                  ))}
-                </TableBody>
-              </Table>
-              <div className="flex items-center justify-between border-t border-[var(--hairline-border)] px-4 py-3">
-                <span className="text-xs tabular-nums text-muted-foreground">{c.rangeFrom}–{c.rangeTo} of {c.list.total}</span>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={c.goPrev} disabled={!c.canPrev || c.list.loading}><ChevronLeft className="h-3.5 w-3.5" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={c.goNext} disabled={!c.canNext || c.list.loading}><ChevronRight className="h-3.5 w-3.5" /></Button>
-                </div>
-              </div>
+              <Select
+                value={c.activeFilter}
+                onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}
+              >
+                <SelectTrigger className="h-8 w-[130px] text-xs">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="1">Active only</SelectItem>
+                  <SelectItem value="0">Inactive only</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={c.typeFilter}
+                onValueChange={(v) => c.setTypeFilter(v as "all" | BanType)}
+              >
+                <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="domain">Domain</SelectItem>
+                  <SelectItem value="ip">IP</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                </SelectContent>
+              </Select>
             </>
-          )}
-        </AdminDataCard>
+          }
+          onRefresh={c.refresh}
+          refreshing={c.list.loading}
+          hasActiveFilters={c.hasActiveFilters}
+          onClearFilters={c.clearFilters}
+        />
 
-        {c.list.error && !c.list.loading && <p className="text-sm text-destructive">{c.list.error}</p>}
+        <AdminDataTable
+          columns={columns}
+          data={c.list.items}
+          total={c.list.total}
+          offset={c.list.offset}
+          limit={c.list.limit}
+          loading={c.list.loading}
+          getRowId={(row) => String(row.id)}
+          emptyIcon={<Ban className="h-5 w-5" />}
+          emptyTitle="No bans yet"
+          emptyDescription="Add a ban to block an email, domain, IP, or name."
+          emptyAction={
+            <Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}>
+              <Plus className="h-3.5 w-3.5" />
+              Add Ban
+            </Button>
+          }
+          filterActive={c.hasActiveFilters}
+          filterLabel={c.search.trim() || undefined}
+          onClearFilters={c.clearFilters}
+          onPageChange={c.setPageOffset}
+          onPageSizeChange={c.setPageSize}
+        />
+
+        {c.list.error && !c.list.loading ? (
+          <p className="text-sm text-destructive">{c.list.error}</p>
+        ) : null}
       </div>
 
-      {/* editor dialog */}
       <Dialog open={c.editorOpen} onOpenChange={c.setEditorOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{c.formId !== null ? `Edit ban #${c.formId}` : "Add ban"}</DialogTitle>
-            <DialogDescription>{c.formId !== null ? "Update the ban details." : "Block an email, domain, IP, or name."}</DialogDescription>
+            <DialogTitle>
+              {c.formId !== null ? `Edit ban #${c.formId}` : "Add ban"}
+            </DialogTitle>
+            <DialogDescription>
+              {c.formId !== null
+                ? "Update the ban details."
+                : "Block an email, domain, IP, or name."}
+            </DialogDescription>
           </DialogHeader>
-          <form onSubmit={c.submitEditor} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={c.submitEditor} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               <Label>Type</Label>
-              <Select value={c.formType} onValueChange={(v) => c.setFormType(v as BanType)}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+              <Select
+                value={c.formType}
+                onValueChange={(v) => c.setFormType(v as BanType)}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="domain">Domain</SelectItem>
@@ -275,40 +320,88 @@ export function BansContent() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="ban-value">Value</Label>
-              <Input id="ban-value" value={c.formValue} onChange={(e) => c.setFormValue(e.target.value)} placeholder="e.g. spammer@evil.com" disabled={c.editorBusy} required autoComplete="off" />
+              <Input
+                id="ban-value"
+                value={c.formValue}
+                onChange={(e) => c.setFormValue(e.target.value)}
+                placeholder="e.g. spammer@evil.com"
+                disabled={c.editorBusy}
+                required
+                autoComplete="off"
+              />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="ban-reason">Reason (optional)</Label>
-              <Input id="ban-reason" value={c.formReason} onChange={(e) => c.setFormReason(e.target.value)} placeholder="Spam, abuse, etc." disabled={c.editorBusy} autoComplete="off" />
+              <Input
+                id="ban-reason"
+                value={c.formReason}
+                onChange={(e) => c.setFormReason(e.target.value)}
+                placeholder="Spam, abuse, etc."
+                disabled={c.editorBusy}
+                autoComplete="off"
+              />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="ban-expires">Expires at (optional)</Label>
-              <Input id="ban-expires" type="datetime-local" value={c.formExpiresAt} onChange={(e) => c.setFormExpiresAt(e.target.value)} disabled={c.editorBusy} />
+              <Input
+                id="ban-expires"
+                type="datetime-local"
+                value={c.formExpiresAt}
+                onChange={(e) => c.setFormExpiresAt(e.target.value)}
+                disabled={c.editorBusy}
+              />
             </div>
-            {c.formId === null && c.formType !== "ip" && (
+            {c.formId === null && c.formType !== "ip" ? (
               <div className="flex items-center gap-3 rounded-lg border px-4 py-3">
-                <Switch checked={c.formDisableAliases} onCheckedChange={c.setFormDisableAliases} disabled={c.editorBusy} id="ban-disable-aliases" />
-                <Label htmlFor="ban-disable-aliases" className="cursor-pointer text-sm">Disable matching active aliases</Label>
+                <Switch
+                  checked={c.formDisableAliases}
+                  onCheckedChange={c.setFormDisableAliases}
+                  disabled={c.editorBusy}
+                  id="ban-disable-aliases"
+                />
+                <Label htmlFor="ban-disable-aliases" className="cursor-pointer text-sm">
+                  Disable matching active aliases
+                </Label>
               </div>
-            )}
-            {c.formId !== null && (
+            ) : null}
+            {c.formId !== null ? (
               <>
                 <div className="flex items-center gap-3 rounded-lg border px-4 py-3">
-                  <Switch checked={c.formRevoked} onCheckedChange={c.setFormRevoked} disabled={c.editorBusy} id="ban-revoked" />
-                  <Label htmlFor="ban-revoked" className="cursor-pointer">Revoked</Label>
+                  <Switch
+                    checked={c.formRevoked}
+                    onCheckedChange={c.setFormRevoked}
+                    disabled={c.editorBusy}
+                    id="ban-revoked"
+                  />
+                  <Label htmlFor="ban-revoked" className="cursor-pointer">
+                    Revoked
+                  </Label>
                 </div>
-                {c.formRevoked && (
-                  <div className="space-y-2">
+                {c.formRevoked ? (
+                  <div className="flex flex-col gap-2">
                     <Label htmlFor="ban-revoked-reason">Revoke reason</Label>
-                    <Input id="ban-revoked-reason" value={c.formRevokedReason} onChange={(e) => c.setFormRevokedReason(e.target.value)} disabled={c.editorBusy} autoComplete="off" />
+                    <Input
+                      id="ban-revoked-reason"
+                      value={c.formRevokedReason}
+                      onChange={(e) => c.setFormRevokedReason(e.target.value)}
+                      disabled={c.editorBusy}
+                      autoComplete="off"
+                    />
                   </div>
-                )}
+                ) : null}
               </>
-            )}
+            ) : null}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => c.setEditorOpen(false)} disabled={c.editorBusy}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => c.setEditorOpen(false)}
+                disabled={c.editorBusy}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={c.editorBusy}>
                 {c.editorBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {c.formId !== null ? "Save" : "Create"}
@@ -318,16 +411,29 @@ export function BansContent() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={c.deleteTarget !== null} onOpenChange={(open) => { if (!open) c.setDeleteTarget(null); }}>
+      <AlertDialog
+        open={c.deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) c.setDeleteTarget(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete ban?</AlertDialogTitle>
-            <AlertDialogDescription>This will revoke <span className="font-mono font-medium">{c.deleteTarget?.label}</span>.</AlertDialogDescription>
+            <AlertDialogDescription>
+              This will revoke{" "}
+              <span className="font-mono font-medium">{c.deleteTarget?.label}</span>.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={c.deleteBusy}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={c.confirmDelete} disabled={c.deleteBusy} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {c.deleteBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Delete
+            <AlertDialogAction
+              onClick={c.confirmDelete}
+              disabled={c.deleteBusy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {c.deleteBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

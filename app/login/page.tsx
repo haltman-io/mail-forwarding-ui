@@ -18,8 +18,8 @@ export default function LoginPage() {
         <div className="absolute left-1/2 top-20 h-52 w-52 -translate-x-1/2 rounded-full bg-[rgba(48,209,88,0.08)] blur-[120px]" />
       </div>
 
-      <div className="relative flex min-h-[100svh] flex-col items-center justify-center px-4 py-16 sm:px-6">
-        <LoginForm className="w-full max-w-[760px]" />
+      <div className="relative flex min-h-[100svh] flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
+        <LoginForm className="w-full max-w-[440px]" />
       </div>
     </main>
   );

@@ -8,11 +8,18 @@ import type {
 export { isUnauthorized, describeError };
 
 export async function fetchDnsRequests(
-  params: { limit: number; offset: number; type?: string; status?: string },
+  params: {
+    limit: number;
+    offset: number;
+    type?: string;
+    status?: string;
+    target?: string;
+  },
 ) {
   const qs = new URLSearchParams({ limit: String(params.limit), offset: String(params.offset) });
   if (params.type && params.type !== "all") qs.set("type", params.type);
   if (params.status && params.status !== "all") qs.set("status", params.status);
+  if (params.target) qs.set("target", params.target);
   return adminRequest<ListResponse<AdminDnsRequest>>({ path: `/api/admin/dns-requests?${qs.toString()}` });
 }
 

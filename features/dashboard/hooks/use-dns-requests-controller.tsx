@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import type { AdminDnsRequest, ListState } from "@/features/dashboard/types/admin.types";
 import {
@@ -13,32 +11,42 @@ import {
   isUnauthorized,
   describeError,
 } from "@/features/dashboard/services/dns-requests.service";
+import { useDebouncedValue } from "@/features/dashboard/hooks/use-debounced-value";
+import { useUrlQueryState } from "@/features/dashboard/hooks/use-url-query-state";
+import {
+  DEFAULT_PAGE_SIZE,
+  createListState,
+  toastFail,
+  toastOk,
+} from "@/features/dashboard/lib/admin-utils";
 
-const DEFAULT_LIMIT = 10;
-
-function mk(): ListState<AdminDnsRequest> {
-  return { items: [], total: 0, limit: DEFAULT_LIMIT, offset: 0, loading: false, loadedAt: null, error: null };
-}
-
-function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
-function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
+const FILTER_DEFAULTS = {
+  q: "",
+  type: "all",
+  status: "all",
+  limit: String(DEFAULT_PAGE_SIZE),
+  offset: "0",
+};
 
 export function useDnsRequestsController() {
-  const [list, setList] = React.useState<ListState<AdminDnsRequest>>(mk);
-  const [typeFilter, setTypeFilter] = React.useState("all");
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [search, setSearch] = React.useState("");
+  const { state, setField, patch, reset } = useUrlQueryState(FILTER_DEFAULTS, [
+    "q",
+    "type",
+    "status",
+    "limit",
+    "offset",
+  ]);
 
-  const filteredItems = React.useMemo(() => {
-    if (!search.trim()) return list.items;
-    const q = search.trim().toLowerCase();
-    return list.items.filter((item) => item.target.toLowerCase().includes(q));
-  }, [list.items, search]);
+  const search = state.q;
+  const typeFilter = state.type || "all";
+  const statusFilter = state.status || "all";
+  const limit = Math.max(1, Number.parseInt(state.limit, 10) || DEFAULT_PAGE_SIZE);
+  const offset = Math.max(0, Number.parseInt(state.offset, 10) || 0);
+  const debouncedSearch = useDebouncedValue(search, 300);
 
-  const verifiedCount = React.useMemo(() => list.items.filter((i) => i.status === "VERIFIED").length, [list.items]);
-  const pendingCount = React.useMemo(() => list.items.filter((i) => i.status === "PENDING").length, [list.items]);
-  const failedCount = React.useMemo(() => list.items.filter((i) => i.status === "FAILED").length, [list.items]);
-
+  const [list, setList] = React.useState<ListState<AdminDnsRequest>>(() =>
+    createListState(limit),
+  );
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editorBusy, setEditorBusy] = React.useState(false);
   const [formId, setFormId] = React.useState<number | null>(null);
@@ -46,33 +54,74 @@ export function useDnsRequestsController() {
   const [formType, setFormType] = React.useState<"UI" | "EMAIL">("UI");
   const [formStatus, setFormStatus] = React.useState("PENDING");
   const [formJson, setFormJson] = React.useState("");
-
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; label: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
+  const [resultViewer, setResultViewer] = React.useState<{
+    target: string;
+    json: string;
+  } | null>(null);
+  const loadSeq = React.useRef(0);
 
-  const load = React.useCallback(async (offset = 0) => {
-    setList((s) => ({ ...s, loading: true, error: null }));
-    try {
-      const r = await fetchDnsRequests({
-        limit: DEFAULT_LIMIT, offset, type: typeFilter, status: statusFilter,
-      });
-      if (isUnauthorized(r)) { setList((s) => ({ ...s, loading: false, error: "Unauthorized" })); fail("Unauthorized"); return; }
-      if (!r.ok) { const e = describeError(r, "Failed to load DNS requests."); setList((s) => ({ ...s, loading: false, error: e.message })); fail(e.isRateLimited ? "Rate limited" : "Load failed", e.message); return; }
-      const items = Array.isArray(r.data?.items) ? r.data.items : [];
-      const pg = r.data?.pagination;
-      setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
-    } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
-  }, [typeFilter, statusFilter]);
+  const load = React.useCallback(
+    async (nextOffset = offset, nextLimit = limit) => {
+      const seq = ++loadSeq.current;
+      setList((s) => ({ ...s, loading: true, error: null }));
+      try {
+        const r = await fetchDnsRequests({
+          limit: nextLimit,
+          offset: nextOffset,
+          type: typeFilter,
+          status: statusFilter,
+          target: debouncedSearch.trim().toLowerCase() || undefined,
+        });
+        if (seq !== loadSeq.current) return;
+        if (isUnauthorized(r)) {
+          setList((s) => ({ ...s, loading: false, error: "Unauthorized" }));
+          toastFail("Unauthorized");
+          return;
+        }
+        if (!r.ok) {
+          const e = describeError(r, "Failed to load DNS requests.");
+          setList((s) => ({ ...s, loading: false, error: e.message }));
+          toastFail(e.isRateLimited ? "Rate limited" : "Load failed", e.message);
+          return;
+        }
+        const items = Array.isArray(r.data?.items) ? r.data.items : [];
+        const pg = r.data?.pagination;
+        setList({
+          items,
+          total: pg?.total ?? items.length,
+          limit: pg?.limit ?? nextLimit,
+          offset: pg?.offset ?? nextOffset,
+          loading: false,
+          loadedAt: Date.now(),
+          error: null,
+        });
+      } catch (e) {
+        if (seq !== loadSeq.current) return;
+        const m = e instanceof Error ? e.message : "Network error";
+        setList((s) => ({ ...s, loading: false, error: m }));
+        toastFail("Network error", m);
+      }
+    },
+    [debouncedSearch, limit, offset, statusFilter, typeFilter],
+  );
 
-  React.useEffect(() => { void load(0); }, [load]);
+  React.useEffect(() => {
+    void load(offset, limit);
+  }, [load, offset, limit]);
 
-  const canPrev = list.offset > 0;
-  const canNext = list.offset + list.limit < list.total;
-  const goNext = () => void load(list.offset + list.limit);
-  const goPrev = () => void load(Math.max(0, list.offset - list.limit));
-  const refresh = () => void load(0);
-  const rangeFrom = list.total === 0 ? 0 : list.offset + 1;
-  const rangeTo = Math.min(list.offset + list.limit, list.total);
+  const filterKey = `${debouncedSearch}|${typeFilter}|${statusFilter}|${limit}`;
+  const prevFilterKey = React.useRef(filterKey);
+  React.useEffect(() => {
+    if (prevFilterKey.current === filterKey) return;
+    prevFilterKey.current = filterKey;
+    if (offset !== 0) setField("offset", "0");
+  }, [filterKey, offset, setField]);
+
+  const pageVerifiedCount = list.items.filter((i) => i.status === "VERIFIED").length;
+  const pagePendingCount = list.items.filter((i) => i.status === "PENDING").length;
+  const pageFailedCount = list.items.filter((i) => i.status === "FAILED").length;
 
   function openCreate() {
     setFormId(null);
@@ -88,42 +137,71 @@ export function useDnsRequestsController() {
     setFormTarget(item.target);
     setFormType(item.type);
     setFormStatus(item.status);
-    setFormJson(item.last_check_result_json ? JSON.stringify(item.last_check_result_json, null, 2) : "");
+    setFormJson(
+      item.last_check_result_json
+        ? JSON.stringify(item.last_check_result_json, null, 2)
+        : "",
+    );
     setEditorOpen(true);
+  }
+
+  function openResult(item: AdminDnsRequest) {
+    if (!item.last_check_result_json) {
+      toastFail("No result", "This request has no check result JSON yet.");
+      return;
+    }
+    setResultViewer({
+      target: item.target,
+      json: JSON.stringify(item.last_check_result_json, null, 2),
+    });
   }
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
     const target = formTarget.trim().toLowerCase();
-    if (!target) { fail("Validation", "Target domain is required."); return; }
-
-    const body: Record<string, unknown> = { target, type: formType, status: formStatus.toUpperCase() };
-
+    if (!target) {
+      toastFail("Validation", "Target domain is required.");
+      return;
+    }
+    const body: Record<string, unknown> = {
+      target,
+      type: formType,
+      status: formStatus.toUpperCase(),
+    };
     if (formJson.trim()) {
       try {
         body.last_check_result_json = JSON.parse(formJson);
       } catch {
-        fail("Validation", "Invalid JSON in check result field."); return;
+        toastFail("Validation", "Invalid JSON in check result field.");
+        return;
       }
     } else {
       body.last_check_result_json = null;
     }
-
     setEditorBusy(true);
     try {
       const isEdit = formId !== null;
       const r = isEdit
         ? await updateDnsRequest(formId, body)
         : await createDnsRequest(body);
-
-      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
-      if (!r.ok) { const err = describeError(r, isEdit ? "Update failed." : "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
-
+      if (isUnauthorized(r)) {
+        toastFail("Unauthorized");
+        return;
+      }
+      if (!r.ok) {
+        const err = describeError(r, isEdit ? "Update failed." : "Create failed.");
+        toastFail(err.isRateLimited ? "Rate limited" : "Error", err.message);
+        return;
+      }
       setEditorOpen(false);
-      ok(isEdit ? "DNS request updated" : "DNS request created", target);
-      await load(isEdit ? list.offset : 0);
-    } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
-    finally { setEditorBusy(false); }
+      toastOk(isEdit ? "DNS request updated" : "DNS request created", target);
+      await load(isEdit ? offset : 0, limit);
+      if (!isEdit) setField("offset", "0");
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setEditorBusy(false);
+    }
   }
 
   function askDelete(item: AdminDnsRequest) {
@@ -135,22 +213,67 @@ export function useDnsRequestsController() {
     setDeleteBusy(true);
     try {
       const r = await deleteDnsRequest(deleteTarget.id);
-      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
-      if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
-      ok("DNS request deleted", deleteTarget.label); setDeleteTarget(null); await load(0);
-    } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
-    finally { setDeleteBusy(false); }
+      if (isUnauthorized(r)) {
+        toastFail("Unauthorized");
+        return;
+      }
+      if (!r.ok) {
+        const e = describeError(r, "Delete failed.");
+        toastFail(e.isRateLimited ? "Rate limited" : "Error", e.message);
+        return;
+      }
+      toastOk("DNS request deleted", deleteTarget.label);
+      setDeleteTarget(null);
+      await load(0, limit);
+      setField("offset", "0");
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setDeleteBusy(false);
+    }
   }
 
+  const hasActiveFilters =
+    Boolean(search.trim()) || typeFilter !== "all" || statusFilter !== "all";
+
   return {
-    list, filteredItems, search, setSearch,
-    verifiedCount, pendingCount, failedCount,
-    typeFilter, setTypeFilter, statusFilter, setStatusFilter,
-    refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
-    editorOpen, setEditorOpen, editorBusy, formId,
-    formTarget, setFormTarget, formType, setFormType,
-    formStatus, setFormStatus, formJson, setFormJson,
-    openCreate, openEdit, submitEditor,
-    deleteTarget, setDeleteTarget, deleteBusy, askDelete, confirmDelete,
+    list,
+    pageVerifiedCount,
+    pagePendingCount,
+    pageFailedCount,
+    search,
+    setSearch: (v: string) => setField("q", v),
+    typeFilter,
+    setTypeFilter: (v: string) => patch({ type: v, offset: "0" }),
+    statusFilter,
+    setStatusFilter: (v: string) => patch({ status: v, offset: "0" }),
+    hasActiveFilters,
+    clearFilters: reset,
+    refresh: () => void load(offset, limit),
+    setPageOffset: (v: number) => setField("offset", String(Math.max(0, v))),
+    setPageSize: (v: number) => patch({ limit: String(v), offset: "0" }),
+    editorOpen,
+    setEditorOpen,
+    editorBusy,
+    formId,
+    formTarget,
+    setFormTarget,
+    formType,
+    setFormType,
+    formStatus,
+    setFormStatus,
+    formJson,
+    setFormJson,
+    openCreate,
+    openEdit,
+    openResult,
+    resultViewer,
+    setResultViewer,
+    submitEditor,
+    deleteTarget,
+    setDeleteTarget,
+    deleteBusy,
+    askDelete,
+    confirmDelete,
   };
 }

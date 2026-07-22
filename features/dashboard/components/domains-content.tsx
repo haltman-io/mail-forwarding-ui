@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
-  ChevronLeft,
-  ChevronRight,
   Copy,
   Eye,
   EyeOff,
@@ -15,7 +14,6 @@ import {
   Plus,
   Power,
   RefreshCw,
-  Search,
   Trash2,
   Zap,
 } from "lucide-react";
@@ -30,13 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,31 +49,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { AdminPageLayout } from "@/features/dashboard/components/admin-page-layout";
 import { AdminPageHeader } from "@/features/dashboard/components/admin-page-header";
-import {
-  AdminToolbar,
-  AdminToolbarLeft,
-  AdminToolbarRight,
-} from "@/features/dashboard/components/admin-toolbar";
-import { AdminDataCard } from "@/features/dashboard/components/admin-data-card";
-import { EmptyState } from "@/features/dashboard/components/empty-state";
-
+import { AdminMetricCards } from "@/features/dashboard/components/admin-metric-cards";
+import { AdminFilterToolbar } from "@/features/dashboard/components/admin-filter-toolbar";
+import { AdminDataTable } from "@/features/dashboard/components/admin-data-table";
+import { AdminRowActions } from "@/features/dashboard/components/admin-row-actions";
 import { useDomainsController } from "@/features/dashboard/hooks/use-domains-controller";
+import type { AdminDomain } from "@/features/dashboard/types/domains.types";
 import type { BoolFilter } from "@/features/dashboard/types/domains.types";
+import { copyText } from "@/features/dashboard/lib/admin-utils";
 
 type BadgeColor = NonNullable<React.ComponentProps<typeof Badge>["color"]>;
 
-function BooleanStatusBadge({
+function BoolBadge({
   isOn,
   onLabel = "ON",
   offLabel = "OFF",
@@ -105,10 +86,141 @@ function BooleanStatusBadge({
 export function DomainsContent() {
   const c = useDomainsController();
 
+  const columns = React.useMemo<ColumnDef<AdminDomain>[]>(
+    () => [
+      {
+        accessorKey: "id",
+        header: "ID",
+        cell: ({ row }) => (
+          <span className="pl-1 font-mono text-xs tabular-nums text-muted-foreground">
+            {row.original.id}
+          </span>
+        ),
+        size: 64,
+      },
+      {
+        accessorKey: "name",
+        header: "Domain",
+        cell: ({ row }) => (
+          <span className="font-mono text-[13px]">{row.original.name}</span>
+        ),
+      },
+      {
+        id: "admin",
+        accessorFn: (row) => c.isTrueValue(row.active),
+        header: "Admin",
+        cell: ({ row }) => (
+          <Switch
+            checked={c.isTrueValue(row.original.active)}
+            onCheckedChange={() => c.toggleActive(row.original)}
+            aria-label={`Toggle ${row.original.name} admin access`}
+          />
+        ),
+        size: 90,
+      },
+      {
+        id: "email_dns",
+        accessorFn: (row) => c.isTrueValue(row.active_mx),
+        header: "EMAIL DNS",
+        cell: ({ row }) => <BoolBadge isOn={c.isTrueValue(row.original.active_mx)} />,
+        size: 110,
+      },
+      {
+        id: "ui_dns",
+        accessorFn: (row) => c.isTrueValue(row.active_ui),
+        header: "UI DNS",
+        cell: ({ row }) => <BoolBadge isOn={c.isTrueValue(row.original.active_ui)} />,
+        size: 100,
+      },
+      {
+        id: "visible",
+        accessorFn: (row) => c.readVisibleValue(row),
+        header: "Visible",
+        cell: ({ row }) => (
+          <Switch
+            checked={c.readVisibleValue(row.original)}
+            onCheckedChange={() => c.toggleVisible(row.original)}
+            aria-label={`Toggle ${row.original.name} public visibility`}
+          />
+        ),
+        size: 90,
+      },
+      {
+        id: "actions",
+        enableSorting: false,
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => {
+          const item = row.original;
+          const adminOn = c.isTrueValue(item.active);
+          const visibleOn = c.readVisibleValue(item);
+          const rowRechecking = c.isRecheckingDomain(item.id);
+          return (
+            <div className="flex justify-end pr-1">
+              <AdminRowActions
+                label={`Actions for ${item.name}`}
+                items={[
+                  {
+                    key: "copy",
+                    label: "Copy domain",
+                    icon: <Copy className="mr-2 h-4 w-4" />,
+                    onSelect: () => copyText(item.name, "Domain copied"),
+                  },
+                  {
+                    key: "recheck",
+                    label: "Recheck DNS",
+                    icon: rowRechecking ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                    ),
+                    onSelect: () => void c.recheckDomain(item),
+                    disabled: rowRechecking,
+                    separatorBefore: true,
+                  },
+                  {
+                    key: "toggle-admin",
+                    label: adminOn ? "Deactivate admin" : "Activate admin",
+                    icon: <Power className="mr-2 h-4 w-4" />,
+                    onSelect: () => void c.toggleActive(item),
+                  },
+                  {
+                    key: "toggle-visible",
+                    label: visibleOn ? "Hide public listing" : "Show public listing",
+                    icon: visibleOn ? (
+                      <EyeOff className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Eye className="mr-2 h-4 w-4" />
+                    ),
+                    onSelect: () => void c.toggleVisible(item),
+                  },
+                  {
+                    key: "edit",
+                    label: "Edit",
+                    icon: <Pencil className="mr-2 h-4 w-4" />,
+                    onSelect: () => c.openEdit(item),
+                  },
+                  {
+                    key: "disable",
+                    label: "Disable domain",
+                    icon: <Trash2 className="mr-2 h-4 w-4" />,
+                    onSelect: () => c.askDelete(item),
+                    destructive: true,
+                    separatorBefore: true,
+                  },
+                ]}
+              />
+            </div>
+          );
+        },
+        size: 56,
+      },
+    ],
+    [c],
+  );
+
   return (
     <AdminPageLayout>
-      <div className="space-y-6">
-        {/* ── page header ── */}
+      <div className="flex flex-col gap-6">
         <AdminPageHeader
           icon={<Globe className="h-4 w-4" />}
           title="Domains"
@@ -121,120 +233,93 @@ export function DomainsContent() {
           }
         />
 
-        {/* ── metric cards ── */}
-        {c.domains.loadedAt && (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    Total Domains
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
-                    {c.domains.total}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
-                  <Globe className="h-4 w-4 text-[var(--neu-green)]" />
-                </div>
-              </div>
-            </AdminDataCard>
+        {c.domains.loadedAt ? (
+          <AdminMetricCards
+            columnsClassName="sm:grid-cols-2 xl:grid-cols-4"
+            items={[
+              {
+                key: "total",
+                label: "Total Domains",
+                value: c.domains.total,
+                hint: "Matching current filters",
+                icon: <Globe className="h-4 w-4 text-[var(--neu-green)]" />,
+              },
+              {
+                key: "admin",
+                label: "Admin ON (page)",
+                value: c.pageActiveCount,
+                hint: "On this page only",
+                valueClassName: "text-2xl font-semibold tracking-tight text-emerald-400",
+                icon: <Zap className="h-4 w-4 text-emerald-400" />,
+                iconWrapClassName:
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8",
+              },
+              {
+                key: "email",
+                label: "EMAIL DNS (page)",
+                value: c.pageEmailDnsCount,
+                hint: "On this page only",
+                valueClassName: "text-2xl font-semibold tracking-tight text-sky-400",
+                icon: <Mail className="h-4 w-4 text-sky-400" />,
+                iconWrapClassName:
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/8",
+              },
+              {
+                key: "ui",
+                label: "UI DNS (page)",
+                value: c.pageUiDnsCount,
+                hint: "On this page only",
+                valueClassName: "text-2xl font-semibold tracking-tight text-indigo-400",
+                icon: <Monitor className="h-4 w-4 text-indigo-400" />,
+                iconWrapClassName:
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/8",
+              },
+            ]}
+          />
+        ) : null}
 
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    Admin ON
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-emerald-400">
-                    {c.activeCount}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/8">
-                  <Zap className="h-4 w-4 text-emerald-400" />
-                </div>
-              </div>
-            </AdminDataCard>
-
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    EMAIL DNS
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-sky-400">
-                    {c.emailDnsCount}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/8">
-                  <Mail className="h-4 w-4 text-sky-400" />
-                </div>
-              </div>
-            </AdminDataCard>
-
-            <AdminDataCard className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    UI DNS
-                  </p>
-                  <p className="text-2xl font-semibold tracking-tight text-indigo-400">
-                    {c.uiDnsCount}
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/8">
-                  <Monitor className="h-4 w-4 text-indigo-400" />
-                </div>
-              </div>
-            </AdminDataCard>
-          </div>
-        )}
-
-        {/* ── toolbar ── */}
-        <AdminToolbar>
-          <AdminToolbarLeft>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
-              <Input
-                placeholder="Search domains..."
-                value={c.search}
-                onChange={(e) => c.setSearch(e.target.value)}
-                className="h-8 w-[180px] pl-8 text-xs"
-              />
-            </div>
-            <Select
-              value={c.activeFilter}
-              onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}
-            >
-              <SelectTrigger className="h-8 w-[130px] text-xs">
-                <SelectValue placeholder="Filter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="1">Admin ON</SelectItem>
-                  <SelectItem value="0">Admin OFF</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Select
-              value={c.visibleFilter}
-              onValueChange={(v) => c.setVisibleFilter(v as BoolFilter)}
-            >
-              <SelectTrigger className="h-8 w-[132px] text-xs">
-                <SelectValue placeholder="Visibility" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="all">All visibility</SelectItem>
-                  <SelectItem value="1">Visible only</SelectItem>
-                  <SelectItem value="0">Hidden only</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </AdminToolbarLeft>
-
-          <AdminToolbarRight>
+        <AdminFilterToolbar
+          query={c.search}
+          onQueryChange={c.setSearch}
+          filters={
+            <>
+              <Select
+                value={c.activeFilter}
+                onValueChange={(v) => c.setActiveFilter(v as BoolFilter)}
+              >
+                <SelectTrigger className="h-8 w-[130px] text-xs">
+                  <SelectValue placeholder="Filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="1">Admin ON</SelectItem>
+                    <SelectItem value="0">Admin OFF</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Select
+                value={c.visibleFilter}
+                onValueChange={(v) => c.setVisibleFilter(v as BoolFilter)}
+              >
+                <SelectTrigger className="h-8 w-[132px] text-xs">
+                  <SelectValue placeholder="Visibility" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">All visibility</SelectItem>
+                    <SelectItem value="1">Visible only</SelectItem>
+                    <SelectItem value="0">Hidden only</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </>
+          }
+          onRefresh={c.refresh}
+          refreshing={c.domains.loading}
+          hasActiveFilters={c.hasActiveFilters}
+          onClearFilters={c.clearFilters}
+          rightExtra={
             <Button
               variant="ghost"
               size="sm"
@@ -250,249 +335,65 @@ export function DomainsContent() {
               )}
               Recheck all DNS
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={c.refresh}
-              disabled={c.domains.loading}
-              title="Refresh"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${c.domains.loading ? "animate-spin" : ""}`}
-              />
+          }
+        />
+
+        <AdminDataTable
+          columns={columns}
+          data={c.domains.items}
+          total={c.domains.total}
+          offset={c.domains.offset}
+          limit={c.domains.limit}
+          loading={c.domains.loading}
+          getRowId={(row) => String(row.id)}
+          enableSelection
+          emptyIcon={<Globe className="h-5 w-5" />}
+          emptyTitle="No domains yet"
+          emptyDescription="Add your first forwarding domain to start creating aliases."
+          emptyAction={
+            <Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}>
+              <Plus className="h-3.5 w-3.5" />
+              Add Domain
             </Button>
-          </AdminToolbarRight>
-        </AdminToolbar>
-
-        {/* ── data surface ── */}
-        <AdminDataCard>
-          {c.domains.loading && c.domains.items.length === 0 ? (
-            <div className="flex min-h-[280px] items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : c.domains.items.length === 0 ? (
-            <EmptyState
-              icon={<Globe className="h-5 w-5" />}
-              title="No domains yet"
-              description="Add your first forwarding domain to start creating aliases."
-              action={
-                <Button
-                  size="sm"
-                  className="h-8 gap-1.5"
-                  onClick={c.openCreate}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add Domain
-                </Button>
-              }
-            />
-          ) : c.filteredItems.length === 0 ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 py-12">
-              <Search className="h-5 w-5 text-[var(--text-muted)]" />
-              <p className="text-[13px] text-[var(--text-muted)]">
-                No domains matching &ldquo;{c.search}&rdquo;
-              </p>
-            </div>
-          ) : (
+          }
+          filterActive={c.hasActiveFilters}
+          filterLabel={c.search.trim() || undefined}
+          onClearFilters={c.clearFilters}
+          onPageChange={c.setPageOffset}
+          onPageSizeChange={c.setPageSize}
+          bulkActions={({ selectedRows, clearSelection }) => (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-16 pl-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      ID
-                    </TableHead>
-                    <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Domain
-                    </TableHead>
-                    <TableHead className="w-32 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Admin
-                    </TableHead>
-                    <TableHead className="w-20 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      EMAIL
-                    </TableHead>
-                    <TableHead className="w-20 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      UI
-                    </TableHead>
-                    <TableHead className="w-32 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Visible
-                    </TableHead>
-                    <TableHead className="w-20 pr-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {c.filteredItems.map((item) => {
-                    const adminOn = c.isTrueValue(item.active);
-                    const emailOn = c.isTrueValue(item.active_mx);
-                    const uiOn = c.isTrueValue(item.active_ui);
-                    const visibleOn = c.readVisibleValue(item);
-                    const rowRechecking = c.isRecheckingDomain(item.id);
-
-                    return (
-                      <ContextMenu key={item.id}>
-                        <ContextMenuTrigger asChild>
-                          <TableRow className="group cursor-context-menu transition-colors hover:bg-[var(--hover-state)]">
-                            <TableCell className="pl-4 font-mono text-xs tabular-nums text-muted-foreground">
-                              {item.id}
-                            </TableCell>
-                            <TableCell className="font-mono text-[13px]">
-                              {item.name}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <Switch
-                                  checked={adminOn}
-                                  onCheckedChange={() => c.toggleActive(item)}
-                                  aria-label={`Toggle ${item.name} admin access`}
-                                />
-                                <BooleanStatusBadge isOn={adminOn} />
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <BooleanStatusBadge isOn={emailOn} />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <BooleanStatusBadge isOn={uiOn} />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <Switch
-                                  checked={visibleOn}
-                                  onCheckedChange={() => c.toggleVisible(item)}
-                                  aria-label={`Toggle ${item.name} public visibility`}
-                                />
-                                <BooleanStatusBadge isOn={visibleOn} />
-                              </div>
-                            </TableCell>
-                            <TableCell className="pr-4 text-right">
-                              <div className="flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => c.recheckDomain(item)}
-                                  disabled={rowRechecking}
-                                  title="Recheck DNS"
-                                >
-                                  {rowRechecking ? (
-                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                  ) : (
-                                    <RefreshCw className="h-3 w-3" />
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => c.openEdit(item)}
-                                  title="Edit"
-                                >
-                                  <Pencil className="h-3 w-3" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7 text-destructive hover:text-destructive"
-                                  onClick={() => c.askDelete(item)}
-                                  title="Delete"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        </ContextMenuTrigger>
-                        <ContextMenuContent className="w-56">
-                          <ContextMenuItem
-                            onClick={() => {
-                              navigator.clipboard.writeText(item.name);
-                            }}
-                          >
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copy domain
-                          </ContextMenuItem>
-                          <ContextMenuItem
-                            disabled={rowRechecking}
-                            onClick={() => c.recheckDomain(item)}
-                          >
-                            {rowRechecking ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <RefreshCw className="mr-2 h-4 w-4" />
-                            )}
-                            Recheck DNS
-                          </ContextMenuItem>
-                          <ContextMenuSeparator />
-                          <ContextMenuItem onClick={() => c.toggleActive(item)}>
-                            <Power className="mr-2 h-4 w-4" />
-                            {adminOn ? "Deactivate admin" : "Activate admin"}
-                          </ContextMenuItem>
-                          <ContextMenuItem onClick={() => c.toggleVisible(item)}>
-                            {visibleOn ? (
-                              <EyeOff className="mr-2 h-4 w-4" />
-                            ) : (
-                              <Eye className="mr-2 h-4 w-4" />
-                            )}
-                            {visibleOn ? "Hide public listing" : "Show public listing"}
-                          </ContextMenuItem>
-                          <ContextMenuItem onClick={() => c.openEdit(item)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </ContextMenuItem>
-                          <ContextMenuSeparator />
-                          <ContextMenuItem
-                            variant="destructive"
-                            onClick={() => c.askDelete(item)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </ContextMenuItem>
-                        </ContextMenuContent>
-                      </ContextMenu>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-
-              {/* ── pagination ── */}
-              <div className="flex items-center justify-between border-t border-[var(--hairline-border)] px-4 py-3">
-                <span className="text-xs tabular-nums text-muted-foreground">
-                  {c.rangeFrom}–{c.rangeTo} of {c.domains.total}
-                </span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={c.goPrev}
-                    disabled={!c.canPrev || c.domains.loading}
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={c.goNext}
-                    disabled={!c.canNext || c.domains.loading}
-                  >
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                disabled={c.bulkBusy}
+                onClick={() =>
+                  void c.bulkSetActive(selectedRows, true).then(clearSelection)
+                }
+              >
+                Activate admin
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                disabled={c.bulkBusy}
+                onClick={() =>
+                  void c.bulkSetActive(selectedRows, false).then(clearSelection)
+                }
+              >
+                Deactivate admin
+              </Button>
             </>
           )}
-        </AdminDataCard>
+        />
 
-        {/* ── error ── */}
-        {c.domains.error && !c.domains.loading && (
+        {c.domains.error && !c.domains.loading ? (
           <p className="text-sm text-destructive">{c.domains.error}</p>
-        )}
+        ) : null}
       </div>
 
-      {/* ── editor dialog ── */}
       <Dialog open={c.editorOpen} onOpenChange={c.setEditorOpen}>
         <DialogContent>
           <DialogHeader>
@@ -505,9 +406,8 @@ export function DomainsContent() {
                 : "Enter a domain name and choose its initial admin/public gates."}
             </DialogDescription>
           </DialogHeader>
-
-          <form onSubmit={c.submitEditor} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={c.submitEditor} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="domain-name">Domain</Label>
               <Input
                 id="domain-name"
@@ -519,7 +419,6 @@ export function DomainsContent() {
                 autoComplete="off"
               />
             </div>
-
             <div className="flex items-center gap-3 rounded-lg border px-4 py-3">
               <Switch
                 checked={c.formActive}
@@ -531,7 +430,6 @@ export function DomainsContent() {
                 Admin enabled
               </Label>
             </div>
-
             <div className="flex items-center gap-3 rounded-lg border px-4 py-3">
               <Switch
                 checked={c.formVisible}
@@ -543,7 +441,6 @@ export function DomainsContent() {
                 Publicly visible
               </Label>
             </div>
-
             <DialogFooter>
               <Button
                 type="button"
@@ -554,9 +451,7 @@ export function DomainsContent() {
                 Cancel
               </Button>
               <Button type="submit" disabled={c.editorBusy}>
-                {c.editorBusy && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+                {c.editorBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {c.formId !== null ? "Save" : "Create"}
               </Button>
             </DialogFooter>
@@ -564,7 +459,6 @@ export function DomainsContent() {
         </DialogContent>
       </Dialog>
 
-      {/* ── delete confirmation ── */}
       <AlertDialog
         open={c.deleteTarget !== null}
         onOpenChange={(open) => {
@@ -573,28 +467,22 @@ export function DomainsContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete domain?</AlertDialogTitle>
+            <AlertDialogTitle>Disable domain?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will soft-delete{" "}
-              <span className="font-mono font-medium">
-                {c.deleteTarget?.name}
-              </span>{" "}
-              by setting active&nbsp;=&nbsp;0.
+              This soft-disables{" "}
+              <span className="font-mono font-medium">{c.deleteTarget?.name}</span>{" "}
+              by setting admin active = 0. DNS flags are left unchanged.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={c.deleteBusy}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={c.deleteBusy}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={c.confirmDelete}
               disabled={c.deleteBusy}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {c.deleteBusy && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Delete
+              {c.deleteBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Disable
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

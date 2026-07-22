@@ -9,11 +9,18 @@ import type {
 export { isUnauthorized, describeError };
 
 export async function fetchUsers(
-  params: { limit: number; offset: number; active?: string; email?: string },
+  params: {
+    limit: number;
+    offset: number;
+    active?: string;
+    email?: string;
+    username?: string;
+  },
 ) {
   const qs = new URLSearchParams({ limit: String(params.limit), offset: String(params.offset) });
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.email) qs.set("email", params.email);
+  if (params.username) qs.set("username", params.username);
   return adminRequest<ListResponse<AdminUser>>({ path: `/api/admin/users?${qs.toString()}` });
 }
 

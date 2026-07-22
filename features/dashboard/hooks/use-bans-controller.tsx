@@ -1,38 +1,56 @@
 "use client";
 
 import * as React from "react";
-import { toast } from "sonner";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import type { AdminBan, BoolFilter, BanType, ListState } from "@/features/dashboard/types/admin.types";
 import {
-  fetchBans, createBan, updateBan, deleteBan, isUnauthorized, describeError,
+  fetchBans,
+  createBan,
+  updateBan,
+  deleteBan,
+  isUnauthorized,
+  describeError,
 } from "@/features/dashboard/services/bans.service";
+import { useDebouncedValue } from "@/features/dashboard/hooks/use-debounced-value";
+import { useUrlQueryState } from "@/features/dashboard/hooks/use-url-query-state";
+import {
+  DEFAULT_PAGE_SIZE,
+  createListState,
+  dateTimeLocalToIso,
+  isoToDateTimeLocal,
+  toastFail,
+  toastOk,
+} from "@/features/dashboard/lib/admin-utils";
 
-const DEFAULT_LIMIT = 10;
-
-function mk(): ListState<AdminBan> {
-  return { items: [], total: 0, limit: DEFAULT_LIMIT, offset: 0, loading: false, loadedAt: null, error: null };
-}
-
-function ok(t: string, d?: string) { toast.success(t, { description: d, icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" /> }); }
-function fail(t: string, d?: string) { toast.error(t, { description: d, icon: <AlertTriangle className="h-4 w-4 text-rose-400" /> }); }
-
-function dateTimeLocalToIso(v: string) { if (!v) return null; const p = Date.parse(v); if (Number.isNaN(p)) return null; return new Date(p).toISOString(); }
-function isoToDateTimeLocal(v?: string | null) {
-  if (!v) return "";
-  const p = Date.parse(v);
-  if (Number.isNaN(p)) return "";
-  const d = new Date(p);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
+const FILTER_DEFAULTS = {
+  q: "",
+  active: "all" as BoolFilter,
+  type: "all",
+  limit: String(DEFAULT_PAGE_SIZE),
+  offset: "0",
+};
 
 export function useBansController() {
-  const [list, setList] = React.useState<ListState<AdminBan>>(mk);
-  const [activeFilter, setActiveFilter] = React.useState<BoolFilter>("all");
-  const [typeFilter, setTypeFilter] = React.useState<"all" | BanType>("all");
-  const [search, setSearch] = React.useState("");
+  const { state, setField, patch, reset } = useUrlQueryState(FILTER_DEFAULTS, [
+    "q",
+    "active",
+    "type",
+    "limit",
+    "offset",
+  ]);
 
+  const search = state.q;
+  const activeFilter = (["all", "1", "0"].includes(state.active)
+    ? state.active
+    : "all") as BoolFilter;
+  const typeFilter = (
+    ["all", "email", "domain", "ip", "name"].includes(state.type) ? state.type : "all"
+  ) as "all" | BanType;
+  const limit = Math.max(1, Number.parseInt(state.limit, 10) || DEFAULT_PAGE_SIZE);
+  const offset = Math.max(0, Number.parseInt(state.offset, 10) || 0);
+  const debouncedSearch = useDebouncedValue(search, 300);
+
+  const [list, setList] = React.useState<ListState<AdminBan>>(() => createListState(limit));
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [editorBusy, setEditorBusy] = React.useState(false);
   const [formId, setFormId] = React.useState<number | null>(null);
@@ -43,53 +61,103 @@ export function useBansController() {
   const [formRevoked, setFormRevoked] = React.useState(false);
   const [formRevokedReason, setFormRevokedReason] = React.useState("");
   const [formDisableAliases, setFormDisableAliases] = React.useState(false);
-
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: number; label: string } | null>(null);
   const [deleteBusy, setDeleteBusy] = React.useState(false);
+  const loadSeq = React.useRef(0);
 
-  const load = React.useCallback(async (offset = 0) => {
-    setList((s) => ({ ...s, loading: true, error: null }));
-    try {
-      const r = await fetchBans({
-        limit: DEFAULT_LIMIT, offset, active: activeFilter,
-        ban_type: typeFilter !== "all" ? typeFilter : undefined,
-        ban_value: search.trim() || undefined,
-      });
-      if (isUnauthorized(r)) { setList((s) => ({ ...s, loading: false, error: "Unauthorized" })); fail("Unauthorized"); return; }
-      if (!r.ok) { const e = describeError(r, "Failed to load bans."); setList((s) => ({ ...s, loading: false, error: e.message })); fail(e.isRateLimited ? "Rate limited" : "Load failed", e.message); return; }
-      const items = Array.isArray(r.data?.items) ? r.data.items : [];
-      const pg = r.data?.pagination;
-      setList({ items, total: pg?.total ?? items.length, limit: pg?.limit ?? DEFAULT_LIMIT, offset: pg?.offset ?? offset, loading: false, loadedAt: Date.now(), error: null });
-    } catch (e) { const m = e instanceof Error ? e.message : "Network error"; setList((s) => ({ ...s, loading: false, error: m })); fail("Network error", m); }
-  }, [activeFilter, typeFilter, search]);
+  const load = React.useCallback(
+    async (nextOffset = offset, nextLimit = limit) => {
+      const seq = ++loadSeq.current;
+      setList((s) => ({ ...s, loading: true, error: null }));
+      try {
+        const r = await fetchBans({
+          limit: nextLimit,
+          offset: nextOffset,
+          active: activeFilter,
+          ban_type: typeFilter !== "all" ? typeFilter : undefined,
+          ban_value: debouncedSearch.trim() || undefined,
+        });
+        if (seq !== loadSeq.current) return;
+        if (isUnauthorized(r)) {
+          setList((s) => ({ ...s, loading: false, error: "Unauthorized" }));
+          toastFail("Unauthorized");
+          return;
+        }
+        if (!r.ok) {
+          const e = describeError(r, "Failed to load bans.");
+          setList((s) => ({ ...s, loading: false, error: e.message }));
+          toastFail(e.isRateLimited ? "Rate limited" : "Load failed", e.message);
+          return;
+        }
+        const items = Array.isArray(r.data?.items) ? r.data.items : [];
+        const pg = r.data?.pagination;
+        setList({
+          items,
+          total: pg?.total ?? items.length,
+          limit: pg?.limit ?? nextLimit,
+          offset: pg?.offset ?? nextOffset,
+          loading: false,
+          loadedAt: Date.now(),
+          error: null,
+        });
+      } catch (e) {
+        if (seq !== loadSeq.current) return;
+        const m = e instanceof Error ? e.message : "Network error";
+        setList((s) => ({ ...s, loading: false, error: m }));
+        toastFail("Network error", m);
+      }
+    },
+    [activeFilter, debouncedSearch, limit, offset, typeFilter],
+  );
 
-  React.useEffect(() => { void load(0); }, [load]);
+  React.useEffect(() => {
+    void load(offset, limit);
+  }, [load, offset, limit]);
 
-  const canPrev = list.offset > 0;
-  const canNext = list.offset + list.limit < list.total;
-  const goNext = () => void load(list.offset + list.limit);
-  const goPrev = () => void load(Math.max(0, list.offset - list.limit));
-  const refresh = () => void load(0);
-  const rangeFrom = list.total === 0 ? 0 : list.offset + 1;
-  const rangeTo = Math.min(list.offset + list.limit, list.total);
+  const filterKey = `${debouncedSearch}|${activeFilter}|${typeFilter}|${limit}`;
+  const prevFilterKey = React.useRef(filterKey);
+  React.useEffect(() => {
+    if (prevFilterKey.current === filterKey) return;
+    prevFilterKey.current = filterKey;
+    if (offset !== 0) setField("offset", "0");
+  }, [filterKey, offset, setField]);
 
   function openCreate() {
-    setFormId(null); setFormType("email"); setFormValue(""); setFormReason(""); setFormExpiresAt(""); setFormRevoked(false); setFormRevokedReason(""); setFormDisableAliases(false);
+    setFormId(null);
+    setFormType("email");
+    setFormValue("");
+    setFormReason("");
+    setFormExpiresAt("");
+    setFormRevoked(false);
+    setFormRevokedReason("");
+    setFormDisableAliases(false);
     setEditorOpen(true);
   }
+
   function openEdit(item: AdminBan) {
-    setFormId(item.id); setFormType((item.ban_type as BanType) || "email"); setFormValue(item.ban_value);
-    setFormReason(item.reason ?? ""); setFormExpiresAt(isoToDateTimeLocal(item.expires_at));
-    setFormRevoked(Boolean(item.revoked_at)); setFormRevokedReason(item.revoked_reason ?? ""); setFormDisableAliases(false);
+    setFormId(item.id);
+    setFormType((item.ban_type as BanType) || "email");
+    setFormValue(item.ban_value);
+    setFormReason(item.reason ?? "");
+    setFormExpiresAt(isoToDateTimeLocal(item.expires_at));
+    setFormRevoked(Boolean(item.revoked_at));
+    setFormRevokedReason(item.revoked_reason ?? "");
+    setFormDisableAliases(false);
     setEditorOpen(true);
   }
 
   async function submitEditor(e: React.FormEvent) {
     e.preventDefault();
     const value = formValue.trim();
-    if (!value) { fail("Validation", "Ban value is required."); return; }
+    if (!value) {
+      toastFail("Validation", "Ban value is required.");
+      return;
+    }
     const expiresIso = dateTimeLocalToIso(formExpiresAt);
-    if (formExpiresAt && !expiresIso) { fail("Validation", "Invalid expiration date."); return; }
+    if (formExpiresAt && !expiresIso) {
+      toastFail("Validation", "Invalid expiration date.");
+      return;
+    }
     setEditorBusy(true);
     try {
       const isEdit = formId !== null;
@@ -104,56 +172,101 @@ export function useBansController() {
         body.disable_matching_aliases = true;
       }
       const r = isEdit ? await updateBan(formId, body) : await createBan(body);
-      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
-      if (!r.ok) { const err = describeError(r, isEdit ? "Update failed." : "Create failed."); fail(err.isRateLimited ? "Rate limited" : "Error", err.message); return; }
+      if (isUnauthorized(r)) {
+        toastFail("Unauthorized");
+        return;
+      }
+      if (!r.ok) {
+        const err = describeError(r, isEdit ? "Update failed." : "Create failed.");
+        toastFail(err.isRateLimited ? "Rate limited" : "Error", err.message);
+        return;
+      }
       const desc = r.data?.message ?? `${formType}:${value}`;
-      setEditorOpen(false); ok(isEdit ? "Ban updated" : "Ban created", desc); await load(isEdit ? list.offset : 0);
-    } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
-    finally { setEditorBusy(false); }
+      setEditorOpen(false);
+      toastOk(isEdit ? "Ban updated" : "Ban created", desc);
+      await load(isEdit ? offset : 0, limit);
+      if (!isEdit) setField("offset", "0");
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setEditorBusy(false);
+    }
   }
 
-  function askDelete(item: AdminBan) { setDeleteTarget({ id: item.id, label: `${item.ban_type}:${item.ban_value}` }); }
+  function askDelete(item: AdminBan) {
+    setDeleteTarget({ id: item.id, label: `${item.ban_type}:${item.ban_value}` });
+  }
+
   async function confirmDelete() {
     if (!deleteTarget) return;
     setDeleteBusy(true);
     try {
       const r = await deleteBan(deleteTarget.id);
-      if (isUnauthorized(r)) { fail("Unauthorized"); return; }
-      if (!r.ok) { const e = describeError(r, "Delete failed."); fail(e.isRateLimited ? "Rate limited" : "Error", e.message); return; }
-      ok("Ban deleted", deleteTarget.label); setDeleteTarget(null); await load(0);
-    } catch (e) { fail("Network error", e instanceof Error ? e.message : "Unknown error"); }
-    finally { setDeleteBusy(false); }
+      if (isUnauthorized(r)) {
+        toastFail("Unauthorized");
+        return;
+      }
+      if (!r.ok) {
+        const e = describeError(r, "Delete failed.");
+        toastFail(e.isRateLimited ? "Rate limited" : "Error", e.message);
+        return;
+      }
+      toastOk("Ban deleted", deleteTarget.label);
+      setDeleteTarget(null);
+      await load(0, limit);
+      setField("offset", "0");
+    } catch (e) {
+      toastFail("Network error", e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setDeleteBusy(false);
+    }
   }
 
-  const filteredItems = list.items;
-
-  const activeCount = React.useMemo(
-    () => list.items.filter((item) => !item.revoked_at).length,
-    [list.items],
-  );
-  const inactiveCount = React.useMemo(
-    () => list.items.filter((item) => !!item.revoked_at).length,
-    [list.items],
-  );
-
-  const typeCounts = React.useMemo(() => {
-    const counts: Record<string, number> = { email: 0, domain: 0, ip: 0, name: 0 };
-    for (const item of list.items) {
-      const t = item.ban_type;
-      if (t in counts) counts[t]++;
-    }
-    return counts;
-  }, [list.items]);
+  const pageActiveCount = list.items.filter((item) => !item.revoked_at).length;
+  const pageRevokedCount = list.items.filter((item) => !!item.revoked_at).length;
+  const hasActiveFilters =
+    Boolean(search.trim()) || activeFilter !== "all" || typeFilter !== "all";
 
   return {
-    list, activeFilter, setActiveFilter, typeFilter, setTypeFilter, search, setSearch,
-    refresh, canPrev, canNext, goNext, goPrev, rangeFrom, rangeTo,
-    filteredItems, activeCount, inactiveCount, typeCounts,
-    editorOpen, setEditorOpen, editorBusy, formId,
-    formType, setFormType, formValue, setFormValue, formReason, setFormReason,
-    formExpiresAt, setFormExpiresAt, formRevoked, setFormRevoked, formRevokedReason, setFormRevokedReason,
-    formDisableAliases, setFormDisableAliases,
-    openCreate, openEdit, submitEditor,
-    deleteTarget, setDeleteTarget, deleteBusy, askDelete, confirmDelete,
+    list,
+    pageActiveCount,
+    pageRevokedCount,
+    search,
+    setSearch: (v: string) => setField("q", v),
+    activeFilter,
+    setActiveFilter: (v: BoolFilter) => patch({ active: v, offset: "0" }),
+    typeFilter,
+    setTypeFilter: (v: "all" | BanType) => patch({ type: v, offset: "0" }),
+    hasActiveFilters,
+    clearFilters: reset,
+    refresh: () => void load(offset, limit),
+    setPageOffset: (v: number) => setField("offset", String(Math.max(0, v))),
+    setPageSize: (v: number) => patch({ limit: String(v), offset: "0" }),
+    editorOpen,
+    setEditorOpen,
+    editorBusy,
+    formId,
+    formType,
+    setFormType,
+    formValue,
+    setFormValue,
+    formReason,
+    setFormReason,
+    formExpiresAt,
+    setFormExpiresAt,
+    formRevoked,
+    setFormRevoked,
+    formRevokedReason,
+    setFormRevokedReason,
+    formDisableAliases,
+    setFormDisableAliases,
+    openCreate,
+    openEdit,
+    submitEditor,
+    deleteTarget,
+    setDeleteTarget,
+    deleteBusy,
+    askDelete,
+    confirmDelete,
   };
 }

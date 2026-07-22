@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Globe2,
   KeyRound,
+  LayoutDashboard,
   LockKeyhole,
   Mail,
   Radar,
@@ -36,7 +37,10 @@ const adminItems = [
   { name: "API Tokens", url: "/dashboard/admin/api-tokens", icon: KeyRound },
   { name: "Users", url: "/dashboard/admin/users", icon: Users },
   { name: "DNS Requests", url: "/dashboard/admin/dns-requests", icon: Radar },
-  { name: "My Password", url: "/dashboard/admin/password", icon: LockKeyhole },
+]
+
+const accountItems = [
+  { name: "Password", url: "/dashboard/admin/password", icon: LockKeyhole },
 ]
 
 /* ────────────────────────────────────────────────────────────
@@ -133,6 +137,42 @@ function NavSection({
   )
 }
 
+function NavGroup({
+  items,
+  pathname,
+}: {
+  items: { name: string; url: string; icon: React.ComponentType<{ className?: string }> }[]
+  pathname: string | null
+}) {
+  return (
+    <div
+      className="rounded-2xl p-1.5"
+      style={{
+        background: "var(--neu-surface-lo)",
+        border: "1px solid rgba(255, 255, 255, 0.03)",
+        boxShadow: "var(--neu-shadow-in)",
+      }}
+    >
+      <nav className="flex flex-col gap-0.5">
+        {items.map((item) => {
+          const isActive =
+            pathname === item.url ||
+            (pathname?.startsWith(item.url + "/") ?? false)
+          return (
+            <NavItem
+              key={item.name}
+              href={item.url}
+              icon={item.icon}
+              label={item.name}
+              isActive={isActive}
+            />
+          )
+        })}
+      </nav>
+    </div>
+  )
+}
+
 /* ────────────────────────────────────────────────────────────
    Sidebar
    ──────────────────────────────────────────────────────────── */
@@ -149,6 +189,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   function handleNav() {
     if (isMobile) setOpenMobile(false)
   }
+
+  const isOverviewActive = pathname === "/dashboard"
 
   return (
     <Sidebar
@@ -184,7 +226,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {hostLabel}
             </p>
             <p className="text-[11px] leading-4 text-[var(--text-muted)]">
-              Admin Panel
+              {user?.is_admin ? "Admin Panel" : "Dashboard"}
             </p>
           </div>
         </Link>
@@ -194,39 +236,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
          Content
          ══════════════════════════════════════════════════════ */}
       <SidebarContent className="p-4 pt-5">
-        {/* ── Administration section (admin only) ── */}
-        {user?.is_admin && (
-          <>
-            <NavSection label="Administration">
-              <div
-                className="rounded-2xl p-1.5"
-                style={{
-                  background: "var(--neu-surface-lo)",
-                  border: "1px solid rgba(255, 255, 255, 0.03)",
-                  boxShadow: "var(--neu-shadow-in)",
-                }}
-              >
-                <nav className="flex flex-col gap-0.5" onClick={handleNav}>
-                  {adminItems.map((item) => {
-                    const isActive =
-                      pathname === item.url ||
-                      (pathname?.startsWith(item.url + "/") ?? false)
-                    return (
-                      <NavItem
-                        key={item.name}
-                        href={item.url}
-                        icon={item.icon}
-                        label={item.name}
-                        isActive={isActive}
-                      />
-                    )
-                  })}
-                </nav>
-              </div>
-            </NavSection>
-          </>
-        )}
+        <div className="flex flex-col gap-5" onClick={handleNav}>
+          {/* ── Overview (top-level) ── */}
+          <div
+            className="rounded-2xl p-1.5"
+            style={{
+              background: "var(--neu-surface-lo)",
+              border: "1px solid rgba(255, 255, 255, 0.03)",
+              boxShadow: "var(--neu-shadow-in)",
+            }}
+          >
+            <nav className="flex flex-col gap-0.5">
+              <NavItem
+                href="/dashboard"
+                icon={LayoutDashboard}
+                label="Overview"
+                isActive={isOverviewActive}
+              />
+            </nav>
+          </div>
 
+          {/* ── Administration section (admin only) ── */}
+          {user?.is_admin && (
+            <NavSection label="Administration">
+              <NavGroup items={adminItems} pathname={pathname} />
+            </NavSection>
+          )}
+
+          {/* ── Account section ── */}
+          <NavSection label="Account">
+            <NavGroup items={accountItems} pathname={pathname} />
+          </NavSection>
+        </div>
       </SidebarContent>
     </Sidebar>
   )

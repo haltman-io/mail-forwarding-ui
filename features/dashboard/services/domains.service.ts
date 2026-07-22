@@ -160,7 +160,13 @@ export function describeError(
 /* ── domain CRUD ── */
 
 export async function fetchDomains(
-  params: { limit: number; offset: number; active?: BoolFilter; visible?: BoolFilter },
+  params: {
+    limit: number;
+    offset: number;
+    active?: BoolFilter;
+    visible?: BoolFilter;
+    name?: string;
+  },
 ) {
   const qs = new URLSearchParams({
     limit: String(params.limit),
@@ -168,6 +174,7 @@ export async function fetchDomains(
   });
   if (params.active && params.active !== "all") qs.set("active", params.active);
   if (params.visible && params.visible !== "all") qs.set("visible", params.visible);
+  if (params.name) qs.set("name", params.name);
 
   return adminRequest<ListResponse<AdminDomain>>({
     path: `/api/admin/domains?${qs.toString()}`,
