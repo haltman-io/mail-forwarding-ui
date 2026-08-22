@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CircleHelp, Scale, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, BookOpen, Scale, ShieldAlert, ShieldCheck, Skull, Trophy } from "lucide-react";
 
 import {
   NavGroupMenu,
@@ -9,6 +9,7 @@ import {
   navMenuItemIconClassName,
 } from "@/components/nav-group-menu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DOCUMENTATION_URL } from "@/lib/site-links";
 
 type LegalMenuProps = {
   triggerClassName?: string;
@@ -34,9 +35,10 @@ export function LegalMenu({
       onOpenChange={onOpenChange}
     >
       <DropdownMenuItem asChild className={navMenuItemClassName}>
-        <Link href="/faq">
-          <CircleHelp className={navMenuItemIconClassName} />
-          FAQ
+        <Link href={DOCUMENTATION_URL} target="_blank" rel="noreferrer">
+          <BookOpen className={navMenuItemIconClassName} />
+          Docs
+          <ArrowUpRight className="ml-auto h-3.5 w-3.5 shrink-0 text-[var(--text-muted)] opacity-60" />
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem asChild className={navMenuItemClassName}>
@@ -48,9 +50,23 @@ export function LegalMenu({
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href="/abuse">
           <ShieldAlert className={navMenuItemIconClassName} />
-          Abuse
+          Anti-Abuse
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild className={navMenuItemClassName}>
+        <Link href="/security">
+          <Skull className={navMenuItemIconClassName} />
+          Security
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild className={navMenuItemClassName}>
+        <Link href="/hall-of-fame">
+          <Trophy className={navMenuItemIconClassName} />
+          Hall of Fame
         </Link>
       </DropdownMenuItem>
     </NavGroupMenu>
   );
 }
+
+

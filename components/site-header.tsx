@@ -3,12 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  Github,
-  Info,
-  ExternalLink,
   BookOpen,
   Menu,
-  Zap,
   ShieldCheck,
   ShieldAlert,
   Trophy,
@@ -20,12 +16,13 @@ import {
   Skull,
   Terminal,
   Settings,
-  User
+  User,
+  Plus,
+  Scale,
 } from "lucide-react";
-import { ConsoleMenu } from "@/components/console-menu";
+import { CreateMenu } from "@/components/create-menu";
 import { SetupMenu } from "@/components/setup-menu";
-import { ApiMenu } from "@/components/api-menu";
-import { DocsMenu } from "@/components/docs-menu";
+import { LegalMenu } from "@/components/legal-menu";
 import { ApiTokenDialog } from "@/components/api-token-dialog";
 import { DnsSetupMenu } from "@/components/dns-setup-menu";
 import {
@@ -42,33 +39,18 @@ import {
 } from "@/components/mobile-nav-section";
 
 
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   CHROME_EXTENSION_URL,
   FIREFOX_EXTENSION_URL,
 } from "@/lib/browser-addon-links";
 import {
-  API_REFERENCE_URL,
   DOCUMENTATION_URL,
-  SOURCE_CODE_URL,
 } from "@/lib/site-links";
-
-const clickableIconClass =
-  "opacity-70 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none";
-const newBadgeClassName =
-  "ml-0.5 rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase";
 
 type ApiStatus = "idle" | "connected" | "error";
 
@@ -78,7 +60,6 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   const [host, setHost] = React.useState("");
-  const [aboutOpen, setAboutOpen] = React.useState(false);
   const [isMobileViewport, setIsMobileViewport] = React.useState<boolean | null>(null);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -90,7 +71,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
 
   React.useEffect(() => {
     const syncViewport = () => {
-      setIsMobileViewport(window.innerWidth < 768);
+      setIsMobileViewport(window.innerWidth < 1024);
     };
 
     syncViewport();
@@ -153,30 +134,31 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ${isScrolled ? "pt-3 md:pt-4" : "pt-4 md:pt-6"
+        className={`fixed top-0 left-0 right-0 z-50 pointer-events-none transition-all duration-500 ${isScrolled ? "pt-3 lg:pt-4" : "pt-4 lg:pt-6"
           }`}
       >
         <div
-          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 md:grid-cols-[1fr_auto_1fr] md:px-6 rounded-2xl transition-all duration-500 ${isScrolled
+          className={`pointer-events-auto mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto] items-center px-4 lg:grid-cols-[1fr_auto_1fr] lg:px-6 rounded-2xl transition-all duration-500 ${isScrolled
               ? "bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-[24px] backdrop-saturate-[1.3] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.04)] py-2"
               : "bg-transparent border border-transparent py-0"
             }`}
           role="banner"
         >
           {/* ── LEFT: Host identity ── */}
-          <div className="flex min-w-0 max-w-[200px] items-center justify-self-start">
+          <div className="flex min-w-0 max-w-[150px] sm:max-w-[180px] lg:max-w-[220px] items-center justify-self-start">
             <Link
               href="/"
               className="group inline-flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-200 hover:bg-[var(--hover-state)]"
               aria-label="Home"
+              title={hostLabel}
             >
               <span
                 aria-hidden="true"
                 className="inline-flex h-5 w-5 shrink-0 items-center justify-center"
               >
-                <HatGlasses className="h-[18px] w-[18px] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100 md:h-5 md:w-5" />
+                <HatGlasses className="h-[18px] w-[18px] text-[var(--neu-green)] opacity-80 transition-opacity duration-200 group-hover:opacity-100 lg:h-5 lg:w-5" />
               </span>
-              <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] md:text-sm">
+              <span className="truncate font-mono text-[13px] font-semibold tracking-tight text-[var(--text-primary)] lg:text-sm">
                 {hostLabel}
               </span>
             </Link>
@@ -185,20 +167,20 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           {/* ── CENTER: Navigation ── */}
           <nav
             aria-label="Primary"
-            className="flex shrink-0 items-center justify-self-end md:justify-self-center"
+            className="flex shrink-0 items-center justify-self-end lg:justify-self-center"
           >
-            <div className="flex items-center gap-0.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-1.5 py-1 backdrop-blur-[24px] backdrop-saturate-[1.3]"
+            <div className="flex items-center gap-0.5 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-1.5 py-1 backdrop-blur-[24px] backdrop-saturate-[1.3]"
               style={{
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px -4px rgba(0,0,0,0.20)',
               }}
             >
               {isMobileViewport === false ? (
                 <>
-                  <ConsoleMenu
+                  <CreateMenu
                     triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "console"}
-                    onOpenChange={handleDesktopMenuOpenChange("console")}
+                    open={openDesktopMenu === "create"}
+                    onOpenChange={handleDesktopMenuOpenChange("create")}
                   />
                   <SetupMenu
                     triggerClassName={navItemClass}
@@ -206,38 +188,26 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     open={openDesktopMenu === "setup"}
                     onOpenChange={handleDesktopMenuOpenChange("setup")}
                   />
-                  <ApiMenu
+                  <ApiTokenDialog
                     onApiStatusChange={onApiStatusChange}
+                    triggerLabel="API"
                     triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "api"}
-                    onOpenChange={handleDesktopMenuOpenChange("api")}
                   />
-                  <DocsMenu
-                    onAboutSelect={() => {
-                      setOpenDesktopMenu(null);
-                      setAboutOpen(true);
-                    }}
+                  <Link href="/faq" className={navItemClass}>
+                    <CircleHelp className="h-4 w-4 text-[var(--text-secondary)]" />
+                    FAQ
+                  </Link>
+                  <LegalMenu
                     triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
-                    open={openDesktopMenu === "docs"}
-                    onOpenChange={handleDesktopMenuOpenChange("docs")}
+                    open={openDesktopMenu === "legal"}
+                    onOpenChange={handleDesktopMenuOpenChange("legal")}
                   />
-                  <Link href="/security" className={navItemClass}>
-                    <ShieldCheck className="h-4 w-4 text-[var(--text-secondary)]" />
-                    VDP
-                  </Link>
-                  <Link href="/hall-of-fame" className={navItemClass}>
-                    <Trophy className="h-4 w-4 text-[var(--text-secondary)]" />
-                    HoF
-                    <span className={newBadgeClassName}>
-                      New
-                    </span>
-                  </Link>
                 </>
               ) : null}
 
-              <div className="md:hidden">
+              <div className="lg:hidden">
                 <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <button
@@ -256,16 +226,16 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     className="max-h-[80vh] w-[min(92vw,320px)] overflow-y-auto p-2"
                   >
                     <div className="space-y-0.5">
-                      {/* ── L1: Console (expandable) ── */}
-                      <MobileNavSection label="Console">
+                      {/* ── L1: Create (expandable) ── */}
+                      <MobileNavSection label="Create" icon={<Plus className={mobileNavL2IconClassName} />}>
                         <Link href="/console" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
                           <Terminal className={mobileNavL2IconClassName} />
-                          Alias
+                          New Alias
                           <MobileNavLinkIndicator />
                         </Link>
                         <Link href="/handle" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
                           <Fingerprint className={mobileNavL2IconClassName} />
-                          Handle
+                          New Handle
                           <MobileNavLinkIndicator />
                         </Link>
                       </MobileNavSection>
@@ -273,8 +243,9 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                       <MobileNavSeparator />
 
                       {/* ── L1: Setup (expandable) ── */}
-                      <MobileNavSection label="Setup">
+                      <MobileNavSection label="Setup" icon={<Settings className={mobileNavL2IconClassName} />}>
                         <DnsSetupMenu
+                          triggerLabel="Add your domain"
                           triggerClassName={mobileNavL2ClassName}
                           triggerIconClassName={mobileNavL2IconClassName}
                         />
@@ -310,31 +281,27 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
 
                       <MobileNavSeparator />
 
-                      {/* ── L1: API (expandable) ── */}
-                      <MobileNavSection label="API">
-                        <ApiTokenDialog
-                          onApiStatusChange={onApiStatusChange}
-                          triggerLabel="API Keys"
-                          triggerClassName={mobileNavL2ClassName}
-                          triggerIconClassName={mobileNavL2IconClassName}
-                        />
-                        <Link
-                          href={API_REFERENCE_URL}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={mobileNavL2ClassName}
-                          onClick={closeMobileMenu}
-                        >
-                          <Zap className={mobileNavL2IconClassName} />
-                          API Reference
-                          <MobileNavExternalIndicator />
-                        </Link>
-                      </MobileNavSection>
+                      {/* ── L1: API ── */}
+                      <ApiTokenDialog
+                        onApiStatusChange={onApiStatusChange}
+                        triggerLabel="API"
+                        triggerClassName={mobileNavItemClassName}
+                        triggerIconClassName={mobileNavItemIconClassName}
+                      />
 
                       <MobileNavSeparator />
 
-                      {/* ── L1: Docs (expandable) ── */}
-                      <MobileNavSection label="Docs">
+                      {/* ── L1: FAQ ── */}
+                      <Link href="/faq" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                        <CircleHelp className={mobileNavItemIconClassName} />
+                        FAQ
+                        <MobileNavLinkIndicator />
+                      </Link>
+
+                      <MobileNavSeparator />
+
+                      {/* ── L1: Legal (expandable) ── */}
+                      <MobileNavSection label="Legal" icon={<Scale className={mobileNavL2IconClassName} />}>
                         <Link
                           href={DOCUMENTATION_URL}
                           target="_blank"
@@ -343,36 +310,8 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           onClick={closeMobileMenu}
                         >
                           <BookOpen className={mobileNavL2IconClassName} />
-                          Documentation
+                          Docs
                           <MobileNavExternalIndicator />
-                        </Link>
-                        <Link
-                          href={SOURCE_CODE_URL}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={mobileNavL2ClassName}
-                          onClick={closeMobileMenu}
-                        >
-                          <Github className={mobileNavL2IconClassName} />
-                          Source Code
-                          <MobileNavExternalIndicator />
-                        </Link>
-                        <button
-                          type="button"
-                          className={mobileNavL2ClassName}
-                          onClick={() => {
-                            closeMobileMenu();
-                            setAboutOpen(true);
-                          }}
-                        >
-                          <Info className={mobileNavL2IconClassName} />
-                          About
-                          <MobileNavLinkIndicator />
-                        </button>
-                        <Link href="/faq" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
-                          <CircleHelp className={mobileNavL2IconClassName} />
-                          FAQ
-                          <MobileNavLinkIndicator />
                         </Link>
                         <Link href="/privacy" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
                           <ShieldCheck className={mobileNavL2IconClassName} />
@@ -381,7 +320,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                         </Link>
                         <Link href="/abuse" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
                           <ShieldAlert className={mobileNavL2IconClassName} />
-                          Abuse
+                          Anti-Abuse
                           <MobileNavLinkIndicator />
                         </Link>
                         <Link href="/security" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
@@ -389,17 +328,12 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                           Security
                           <MobileNavLinkIndicator />
                         </Link>
+                        <Link href="/hall-of-fame" className={mobileNavL2ClassName} onClick={closeMobileMenu}>
+                          <Trophy className={mobileNavL2IconClassName} />
+                          Hall of Fame
+                          <MobileNavLinkIndicator />
+                        </Link>
                       </MobileNavSection>
-
-                      <MobileNavSeparator />
-
-                      <Link href="/hall-of-fame" className={mobileNavItemClassName} onClick={closeMobileMenu}>
-                        <Trophy className={mobileNavItemIconClassName} />
-                        HoF
-                        <span className="ml-auto rounded bg-[rgb(var(--alias-accent-rgb)_/_0.15)] px-1.5 py-0.5 text-[9px] font-bold leading-none tracking-wide text-[var(--neu-green)] uppercase">
-                          New
-                        </span>
-                      </Link>
 
                       <MobileNavSeparator />
 
@@ -419,7 +353,7 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           </nav>
 
           {/* ── RIGHT: Actions ── */}
-          <div className="hidden min-w-0 shrink-0 items-center justify-self-end gap-2 md:flex">
+          <div className="hidden min-w-0 shrink-0 items-center justify-self-end gap-2 lg:flex">
             {isMobileViewport === false && isAllowedHost ? (
               <>
                 <Link href="/dashboard" className={actionBtnClass}>
@@ -431,47 +365,6 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
           </div>
         </div>
       </header>
-
-      <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
-        <DialogContent className="w-[min(94vw,460px)] p-4 sm:p-5">
-          <DialogHeader>
-            <DialogTitle>ABOUT THIS</DialogTitle>
-            <DialogDescription>FREE EMAIL FORWARDING SERVICE :)</DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3">
-            <p className="text-xs text-[var(--text-secondary)]">NO TRACKING. NO BLOAT.</p>
-
-            <Separator className="bg-[color:var(--hairline-border)]" />
-
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--text-muted)]">REFERENCE</p>
-              <Link
-                href="https://www.thc.org/mail/"
-                target="_blank"
-                rel="noreferrer"
-                className="group inline-flex items-center gap-2 text-xs text-[var(--text-secondary)] underline underline-offset-4 hover:text-[var(--text-primary)]"
-              >
-                https://www.thc.org/mail/
-                <ExternalLink className={`h-3.5 w-3.5 text-[var(--text-muted)] ${clickableIconClass}`} />
-              </Link>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--text-muted)]">ORIGINAL CONCEPT: Lou-Cipher (2022)</p>
-              <Link
-                href="https://github.com/Lou-Cipher"
-                target="_blank"
-                rel="noreferrer"
-                className="group inline-flex items-center gap-2 text-xs text-[var(--text-secondary)] underline underline-offset-4 hover:text-[var(--text-primary)]"
-              >
-                https://github.com/Lou-Cipher
-                <ExternalLink className={`h-3.5 w-3.5 text-[var(--text-muted)] ${clickableIconClass}`} />
-              </Link>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fingerprint, Mail, Terminal } from "lucide-react";
+import { Fingerprint, Mail, Plus } from "lucide-react";
 
 import {
   NavGroupMenu,
@@ -10,23 +10,23 @@ import {
 } from "@/components/nav-group-menu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
-type ConsoleMenuProps = {
+type CreateMenuProps = {
   triggerClassName?: string;
   triggerIconClassName?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
-export function ConsoleMenu({
+export function CreateMenu({
   triggerClassName,
   triggerIconClassName,
   open,
   onOpenChange,
-}: ConsoleMenuProps) {
+}: CreateMenuProps = {}) {
   return (
     <NavGroupMenu
-      label="Console"
-      icon={Terminal}
+      label="Create"
+      icon={Plus}
       triggerClassName={triggerClassName}
       triggerIconClassName={triggerIconClassName}
       open={open}
@@ -35,15 +35,18 @@ export function ConsoleMenu({
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href="/console">
           <Mail className={navMenuItemIconClassName} />
-          Alias
+          New Alias
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem asChild className={navMenuItemClassName}>
         <Link href="/handle">
           <Fingerprint className={navMenuItemIconClassName} />
-          Handle
+          New Handle
         </Link>
       </DropdownMenuItem>
     </NavGroupMenu>
   );
 }
+
+export const ConsoleMenu = CreateMenu;
+

@@ -33,6 +33,7 @@ export function SetupMenu({
       onOpenChange={onOpenChange}
     >
       <DnsSetupMenu
+        triggerLabel="Add your domain"
         triggerClassName={navMenuDialogTriggerClassName}
         triggerIconClassName={navMenuDialogIconClassName}
       />

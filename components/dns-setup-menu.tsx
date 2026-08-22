@@ -542,11 +542,13 @@ function DnsValidationDialog({
 }
 
 type DnsSetupMenuProps = {
+  triggerLabel?: string;
   triggerClassName?: string;
   triggerIconClassName?: string;
 };
 
 export function DnsSetupMenu({
+  triggerLabel = "Add Domain",
   triggerClassName,
   triggerIconClassName,
 }: DnsSetupMenuProps = {}) {
@@ -561,12 +563,12 @@ export function DnsSetupMenu({
           "group relative inline-flex items-center gap-2 overflow-visible rounded-lg text-sm font-medium",
           triggerClassName ?? "h-8 justify-center px-2.5 border border-[var(--hairline-border)] bg-[var(--hover-state)] text-[var(--text-primary)] hover:bg-[var(--hover-state)]"
         )}
-        aria-label="Add domain"
-        title="Add domain"
+        aria-label={triggerLabel}
+        title={triggerLabel}
         onClick={() => setDialogOpen(true)}
       >
         <AtSign className={cn(`h-4 w-4 ${clickableIconClass}`, triggerIconClassName ?? "text-[var(--text-secondary)]")} />
-        Add Domain
+        {triggerLabel}
       </button>
 
       <DnsValidationDialog

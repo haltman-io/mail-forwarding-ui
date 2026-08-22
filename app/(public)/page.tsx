@@ -1,4 +1,5 @@
 "use client";
+"use client";
 
 import * as React from "react";
 import { SiteHeader } from "@/components/site-header";
@@ -9,14 +10,14 @@ export default function Page() {
   const stats = useStats();
 
   return (
-    <>
+    <div className="relative flex min-h-[100dvh] flex-col justify-center">
       <SiteHeader />
 
-      <main className="relative mx-auto max-w-[960px] px-4 pt-24 pb-20 sm:px-6 sm:pt-36 sm:pb-24">
-        <section className="mx-auto max-w-[840px] space-y-6 sm:space-y-8">
+      <main className="relative mx-auto flex w-full max-w-[960px] flex-1 flex-col justify-center px-4 pt-20 pb-12 sm:px-6 sm:pt-24 sm:pb-16">
+        <section className="mx-auto w-full max-w-[840px]">
           <HeroSection stats={stats} />
         </section>
       </main>
-    </>
+    </div>
   );
 }

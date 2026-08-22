@@ -47,17 +47,17 @@ export function HeroSection({ stats }: HeroSectionProps) {
         </h1>
 
         <p className="mx-auto max-w-[540px] text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-base">
-          A free email forwarding server.&nbsp;
-          <br className="hidden sm:block" />
-          No corporate bullshit. No VC money. No data harvesting.
-          <br className="hidden sm:block" />
-          <span className="hidden sm:inline">Just aliases.</span>
+          A free email forwarding server.
+          <span className="hidden sm:inline">
+            <br />
+            No corporate bullshit. No VC money. No data harvesting.
+          </span>
         </p>
 
       </div>
 
       {/* ── Trust signals ── */}
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+      <div className="hidden flex-wrap items-center justify-center gap-2 sm:flex sm:gap-3">
         {TRUST_SIGNALS.map(({ icon: Icon, label }) => (
           <div
             key={label}
@@ -73,7 +73,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
       {/* ── Stats row ── */}
       {stats && (
-        <div className="mx-auto grid max-w-[520px] grid-cols-3 gap-3 sm:gap-4">
+        <div className="mx-auto hidden max-w-[520px] grid-cols-3 gap-3 sm:grid sm:gap-4">
           <div className="hero-stat-card group relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 text-center backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
             <div className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06]" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgb(var(--alias-accent-rgb) / 1), transparent)" }} />
             <div className="relative">
@@ -121,7 +121,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
         </div>
       )}
       {!stats && (
-        <div className="mx-auto grid max-w-[520px] grid-cols-3 gap-3 sm:gap-4">
+        <div className="mx-auto hidden max-w-[520px] grid-cols-3 gap-3 sm:grid sm:gap-4">
           <div className="hero-stat-card relative overflow-hidden rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3.5 backdrop-blur-[var(--glass-blur)] backdrop-saturate-[1.3]">
             <div className="relative flex flex-col items-center">
               <Skeleton className="mb-1 h-4 w-4 rounded-sm bg-[var(--surface-pressed)]/80" />
