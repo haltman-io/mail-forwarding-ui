@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   AtSign,
   Ban,
+  Gauge,
   Globe2,
   KeyRound,
   LayoutDashboard,
@@ -12,6 +13,7 @@ import {
   Mail,
   Radar,
   RefreshCw,
+  Send,
   Users,
 } from "lucide-react";
 
@@ -27,11 +29,13 @@ import { fetchUsers } from "@/features/dashboard/services/users.service";
 import { fetchBans } from "@/features/dashboard/services/bans.service";
 import { fetchApiTokens } from "@/features/dashboard/services/api-tokens.service";
 import { fetchDnsRequests } from "@/features/dashboard/services/dns-requests.service";
+import { fetchSmtpCredentials } from "@/features/dashboard/services/smtp-credentials.service";
 
 type MetricKey =
   | "domains"
   | "aliases"
   | "handles"
+  | "smtp"
   | "users"
   | "bans"
   | "tokens"
@@ -50,6 +54,7 @@ const INITIAL_TOTALS: TotalsState = {
   domains: { ...EMPTY_METRIC },
   aliases: { ...EMPTY_METRIC },
   handles: { ...EMPTY_METRIC },
+  smtp: { ...EMPTY_METRIC },
   users: { ...EMPTY_METRIC },
   bans: { ...EMPTY_METRIC },
   tokens: { ...EMPTY_METRIC },
@@ -79,6 +84,12 @@ const METRIC_DEFS: {
     label: "Handles",
     href: "/dashboard/admin/handles",
     icon: Mail,
+  },
+  {
+    key: "smtp",
+    label: "SMTP Submission",
+    href: "/dashboard/admin/smtp-credentials",
+    icon: Send,
   },
   {
     key: "users",
@@ -142,11 +153,12 @@ export function OverviewContent() {
   const loadTotals = React.useCallback(async () => {
     setLoading(true);
     try {
-      const [domains, aliases, handles, users, bans, tokens, dns] =
+      const [domains, aliases, handles, smtp, users, bans, tokens, dns] =
         await Promise.all([
           fetchDomains({ limit: 1, offset: 0 }),
           fetchAliases({ limit: 1, offset: 0 }),
           fetchHandles({ limit: 1, offset: 0 }),
+          fetchSmtpCredentials({ limit: 1, offset: 0 }),
           fetchUsers({ limit: 1, offset: 0 }),
           fetchBans({ limit: 1, offset: 0 }),
           fetchApiTokens({ limit: 1, offset: 0 }),
@@ -157,6 +169,7 @@ export function OverviewContent() {
         domains: extractTotal(domains),
         aliases: extractTotal(aliases),
         handles: extractTotal(handles),
+        smtp: extractTotal(smtp),
         users: extractTotal(users),
         bans: extractTotal(bans),
         tokens: extractTotal(tokens),
@@ -168,6 +181,7 @@ export function OverviewContent() {
         domains: { total: null, error: "Failed to load" },
         aliases: { total: null, error: "Failed to load" },
         handles: { total: null, error: "Failed to load" },
+        smtp: { total: null, error: "Failed to load" },
         users: { total: null, error: "Failed to load" },
         bans: { total: null, error: "Failed to load" },
         tokens: { total: null, error: "Failed to load" },
@@ -256,6 +270,24 @@ export function OverviewContent() {
                 </Link>
               );
             })}
+
+            <Link href="/dashboard/admin/rate-limits" className="group block">
+              <AdminDataCard className="p-4 transition-colors group-hover:border-[rgba(48,209,88,0.2)]">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(48,209,88,0.18)] bg-[rgba(48,209,88,0.08)]">
+                    <Gauge className="h-4 w-4 text-[var(--neu-green)]" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-medium text-[var(--text-primary)] group-hover:text-[var(--neu-green)]">
+                      Rate Limits
+                    </p>
+                    <p className="text-[11px] text-[var(--text-muted)]">
+                      Multi-vector reset & inspection
+                    </p>
+                  </div>
+                </div>
+              </AdminDataCard>
+            </Link>
           </div>
         </div>
 

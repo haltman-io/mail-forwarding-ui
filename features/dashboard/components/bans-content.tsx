@@ -1,10 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Ban,
   Copy,
+  Gauge,
   Loader2,
   Pencil,
   Plus,
@@ -63,6 +66,7 @@ const BAN_TYPE_LABELS: Record<string, string> = {
 };
 
 export function BansContent() {
+  const router = useRouter();
   const c = useBansController();
 
   const columns = React.useMemo<ColumnDef<AdminBan>[]>(
@@ -133,6 +137,15 @@ export function BansContent() {
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => {
           const item = row.original;
+          const targetType =
+            item.ban_type === "name"
+              ? "handle"
+              : item.ban_type === "domain" ||
+                  item.ban_type === "email" ||
+                  item.ban_type === "ip"
+                ? item.ban_type
+                : "auto";
+
           return (
             <div className="flex justify-end pr-1">
               <AdminRowActions
@@ -145,11 +158,23 @@ export function BansContent() {
                     onSelect: () => copyText(item.ban_value, "Value copied"),
                   },
                   {
+                    key: "rate-limit",
+                    label: "Check rate limits",
+                    icon: <Gauge className="mr-2 h-4 w-4" />,
+                    onSelect: () => {
+                      const qs = new URLSearchParams({
+                        target: item.ban_value,
+                        type: targetType,
+                      });
+                      router.push(`/dashboard/admin/rate-limits?${qs.toString()}`);
+                    },
+                    separatorBefore: true,
+                  },
+                  {
                     key: "edit",
                     label: "Edit",
                     icon: <Pencil className="mr-2 h-4 w-4" />,
                     onSelect: () => c.openEdit(item),
-                    separatorBefore: true,
                   },
                   {
                     key: "delete",
@@ -167,7 +192,7 @@ export function BansContent() {
         size: 56,
       },
     ],
-    [c],
+    [c, router],
   );
 
   return (
@@ -178,10 +203,23 @@ export function BansContent() {
           title="Bans"
           description="Block emails, domains, IPs, or names from using the service."
           actions={
-            <Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}>
-              <Plus className="h-3.5 w-3.5" />
-              Add Ban
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5"
+              >
+                <Link href="/dashboard/admin/rate-limits">
+                  <Gauge className="h-3.5 w-3.5 text-[var(--neu-green)]" />
+                  Rate Limits
+                </Link>
+              </Button>
+              <Button size="sm" className="h-8 gap-1.5" onClick={c.openCreate}>
+                <Plus className="h-3.5 w-3.5" />
+                Add Ban
+              </Button>
+            </div>
           }
         />
 

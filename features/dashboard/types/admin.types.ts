@@ -133,3 +133,87 @@ export type PasswordChangeResponse = {
   sessions_revoked?: number;
   error?: string;
 };
+
+/* ── Rate Limit types ── */
+
+export type RateLimitTargetType = "auto" | "ip" | "email" | "handle" | "domain";
+export type ResolvedRateLimitTargetType = "ip" | "email" | "handle" | "domain";
+
+export type RateLimitKeyState = {
+  key: string;
+  rule: string;
+  count: number | null;
+  ttl_ms: number;
+};
+
+export type RateLimitCheckResponse = {
+  ok: true;
+  target: string;
+  type: RateLimitTargetType;
+  resolved_type: ResolvedRateLimitTargetType;
+  redis_configured: boolean;
+  redis_available: boolean;
+  reason?: "redis_not_configured" | "redis_unavailable";
+  active_keys_count: number;
+  items: RateLimitKeyState[];
+};
+
+export type RateLimitResetResponse = {
+  ok: true;
+  target: string;
+  type: RateLimitTargetType;
+  resolved_type: ResolvedRateLimitTargetType;
+  redis_configured: boolean;
+  redis_available: boolean;
+  reason?: "redis_not_configured" | "redis_unavailable";
+  deleted_keys_count: number;
+  cleared_rules: string[];
+};
+
+/* ── SMTP Submission Credentials types ── */
+
+export type AdminSmtpCredential = {
+  id: number;
+  username: string;
+  active: number | boolean;
+  created_at?: string | null;
+  allowed_senders: string[];
+};
+
+export type SmtpConnectionParams = {
+  host: string;
+  port: number;
+  secure: boolean;
+  username: string;
+  password: string;
+  sender: string;
+};
+
+export type SmtpInviteResponse = {
+  ok: true;
+  created: true;
+  setup_url: string;
+  allowed_sender_constraint: string | null;
+  expires_at: string;
+};
+
+export type SmtpCreateCredentialResponse = {
+  ok: true;
+  created: true;
+  generated_password: boolean;
+  password?: string;
+  item: AdminSmtpCredential;
+};
+
+export type SmtpSetupInfoResponse = {
+  ok: true;
+  valid: true;
+  allowed_sender_constraint: string | null;
+  expires_at: string;
+};
+
+export type SmtpSetupClaimResponse = {
+  ok: true;
+  claimed: true;
+  smtp: SmtpConnectionParams;
+};
