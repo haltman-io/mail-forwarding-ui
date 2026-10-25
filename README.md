@@ -76,7 +76,7 @@ The codebase follows a feature-oriented shape: route shells live in `app/`, shar
 
 To run the project locally, you will need:
 
-- Node.js `20+`
+- Node.js `24` LTS or newer
 - `npm`
 - A reachable mail-forwarding API endpoint
 - Optionally, a fallback list of handled domains for local testing

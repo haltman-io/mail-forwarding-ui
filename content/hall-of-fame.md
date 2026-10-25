@@ -2,15 +2,16 @@
 
 Researchers who reported legitimate vulnerabilities and helped make the service harder to break.
 
-To get listed here see [VDP](/security) page.
+## 2026
 
+### Oct 24, 2026
 ---
 
-# Findings
-> **N/A** marks vulns or bugs we found ourselves. Hall of Fame isn't ego fuel for our own handles. It exists to credit researchers who actually reported shit through responsible disclosure.   
-> **Declined** means the finder opted out of having their nickname or pseudo listed on the VDP. They still did the disclosure the right way.
-
-## 2026
+* **[RESEARCHER]**: sneed  
+* **[STATUS]**: Patched  
+* **[SEVERITY]**: Critical  
+* **[IMPACT]**: Unauthorized interception and hijacking of inbound emails sent to any alias or handle whose external destination local-part was not yet registered as a handle.  
+* **[DESCRIPTION]**: Recursive `virtual_alias_maps` resolution in Postfix's `cleanup(8)` daemon paired with an unscoped `%u` lookup in `mysql-virtual-handles.cf`. After resolving an alias or handle to its external destination, Postfix evaluated the rewritten address against the handle map without verifying that `%d` belonged to an active hosted domain. Claiming the external destination's local-part as a handle let an attacker hijack inbound mail mid-flight and redirect it to boxes they controlled.  
 
 ### Apr 20, 2026
 ---
