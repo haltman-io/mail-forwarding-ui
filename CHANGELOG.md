@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.6.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.5.0...v1.6.0) (2026-10-25)
+
+
+### Features
+
+* enhance DNS setup menu with UI and email request types, improve validation handling ([8d45f91](https://github.com/haltman-io/mail-forwarding-ui/commit/8d45f917801a27e9822a814e1fc10e66f8cee038))
+* enhance domains management with admin and visibility toggles, including UI updates for domain status badges ([7534ddd](https://github.com/haltman-io/mail-forwarding-ui/commit/7534ddd894a0578e90ee675eb2927e80d389d2de))
+* enhance global noise overlay with runtime effects detection and animation control ([9d4f5ad](https://github.com/haltman-io/mail-forwarding-ui/commit/9d4f5aded58f34c5ef5977a993e473be41068df0))
+* implement DNS recheck functionality for domains, including bulk and individual recheck options ([7534ddd](https://github.com/haltman-io/mail-forwarding-ui/commit/7534ddd894a0578e90ee675eb2927e80d389d2de))
+* update Chrome extension link in browser-addon-links ([5c1df87](https://github.com/haltman-io/mail-forwarding-ui/commit/5c1df87e0ee0e38172b088db76fc73144f8db895))
+
+
+### Bug Fixes
+
+* add translate attribute to TextType component in HeroSection ([fc12585](https://github.com/haltman-io/mail-forwarding-ui/commit/fc1258573b50af73d6b320cd0d49d69db367bec9))
+* adjust domain CRUD operations to include visibility status and improve error handling ([7534ddd](https://github.com/haltman-io/mail-forwarding-ui/commit/7534ddd894a0578e90ee675eb2927e80d389d2de))
+* i'm just updating the dependencies. relax :) ([c789286](https://github.com/haltman-io/mail-forwarding-ui/commit/c789286835c04c5af5da16fd5b35d99cc5263985))
+* quick update script bad workflow ([a742c9a](https://github.com/haltman-io/mail-forwarding-ui/commit/a742c9a88309598afc08e56442596a26fce487a9))
+* refresh dependencies and highlight latest Hall of Fame report ([ea6c308](https://github.com/haltman-io/mail-forwarding-ui/commit/ea6c30858c8dd71c081b2c12ba32667f053e23bb))
+* update API documentation link to use relative path ([fccea2f](https://github.com/haltman-io/mail-forwarding-ui/commit/fccea2fdc6bc067cfa028b24451846aed6012772))
+
 ## [1.5.0](https://github.com/haltman-io/mail-forwarding-ui/compare/v1.4.0...v1.5.0) (2026-04-20)
 
 
