@@ -19,6 +19,7 @@ import {
   User,
   Plus,
   Scale,
+  Heart,
 } from "lucide-react";
 import { CreateMenu } from "@/components/create-menu";
 import { SetupMenu } from "@/components/setup-menu";
@@ -198,6 +199,10 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                     <CircleHelp className="h-4 w-4 text-[var(--text-secondary)]" />
                     FAQ
                   </Link>
+                  <Link href="/donate" className={navItemClass}>
+                    <Heart className="h-4 w-4 text-[var(--text-secondary)]" />
+                    Donate
+                  </Link>
                   <LegalMenu
                     triggerClassName={navItemClass}
                     triggerIconClassName={navIconClass}
@@ -295,6 +300,15 @@ export function SiteHeader({ onApiStatusChange }: SiteHeaderProps = {}) {
                       <Link href="/faq" className={mobileNavItemClassName} onClick={closeMobileMenu}>
                         <CircleHelp className={mobileNavItemIconClassName} />
                         FAQ
+                        <MobileNavLinkIndicator />
+                      </Link>
+
+                      <MobileNavSeparator />
+
+                      {/* ── L1: Donate ── */}
+                      <Link href="/donate" className={mobileNavItemClassName} onClick={closeMobileMenu}>
+                        <Heart className="h-4 w-4 text-[var(--neu-green)]" />
+                        Donate
                         <MobileNavLinkIndicator />
                       </Link>
 

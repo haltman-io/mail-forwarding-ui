@@ -6,6 +6,7 @@ import ThemeProvider from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { DebugToolbarLoader } from "@/components/debug-toolbar-loader";
 import { DomainDisclaimer } from "@/components/domain-disclaimer";
+import { FloatingDonateButton } from "@/components/floating-donate-button";
 
 
 const uiSans = Inter({
@@ -54,6 +55,7 @@ export default function RootLayout({
           />
           {DebugToolbarLoader && <DebugToolbarLoader />}
           <DomainDisclaimer />
+          <FloatingDonateButton />
         </ThemeProvider>
       </body>
     </html>

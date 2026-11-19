@@ -92,6 +92,27 @@ const FAQ_ITEMS = [
       </>
     ),
   },
+  {
+    id: "donations-and-smtp",
+    question: "Can I donate or send outbound emails?",
+    answer: (
+      <>
+        <p>
+          Yes. We pay for the domains and mail servers out of pocket. If you’d like to help,
+          we accept Monero, Bitcoin, Lightning, Ethereum, and PIX. Any amount is appreciated.
+        </p>
+        <p>
+          Supporters can also request outbound SMTP access to send mail from their aliases and handles.
+          Access is reviewed individually. Forwarding remains free, unlimited, and available to everyone.
+        </p>
+        <p>
+          <Link href="/donate" className="text-[var(--neu-green)] underline underline-offset-4">
+            Donation methods and SMTP details →
+          </Link>
+        </p>
+      </>
+    ),
+  },
 ] as const;
 
 export default function FaqPage() {

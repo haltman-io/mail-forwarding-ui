@@ -1,0 +1,10 @@
+Cloud isometric illustration by Zafar Ismatullaev / Overflow Design.
+Source: https://www.overflow.design/isometric/?drawing=240-cloud
+Retrieved through the public Overflow MCP endpoint, free tier, two-tone style.
+Recoloured in green to match this project's public theme; glow removed.
+
+Licence: https://www.overflow.design/license/#ai-coding-agents
+The free drawing may be included in this public repository as part of this project.
+Use within the project and client work is permitted. Do not redistribute as a
+standalone asset, shared asset folder, or asset pack. Attribution is appreciated
+but not required. No Pro artwork is included.

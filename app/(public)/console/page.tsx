@@ -4,6 +4,7 @@ import * as React from "react";
 import { SiteHeader } from "@/components/site-header";
 import { StatsCards, StatsCardsSkeleton } from "@/components/stats-cards";
 import { SubscribeCard } from "@/components/subscribe-card";
+import { DonateCallout } from "@/components/donate-callout";
 import { useStats } from "@/hooks/use-stats";
 import { TourProvider, useTour, type Tour } from "@/components/ui/tour";
 
@@ -98,6 +99,7 @@ export default function ConsolePage() {
         <section className="mx-auto max-w-[840px] space-y-6 sm:space-y-8">
           {stats ? <StatsCards stats={stats} /> : <StatsCardsSkeleton />}
           <SubscribeCard apiStatus={apiStatus} onApiStatusChange={setApiStatus} />
+          <DonateCallout variant="compact" />
         </section>
       </main>
     </TourProvider>
